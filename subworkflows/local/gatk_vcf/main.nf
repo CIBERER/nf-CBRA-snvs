@@ -16,10 +16,10 @@ workflow GATK_VCF {
 
     take:
     ch_bam        // channel (mandatory): [ val(meta), path(bam), path(bai) ]
+    ch_intervals    // channel (mandatory) : [ val(meta), path(bed) ]
     ch_fasta        // channel (mandatory) : [ val(meta2), path(fasta) ]
     ch_fai          // channel (mandatory) : [ val(meta2), path(fai) ]
     ch_refdict      // channel (mandatory) : [ val(meta2), path(dict) ]
-    ch_intervals    // channel (mandatory) : [ val(meta), path(bed) ]
     ch_dbsnp  // channel (mandatory) : [ val(meta3), path(vcf) ]
     ch_dbsnp_tbi  // channel (mandatory) : [ val(meta3), path(vcf) ]
 

@@ -137,10 +137,10 @@ workflow SNVS {
 
     GATK_VCF (
         MAPPING.out.bam,
+        ch_intervals,
         ch_fasta,
         ch_fai,
         ch_refdict,
-        ch_intervals,
         Channel.fromList([tuple([ id: 'dbsnp'],[])]),
         Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
     )
