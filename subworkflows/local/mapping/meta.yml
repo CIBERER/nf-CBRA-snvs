@@ -29,6 +29,9 @@ input:
         The input channel containing the FastQ files
         Structure: [ val(meta), [ path(reads) ] ]
       pattern: "*.{fastq/fastq.gz}"
+  - ch_intervals:
+      type: file
+      description: Bed file with the genomic regions included in the library (optional)
 - - meta2:
       type: map
       description: |
@@ -55,9 +58,6 @@ input:
       type: file
       description: GATK sequence dictionary
       pattern: "*.dict"  
-  - ch_intervals:
-      type: file
-      description: Bed file with the genomic regions included in the library (optional)
 - - meta4:
       type: map
       description: |
