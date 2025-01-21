@@ -126,11 +126,11 @@ workflow SNVS {
 
     MAPPING (
         INPUT_CHECK.out.reads,
+        ch_intervals,
         ch_index,
         ch_fasta,
         ch_fai,
         ch_refdict,
-        ch_intervals,
         ch_known_sites,
         ch_known_sites_tbi
     )

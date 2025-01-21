@@ -7,8 +7,8 @@
                         {
                             "id": "test_sample"
                         },
-                        "test_sample.bam:md5,23afbb8349bdafa4f6216913ae20714a",
-                        "test_sample.bam.bai:md5,319dc3f628ca5e0617189c52ece9bfcc"
+                        "test_sample.bam:md5,12aae9e98e98d64cd15b281bf7299b11",
+                        "test_sample.bam.bai:md5,d1ac399f816f752488396af2ac7054a7"
                     ]
                 ],
                 "1": [
@@ -25,8 +25,8 @@
                         {
                             "id": "test_sample"
                         },
-                        "test_sample.bam:md5,23afbb8349bdafa4f6216913ae20714a",
-                        "test_sample.bam.bai:md5,319dc3f628ca5e0617189c52ece9bfcc"
+                        "test_sample.bam:md5,12aae9e98e98d64cd15b281bf7299b11",
+                        "test_sample.bam.bai:md5,d1ac399f816f752488396af2ac7054a7"
                     ]
                 ],
                 "versions": [
@@ -44,7 +44,7 @@
             "nf-test": "0.9.0",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-01-15T08:20:17.707172247"
+        "timestamp": "2025-01-21T15:43:44.94946808"
     },
     "mapping - fastq - without intervals": {
         "content": [
@@ -54,8 +54,8 @@
                         {
                             "id": "test_sample"
                         },
-                        "test_sample.bam:md5,00afa2d38996dfee4cc66b274445d4f7",
-                        "test_sample.bam.bai:md5,bb9ad63f7a664ceb2f5c730facad75e5"
+                        "test_sample.bam:md5,df32e8e550abe78d07b3b8d19547b0bb",
+                        "test_sample.bam.bai:md5,21311b4e64075f6ff62fbf4a94c013e5"
                     ]
                 ],
                 "1": [
@@ -72,8 +72,8 @@
                         {
                             "id": "test_sample"
                         },
-                        "test_sample.bam:md5,00afa2d38996dfee4cc66b274445d4f7",
-                        "test_sample.bam.bai:md5,bb9ad63f7a664ceb2f5c730facad75e5"
+                        "test_sample.bam:md5,df32e8e550abe78d07b3b8d19547b0bb",
+                        "test_sample.bam.bai:md5,21311b4e64075f6ff62fbf4a94c013e5"
                     ]
                 ],
                 "versions": [
@@ -91,6 +91,6 @@
             "nf-test": "0.9.0",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-01-15T08:21:02.306854574"
+        "timestamp": "2025-01-21T15:44:31.76598535"
     }
 }
