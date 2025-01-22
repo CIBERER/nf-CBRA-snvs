@@ -100,7 +100,7 @@ workflow GATK_VCF {
     vcf = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi)
 
     emit:
-    vcf // channel: [ val(meta), path(bam)]
+    vcf // channel: [ val(meta), path(vcf), path(tbi)]
     versions = ch_versions                     // channel: [ versions.yml ]
 
 }
