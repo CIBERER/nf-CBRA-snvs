@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "mapping"
-description: Align fastq files, and apply GATK best practices (MARKDUPLICATES, BASERECALIBRATOR, APPLYBSQR).
+description: Align fastq files with BWA MEM and apply GATK best practices (MARKDUPLICATES, BASERECALIBRATOR, APPLYBSQR).
 keywords:
   - fasta
   - bam
