@@ -1,44 +1,71 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: "mapping"
-## TODO nf-core: Add a description of the subworkflow and list keywords
-description: Sort SAM/BAM/CRAM file
+name: "gatk_vcf"
+description: Variant Calling of SNVs and germline indels with the GATK Haplotypecaller tool and PASS variant filtering.  
 keywords:
-  - sort
   - bam
-  - sam
-  - cram
-## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+  - variant calling
+  - haplotypecaller
+  - vcf
+  - filtering
 components:
+  - gatk4/haplotypecaller
+  - gatk4/selectvariants
+  - gatk4/variantfiltration
+  - bcftools/sort
   - samtools/sort
-  - samtools/index
-## TODO nf-core: List all of the channels used as input with a description and their structure
+  - gatk4/mergevcfs
+  - tabix/tabix
+  - bcftools/filter
+  
 input:
   - ch_bam:
       type: file
       description: |
-        The input channel containing the BAM/CRAM/SAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.{bam/cram/sam}"
-## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+        The input channel containing the bam and bai files
+        Structure: [ val(meta), path(bam) , path(bai) ]
+      pattern: "*.{fastq/fastq.gz}"
+  - ch_intervals:
+      type: file
+      description: |
+        Bed file with the genomic regions included in the library (optional)
+        Structure: [ val(meta), [ path(bed) ] ]
+  - ch_fasta:
+      type: file
+      description: |
+        Reference genome in FASTA format
+        Structure: [ val(meta2), [ path(fasta) ] ]
+      pattern: "*.{fasta,fa}"
+  - ch_fai:
+      type: file
+      description: |
+        Reference index in FAI format
+        Structure: [ val(meta2), [ path(fai) ] ]
+      pattern: "*.{fai}"
+  - ch_refdict:
+      type: file
+      description: |
+        GATK sequence dictionary
+        Structure: [ val(meta2), [ path(dict) ] ]
+      pattern: "*.dict"  
+  - ch_known_sites:
+      type: file
+      description: |
+        VCF file containing known sites (optional)
+        Structure: [ val(meta3), [ path(vcf) ] ]
+       pattern: "*.vcf.gz"
+  - ch_known_sites_tbi:
+      type: file
+      description: |
+        VCF index of dbsnp (optional)
+        Structure: [ val(meta3), [ path(tbi) ] ]
+       pattern: "*.vcf.gz.tbi"
+      
 output:
-  - bam:
+  - vcf:
       type: file
       description: |
-        Channel containing BAM files
-        Structure: [ val(meta), path(bam) ]
-      pattern: "*.bam"
-  - bai:
-      type: file
-      description: |
-        Channel containing indexed BAM (BAI) files
-        Structure: [ val(meta), path(bai) ]
-      pattern: "*.bai"
-  - csi:
-      type: file
-      description: |
-        Channel containing CSI files
-        Structure: [ val(meta), path(csi) ]
-      pattern: "*.csi"
+        Channel containing vcf and tbi files
+        Structure: [ val(meta), path(vcf), path(tbi) ]
   - versions:
       type: file
       description: |
@@ -46,6 +73,8 @@ output:
         Structure: [ path(versions.yml) ]
       pattern: "versions.yml"
 authors:
+  - "@yolandabq"
   - "@yocra3"
 maintainers:
+  - "@yolandabq"
   - "@yocra3"
