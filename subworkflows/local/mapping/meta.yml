@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "mapping"
-description: Align fastq files, and apply GATK best practices (MARKDUPLICATES, BASERECALIBRATOR, APPLYBSQR).
+description: Align fastq files with BWA MEM and apply GATK best practices (MARKDUPLICATES, BASERECALIBRATOR, APPLYBSQR).
 keywords:
   - fasta
   - bam
@@ -18,11 +18,6 @@ components:
   - samtools/sort
   - samtools/index
 input:
-- - meta:
-      type: map
-      description: |
-        Groovy Map containing sample information
-        e.g. [ id:'test', single_end:false ]
   - ch_reads:
       type: file
       description: |
@@ -31,44 +26,45 @@ input:
       pattern: "*.{fastq/fastq.gz}"
   - ch_intervals:
       type: file
-      description: Bed file with the genomic regions included in the library (optional)
-- - meta2:
-      type: map
       description: |
-        Groovy Map containing reference information.
-        e.g. [ id:'test', single_end:false ]
+        Bed file with the genomic regions included in the library (optional)
+        Structure: [ val(meta), [ path(bed) ] ]
   - ch_index:
       type: file
-      description: BWA genome index files
-      pattern: "Directory containing BWA index *.{amb,ann,bwt,pac,sa}"
-- - meta3:
-      type: map
       description: |
-        Groovy Map containing sample information
-        e.g. [ id:'test', single_end:false ]
+        BWA genome index files
+        Structure: [ val(meta2), [ path(index) ] ]
+      pattern: "Directory containing BWA index *.{amb,ann,bwt,pac,sa}"
   - ch_fasta:
       type: file
-      description: Reference genome in FASTA format
+      description: |
+        Reference genome in FASTA format
+        Structure: [ val(meta3), [ path(fasta) ] ]
       pattern: "*.{fasta,fa}"
   - ch_fai:
       type: file
-      description: Reference index in FAI format
+      description: |
+        Reference index in FAI format
+        Structure: [ val(meta3), [ path(fai) ] ]
       pattern: "*.{fai}"
   - ch_refdict:
       type: file
-      description: GATK sequence dictionary
-      pattern: "*.dict"  
-- - meta4:
-      type: map
       description: |
-        Groovy Map containing dbsnp information
-        e.g. [ id:'test_dbsnp' ]
+        GATK sequence dictionary
+        Structure: [ val(meta3), [ path(dict) ] ]
+      pattern: "*.dict"  
   - ch_known_sites:
       type: file
-      description: VCF file containing known sites (optional)
+      description: |
+        VCF file containing known sites (optional)
+        Structure: [ val(meta4), [ path(vcf) ] ]
+       pattern: "*.vcf.gz"
   - ch_known_sites_tbi:
       type: file
-      description: VCF index of dbsnp (optional)
+      description: |
+        VCF index of dbsnp (optional)
+        Structure: [ val(meta4), [ path(tbi) ] ]
+       pattern: "*.vcf.gz.tbi"
       
 output:
   - bam:
