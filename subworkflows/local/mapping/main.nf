@@ -13,13 +13,13 @@ workflow MAPPING {
 
     take:
     ch_reads        // channel (mandatory): [ val(meta), [ path(reads) ] ]
-    ch_index        // channel (mandatory): [ val(meta2), path(index) ]
-    ch_fasta        // channel (mandatory) : [ val(meta2), path(fasta) ]
-    ch_fai          // channel (mandatory) : [ val(meta2), path(fai) ]
-    ch_refdict      // channel (mandatory) : [ val(meta2), path(dict) ]
     ch_intervals    // channel (mandatory) : [ val(meta), path(bed) ]
-    ch_known_sites  // channel (mandatory) : [ val(meta3), path(vcf) ]
-    ch_known_sites_tbi  // channel (mandatory) : [ val(meta3), path(vcf) ]
+    ch_index        // channel (mandatory): [ val(meta2), path(index) ]
+    ch_fasta        // channel (mandatory) : [ val(meta3), path(fasta) ]
+    ch_fai          // channel (mandatory) : [ val(meta3), path(fai) ]
+    ch_refdict      // channel (mandatory) : [ val(meta3), path(dict) ]
+    ch_known_sites  // channel (mandatory) : [ val(meta4), path(vcf) ]
+    ch_known_sites_tbi  // channel (mandatory) : [ val(meta4), path(vcf) ]
 
     main:
 
