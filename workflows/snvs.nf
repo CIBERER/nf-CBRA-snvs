@@ -59,6 +59,9 @@ include { MAPPING } from '../subworkflows/local/mapping'
 include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
 include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
 
+include { INPUT_CHECK                } from '../subworkflows/local/input_check'
+include { MAPPING                    } from '../subworkflows/local/mapping'
+include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,6 +163,16 @@ workflow SNVS {
         Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
     )
 
+    DEEP_VARIANT_VCF (
+        MAPPING.out.bam,
+        ch_intervals,
+        ch_fasta,
+        ch_fai
+    )
+
+
+    DEEP_VARIANT_VCF.out.vcf.view()
+    vcf = DEEP_VARIANT_VCF.out.vcf
     //MAPPING.out.bam.view()
 
     DRAGEN_VCF (
