@@ -54,8 +54,9 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
-include { MAPPING } from '../subworkflows/local/mapping'
+include { INPUT_CHECK                } from '../subworkflows/local/input_check'
+include { MAPPING                    } from '../subworkflows/local/mapping'
+include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,7 +135,18 @@ workflow SNVS {
         ch_known_sites_tbi
     )
 
+    DEEP_VARIANT_VCF (
+        MAPPING.out.bam,
+        ch_intervals,
+        ch_fasta,
+        ch_fai
+    )
+
+
+    DEEP_VARIANT_VCF.out.vcf.view()
+    vcf = DEEP_VARIANT_VCF.out.vcf
     //MAPPING.out.bam.view()
+
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

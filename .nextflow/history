@@ -1,0 +1,1 @@
+2025-03-27 10:52:16	-	friendly_moriondo	-	ac4bdc2eed407742d855fac0c870d4f6	8c1417b5-c61f-4964-b8f9-0bee5b1cd891	nextflow run . -profile test,singularity --outdir /mnt/tblab/graciela/auto_hackathon_GdTBioinfo/try_run_GdTBioinfo/out
