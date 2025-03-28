@@ -27,8 +27,8 @@ WorkflowSnvs.initialise(params, log)
 
 ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_fai   = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
-ch_known_sites = params.known_snps            ? Channel.fromPath(params.known_snps).collect()              : Channel.value([])
-ch_known_sites_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
+ch_known_snps = params.known_snps            ? Channel.fromPath(params.known_snps).collect()              : Channel.value([])
+ch_known_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
 
 
 //ch_intervals = params.intervals ? Channel.fromPath(params.intervals).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value("")
