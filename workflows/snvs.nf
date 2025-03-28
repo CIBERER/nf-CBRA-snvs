@@ -25,7 +25,7 @@ WorkflowSnvs.initialise(params, log)
 
 // Check mandatory parameters
 
-ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
+ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty() 
 ch_fai   = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_known_sites = params.known_snps            ? Channel.fromPath(params.known_snps).collect()              : Channel.value([])
 ch_known_sites_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
@@ -71,7 +71,10 @@ include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 include { BWA_INDEX } from '../modules/nf-core/bwa/index/main'
-include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/createsequencedictionary/main'                                                                                                                                                                        
+include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/createsequencedictionary/main'
+include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
+include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
+                                                                                                                                           
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -119,6 +122,16 @@ workflow SNVS {
     ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
     }
 
+    
+    if (params.reference_str) { ch_ref_str = Channel.fromPath(params.reference_str) } else { 
+    GATK4_COMPOSESTRTABLEFILE (
+        ch_fasta.map {meta, fasta -> [fasta] },
+        ch_fai.map {meta, fai -> [fai]  },
+        ch_refdict.map {meta, dict -> [dict] }
+        )
+    ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+    }
+
     //ch_fai.view()
     
     ch_intervals = params.intervals ? INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
@@ -135,6 +148,14 @@ workflow SNVS {
     )
 
     //MAPPING.out.bam.view()
+
+    GATK4_CALIBRATEDRAGSTRMODEL (
+        MAPPING.out.bam, 
+        ch_fasta.map { meta, fasta -> fasta },
+        ch_fai.map { meta, fai -> fai },
+        ch_refdict.map { meta, dict -> dict },
+        GATK4_COMPOSESTRTABLEFILE.out.str_table
+    )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
