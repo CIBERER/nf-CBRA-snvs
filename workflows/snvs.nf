@@ -248,6 +248,15 @@ workflow SNVS {
         ch_glowgenes_panel,
         ch_glowgenes_sgds
     )
+    CONVERT_MT_BAM_TO_FASTQ (
+        MAPPING.out.bam,
+        ch_fasta,
+        ch_fai,
+        ch_refdict
+    )
+
+
+    //MAPPING.out.bam.view()
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
