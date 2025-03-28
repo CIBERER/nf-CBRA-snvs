@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "gatk_vcf"
+description: Variant Calling of SNVs and germline indels with the GATK Haplotypecaller tool and PASS variant filtering.  
+keywords:
+  - bam
+  - variant calling
+  - haplotypecaller
+  - vcf
+  - filtering
+components:
+  - gatk4/haplotypecaller
+  - gatk4/selectvariants
+  - gatk4/variantfiltration
+  - bcftools/sort
+  - samtools/sort
+  - gatk4/mergevcfs
+  - tabix/tabix
+  - bcftools/filter
+  
+input:
+  - ch_bam:
+      type: file
+      description: |
+        The input channel containing the bam and bai files
+        Structure: [ val(meta), path(bam) , path(bai) ]
+      pattern: "*.{fastq/fastq.gz}"
+  - ch_intervals:
+      type: file
+      description: |
+        Bed file with the genomic regions included in the library (optional)
+        Structure: [ val(meta),  path(bed)  ]
+  - ch_fasta:
+      type: file
+      description: |
+        Reference genome in FASTA format
+        Structure: [ val(meta2),  path(fasta)  ]
+      pattern: "*.{fasta,fa}"
+  - ch_fai:
+      type: file
+      description: |
+        Reference index in FAI format
+        Structure: [ val(meta2),  path(fai)  ]
+      pattern: "*.{fai}"
+  - ch_refdict:
+      type: file
+      description: |
+        GATK sequence dictionary
+        Structure: [ val(meta2),  path(dict)  ]
+      pattern: "*.dict"  
+  - ch_known_sites:
+      type: file
+      description: |
+        VCF file containing known sites (optional)
+        Structure: [ val(meta3),  path(vcf)  ]
+       pattern: "*.vcf.gz"
+  - ch_known_sites_tbi:
+      type: file
+      description: |
+        VCF index of dbsnp (optional)
+        Structure: [ val(meta3),  path(tbi)  ]
+       pattern: "*.vcf.gz.tbi"
+      
+output:
+  - vcf:
+      type: file
+      description: |
+        Channel containing vcf and tbi files
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+authors:
+  - "@yolandabq"
+  - "@yocra3"
+maintainers:
+  - "@yolandabq"
+  - "@yocra3"
