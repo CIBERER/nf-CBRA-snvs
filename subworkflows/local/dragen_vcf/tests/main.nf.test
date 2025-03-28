@@ -84,7 +84,19 @@ nextflow_workflow {
                 input[3] = Channel.fromList([
                     tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true))
                 ])
-                input[4] = GATK4_COMPOSESTRTABLEFILE.out.str_table.view()
+                input[4] = GATK4_COMPOSESTRTABLEFILE.out.str_table
+                input[5] =  Channel.fromList([
+                        tuple([ id: 'test_sample'],
+                        [])
+                    ])                
+                input[6] = Channel.fromList([
+                            tuple([ id: 'test_dbsnp'],
+                            [])
+                        ])
+                input[7] = Channel.fromList([
+                            tuple([ id: 'test_dbsnp'],
+                            [])
+                        ])                
                 """
             }
         }
