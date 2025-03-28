@@ -18,7 +18,7 @@ workflow DRAGEN_VCF {
         ch_fasta.map { meta, fasta -> fasta },
         ch_fai.map { meta, fai -> fai },
         ch_refdict.map { meta, dict -> dict },
-        ch_ref_str.map { meta, ref_str -> ref_str }
+        ch_ref_str //.map { meta, ref_str -> ref_str }
     )
     ch_versions = ch_versions.mix(GATK4_CALIBRATEDRAGSTRMODEL.out.versions.first())
 

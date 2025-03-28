@@ -45,7 +45,10 @@ nextflow_workflow {
                         tuple([ id: 'genome'],
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
                     ])
-                input[5] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true)
+                input[5] = Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true))
+                    ])
                 input[6] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz', checkIfExists: true)
                 input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz.tbi', checkIfExists: true)
                 """
@@ -64,6 +67,7 @@ nextflow_workflow {
         }
     }
 
+
     test("dragen_vcf - bam") {
 
 
@@ -80,9 +84,7 @@ nextflow_workflow {
                 input[3] = Channel.fromList([
                     tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true))
                 ])
-                input[4] = Channel.fromList([
-                    tuple([ id: 'genome'],GATK4_COMPOSESTRTABLEFILE.out.str_table)
-                    ])
+                input[4] = GATK4_COMPOSESTRTABLEFILE.out.str_table.view()
                 """
             }
         }
