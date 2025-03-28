@@ -57,10 +57,10 @@ workflow DRAGEN_VCF {
     )
     ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first())
 
-    ch_dragstr_model = GATK4_HAPLOTYPECALLER.out.vcf
+    vcf = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi)
 
     emit:
-    dragstr_model = ch_dragstr_model  // channel: [ val(meta), path(vcf) ]
+    vcf  // channel: [ val(meta), path(vcf), path(tbi)]
     versions = ch_versions            // channel: [ versions.yml ]
 
 }

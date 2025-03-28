@@ -57,6 +57,8 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { MAPPING } from '../subworkflows/local/mapping'
 include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
+include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,12 +162,15 @@ workflow SNVS {
 
     //MAPPING.out.bam.view()
 
-    GATK4_CALIBRATEDRAGSTRMODEL (
+    DRAGEN_VCF (
         MAPPING.out.bam, 
-        ch_fasta.map { meta, fasta -> fasta },
-        ch_fai.map { meta, fai -> fai },
-        ch_refdict.map { meta, dict -> dict },
-        GATK4_COMPOSESTRTABLEFILE.out.str_table
+        ch_fasta,
+        ch_fai,
+        ch_refdict,
+        GATK4_COMPOSESTRTABLEFILE.out.str_table,
+        ch_intervals,
+        Channel.fromList([tuple([ id: 'dbsnp'],[])]),
+        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
