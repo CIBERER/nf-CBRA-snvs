@@ -1,0 +1,41 @@
+{
+    "dragen_vcf - bam": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample.dragen.PASS.vcf.gz:md5,802e44aafbe9b627d2c1bafbc8ed3914",
+                        "test_sample.dragen.PASS.vcf.gz.tbi:md5,4e0ba1a0ba49942f20ee70cfbe001263"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,247abad81fc8bbdf3fae35db9746c49a",
+                    "versions.yml:md5,620b7c3ab27a24487d87bb2e43e2248c",
+                    "versions.yml:md5,c62851f2cfad90ed92c37d82cd788431"
+                ],
+                "vcf": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample.dragen.PASS.vcf.gz:md5,802e44aafbe9b627d2c1bafbc8ed3914",
+                        "test_sample.dragen.PASS.vcf.gz.tbi:md5,4e0ba1a0ba49942f20ee70cfbe001263"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,247abad81fc8bbdf3fae35db9746c49a",
+                    "versions.yml:md5,620b7c3ab27a24487d87bb2e43e2248c",
+                    "versions.yml:md5,c62851f2cfad90ed92c37d82cd788431"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.0",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-03-28T12:45:44.900710762"
+    }
+}
