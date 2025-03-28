@@ -134,6 +134,14 @@ workflow SNVS {
         ch_known_sites_tbi
     )
 
+    CONVERT_MT_BAM_TO_FASTQ (
+        MAPPING.out.bam,
+        ch_fasta,
+        ch_fai,
+        ch_refdict
+    )
+
+
     //MAPPING.out.bam.view()
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
