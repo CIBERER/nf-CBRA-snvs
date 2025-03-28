@@ -131,8 +131,8 @@ workflow SNVS {
         ch_fasta,
         ch_fai,
         ch_refdict,
-        ch_known_sites,
-        ch_known_sites_tbi
+        ch_snps,
+        ch_snps_tbi
     )
 
     GATK_VCF (
