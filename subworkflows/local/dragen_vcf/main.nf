@@ -25,15 +25,11 @@ workflow DRAGEN_VCF {
         ch_fasta.map { meta, fasta -> fasta },
         ch_fai.map { meta, fai -> fai },
         ch_refdict.map { meta, dict -> dict },
-        ch_ref_str //.map { meta, ref_str -> ref_str }
+        ch_ref_str
     )
     ch_versions = ch_versions.mix(GATK4_CALIBRATEDRAGSTRMODEL.out.versions.first())
 
     ch_dragstr_model = GATK4_CALIBRATEDRAGSTRMODEL.out.dragstr_model
-    ch_bam.view()
-    ch_intervals.view()
-    ch_dragstr_model.view()
-    ch_bam.join(ch_intervals).join(ch_dragstr_model).view()
 
     GATK4_HAPLOTYPECALLER (
         ch_bam.join(ch_intervals).join(ch_dragstr_model),
