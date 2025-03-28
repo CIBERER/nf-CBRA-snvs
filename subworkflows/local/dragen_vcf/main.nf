@@ -1,5 +1,8 @@
-include { GATK4_CALIBRATEDRAGSTRMODEL                                       } from '../../../modules/nf-core/gatk4/calibratedragstrmodel/main'
+include { GATK4_CALIBRATEDRAGSTRMODEL                                       }      from '../../../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { GATK4_HAPLOTYPECALLER                                             }      from '../../../modules/nf-core/gatk4/haplotypecaller/main'
+include { GATK4_VARIANTFILTRATION                                           }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
+
+include { BCFTOOLS_FILTER                                                }      from '../../../modules/nf-core/bcftools/filter/main'
 
 workflow DRAGEN_VCF {
 
@@ -41,6 +44,18 @@ workflow DRAGEN_VCF {
         ch_dbsnp_tbi
     )
     ch_versions = ch_versions.mix(GATK4_HAPLOTYPECALLER.out.versions.first())
+
+    GATK4_VARIANTFILTRATION (
+        GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi),
+        ch_fasta,
+        ch_fai,
+        ch_refdict
+    )
+
+    BCFTOOLS_FILTER(
+        GATK4_VARIANTFILTRATION.out.vcf.join(GATK4_VARIANTFILTRATION.out.tbi)
+    )
+    ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first())
 
     ch_dragstr_model = GATK4_HAPLOTYPECALLER.out.vcf
 
