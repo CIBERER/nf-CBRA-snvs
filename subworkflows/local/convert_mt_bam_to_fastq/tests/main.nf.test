@@ -30,6 +30,7 @@ nextflow_workflow {
                 """
             }
         }
+
         run("PICARD_CREATESEQUENCEDICTIONARY") {
             script "../../../../modules/nf-core/picard/createsequencedictionary/main.nf"
             process {
@@ -41,14 +42,15 @@ nextflow_workflow {
                 """
             }
         }
+
         run("MAPPING") {
             script "../../../../subworkflows/local/mapping/main.nf"
             process {
                 """
                 input[0] = Channel.of([
                     [ id : 'test_sample' ],
-                    [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
+                    [file('ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR121/036/ERR12163936/ERR12163936_1.fastq.gz', checkIfExists: true),
+                    file('ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR121/036/ERR12163936/ERR12163936_2.fastq.gz', checkIfExists: true)]
                 ])
                 input[1] =  Channel.fromList([
                             tuple([ id: 'test_sample'],
@@ -64,8 +66,8 @@ nextflow_workflow {
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
                     ])
                 input[5] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
-                input[6] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz', checkIfExists: true)
-                input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz.tbi', checkIfExists: true)
+                input[6] = Channel.empty()
+                input[7] = Channel.empty()
                 """
             }
         }
@@ -85,7 +87,7 @@ nextflow_workflow {
                 input[2] =  Channel.fromList([
                         tuple([ id: 'genome'],
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
-                    ])
+                        ])
                 input[3] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
                 """
             }
