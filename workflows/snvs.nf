@@ -142,7 +142,7 @@ workflow SNVS {
     )
 
 
-    //MAPPING.out.bam.view()
+    CONVERT_MT_BAM_TO_FASTQ.out.bam.view()
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
