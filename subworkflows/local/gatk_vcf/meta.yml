@@ -47,13 +47,13 @@ input:
         GATK sequence dictionary
         Structure: [ val(meta2),  path(dict)  ]
       pattern: "*.dict"  
-  - ch_known_sites:
+  - ch_dbsnp:
       type: file
       description: |
         VCF file containing known sites (optional)
         Structure: [ val(meta3),  path(vcf)  ]
        pattern: "*.vcf.gz"
-  - ch_known_sites_tbi:
+  - ch_dbsnp_tbi:
       type: file
       description: |
         VCF index of dbsnp (optional)
