@@ -1,0 +1,45 @@
+nextflow_workflow {
+
+    name "Test Subworkflow VCF_MERGE_VARIANTCALLERS"
+    script "../main.nf"
+    workflow "VCF_MERGE_VARIANTCALLERS"
+
+    tag "subworkflows"
+    tag "subworkflows/vcf_merge_variantcallers"
+
+
+    test("vcf_merge_variantcallers - vcf ") {
+
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id:'test' ], // meta map
+                    [
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/syntheticvcf_short.vcf.gz', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/syntheticvcf_short.vcf.gz', checkIfExists: true)
+                    ],
+                    [
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/syntheticvcf_short.vcf.gz.tbi', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/syntheticvcf_short.vcf.gz.tbi', checkIfExists: true),
+                    ], 
+                    ["GK", "DV"]
+                ])
+                input[1] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                    ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+}

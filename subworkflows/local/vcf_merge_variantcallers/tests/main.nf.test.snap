@@ -1,0 +1,25 @@
+{
+    "vcf_merge_variantcallers - vcf ": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "1": [
+                    
+                ],
+                "vcf": [
+                    
+                ],
+                "versions": [
+                    
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.3"
+        },
+        "timestamp": "2025-04-11T15:29:31.025204"
+    }
+}
