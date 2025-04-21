@@ -9,9 +9,20 @@ nextflow_workflow {
     tag "subworkflows/mapping"
     tag "bwa"
     tag "bwa/mem"
+    tag "gatk4"
+    tag "gatk4/fastqtosam"
+    tag "gatk4/mergebamalignment"
+    tag "gatk4/fastqtosam"
+    tag "gatk4/baserecalibrator"
+    tag "gatk4/applybqr"
+    tag "gatk4spark"
+    tag "gatk4spark/markduplicates"    
     tag "picard"
     tag "picard/sortsam"
     tag "deepvariant"
+    tag "deepvariant/callvariants"
+    tag "deepvariant/makeexamples"
+    tag "deepvariant/postprocessvariants"
     tag "bcftools"
     tag "bcftools/filter"
 
@@ -72,20 +83,26 @@ nextflow_workflow {
     }
 
 
-      test("deep_variant_vcf - bam") {
+    test("deep_variant_vcf - bam") {
+
         when {
             workflow {
                 """
+
                 input[0] =  MAPPING.out.bam
-                input[1] =  Channel.empty()
+                input[1] =  Channel.fromList([
+                            tuple([ id: 'test_sample'],
+                            [])
+                    ])
                 input[2] =  Channel.fromList([
                     tuple([ id: 'genome'],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
-                ])
+                    ])
                 input[3] = Channel.fromList([
                     tuple([ id: 'genome'],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
-                ])
+                    ])
+
                 """
             }
         }

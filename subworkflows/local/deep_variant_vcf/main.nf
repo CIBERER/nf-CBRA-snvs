@@ -14,24 +14,49 @@ workflow DEEP_VARIANT_VCF {
 
     ch_versions = Channel.empty()
 
+   /* ch_input = ch_bam.join(ch_intervals, by: 0)
+        .map { meta, bam, bai, intervals -> 
+            [ meta, bam, bai, intervals.flatten() ]
+        } */
 
-    ch_input = ch_bam
-    .join(ch_intervals, by: 0)
+    /*ch_input = ch_bam.join(ch_intervals, by: 0)
     .map { meta, bam, bai, intervals -> 
-        if (intervals instanceof List && intervals.isEmpty()) {
-            return [ meta, bam, bai, [] ]
-        } else {
-            return [ meta, bam, bai, intervals ]
-        }
-    }
+        def interval_path = intervals instanceof Path ? intervals : []
+        [ meta, bam, bai, interval_path ]
+    }*/
+    
+    /*ch_input = ch_bam.join(ch_intervals, by: 0)
+    .map { meta, bam, bai, intervals -> 
+        [ meta, bam, bai, intervals ?: [] ]
+    }*/
 
+
+    /*ch_input = ch_bam.join(ch_intervals, by: 0, remainder: true)
+    .map { meta, bam, bai, intervals -> 
+        [ meta, bam, bai, intervals ?: [] ]
+    }*/
+
+        // Combine ch_bam and ch_intervals
+    /*ch_input = ch_bam.combine(ch_intervals, by: 0)
+        .map { meta, bam, bai, intervals -> 
+            [ meta, bam, bai, intervals ?: [] ]
+    }*/
+
+    // Add some debugging
+    //ch_input.view { "DEBUG: ch_input: $it" }
+
+    ch_bam.view()
+    ch_intervals.view()
+
+
+    ch_bam.join(ch_intervals).view()
 
     DEEPVARIANT (
-        ch_input,
+        ch_bam.join(ch_intervals),
         ch_fasta,
         ch_fai,
-        Channel.empty(),
-        Channel.empty()
+        [[],[]],
+        [[],[]]
     )
     ch_versions = ch_versions.mix(DEEPVARIANT.out.versions.first())
 
