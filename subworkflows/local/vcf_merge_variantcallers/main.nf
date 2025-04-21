@@ -16,7 +16,8 @@ workflow VCF_MERGE_VARIANTCALLERS {
     ch_versions = Channel.empty()
 
     ch_vcfs_for_splitmultiallelic = ch_vcfs.transpose().map{ meta, vcf, tbi, program -> [meta, vcf, tbi, program]}.view()
-
+    //he conseguido que el canal haga lo que quiero, pero los vcfs de prueba que estoy usando no funcionan. 
+    
     SPLITMULTIALLELIC (
         ch_vcfs_for_splitmultiallelic,
         ch_fasta
