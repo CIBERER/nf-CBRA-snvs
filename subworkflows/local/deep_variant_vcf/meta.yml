@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: "gatk_vcf"
+name: "deep_variant_vcf"
 description: Variant Calling of SNVs and germline indels with the deep variant tool and PASS variant filtering.  
 keywords:
   - bam
@@ -10,6 +10,9 @@ keywords:
 components:
   - deepvariant
   - bcftools/filter
+  - deepvariant/makeexamples
+  - deepvariant/callvariants
+  - deepvariant/postprocessvariants
   
 input:
   - ch_bam:
@@ -35,6 +38,17 @@ input:
         Reference index in FAI format
         Structure: [ val(meta2),  path(fai)  ]
       pattern: "*.{fai}"
+  - ch_gzi:
+      type: string
+      description: |
+        Reference genome index in gzi format (either gzi or fai should be used) (optional)
+        Structure: [ val(meta4), val(gzi) ]
+  - ch_par_bed:
+      type: string
+      description: |
+        bed file of pseudoautosomal regions (optional)
+        Structure: [ val(meta5), val(par_bed) ]
+      pattern: "*.bed"
       
 output:
   - vcf:

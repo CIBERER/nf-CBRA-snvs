@@ -167,7 +167,9 @@ workflow SNVS {
         MAPPING.out.bam,
         ch_intervals,
         ch_fasta,
-        ch_fai
+        ch_fai,
+        ch_gzi,
+        ch_par_bed
     )
 
 

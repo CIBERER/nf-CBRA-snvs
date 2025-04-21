@@ -88,21 +88,25 @@ nextflow_workflow {
         when {
             workflow {
                 """
-
                 input[0] =  MAPPING.out.bam
                 input[1] =  Channel.fromList([
-                            tuple([ id: 'test_sample'],
-                            [])
+                        tuple([ id: 'test_sample'],
+                        [])
                     ])
                 input[2] =  Channel.fromList([
-                    tuple([ id: 'genome'],
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
                     ])
                 input[3] = Channel.fromList([
-                    tuple([ id: 'genome'],
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
                     ])
-
+                input[4] = [
+                    [],[]
+                ]
+                input[5] = [
+                    [],[]
+                ]
                 """
             }
         }
