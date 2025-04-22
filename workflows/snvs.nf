@@ -56,6 +56,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { MAPPING } from '../subworkflows/local/mapping'
+include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -132,6 +133,16 @@ workflow SNVS {
         ch_refdict,
         ch_snps,
         ch_snps_tbi
+    )
+
+    GATK_VCF (
+        MAPPING.out.bam,
+        ch_intervals,
+        ch_fasta,
+        ch_fai,
+        ch_refdict,
+        Channel.fromList([tuple([ id: 'dbsnp'],[])]),
+        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
     )
 
     //MAPPING.out.bam.view()
