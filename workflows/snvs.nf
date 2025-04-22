@@ -58,7 +58,7 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { MAPPING } from '../subworkflows/local/mapping'
 include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
 include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
-
+include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,7 +77,6 @@ include { BWA_INDEX } from '../modules/nf-core/bwa/index/main'
 include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/createsequencedictionary/main'
 include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
-                                                                                                                                           
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,6 +170,18 @@ workflow SNVS {
         ch_intervals,
         Channel.fromList([tuple([ id: 'dbsnp'],[])]),
         Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
+    )
+
+    ch_gatk = GATK_VCF.out.vcf.map { meta, vcf, tbi -> [meta + [program:"gatk"], vcf, tbi] }//.view()
+    ch_dragstr = DRAGEN_VCF.out.vcf.map { meta, vcf, tbi -> [meta + [program:"dragen"], vcf, tbi] }//.view()
+    
+    ch_vcfs_for_splitmultiallelic = ch_gatk.concat(ch_dragstr).view()
+
+    VCF_MERGE_VARIANTCALLERS (
+        ch_vcfs_for_splitmultiallelic,   
+        ch_fasta,
+        ch_fai,
+        ch_intervals
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
