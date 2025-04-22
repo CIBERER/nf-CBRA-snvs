@@ -1,5 +1,5 @@
 process SPLITMULTIALLELIC {
-    tag "$meta.id"
+    tag "${meta.id}_${meta.program}"
     label 'process_single'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -12,7 +12,7 @@ process SPLITMULTIALLELIC {
     
 
     output:
-    tuple val(meta), path("${prefix}.biallelic.${program}.vcf.gz"), emit: biallelic_renamed_vcf
+    tuple val(meta), path("${prefix}.biallelic.${program}.vcf.gz"), path("${prefix}.biallelic.${program}.vcf.gz.tbi"), emit: biallelic_renamed_vcf
     path "versions.yml"           , emit: versions
 
     when:
