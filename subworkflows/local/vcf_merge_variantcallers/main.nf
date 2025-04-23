@@ -1,6 +1,8 @@
 include { SPLITMULTIALLELIC                 } from '../../../modules/local/splitmultiallelic/main'
 include { BCFTOOLS_MERGE } from '../../../modules/nf-core/bcftools/merge/main'
 include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
+include { BCFTOOLS_QUERY_STATS } from '../../../modules/local/bcftools_query_stats/main'
+include { CONSENSUS_GENOTYPE } from '../../../modules/local/consensus_genotype/main'
 
 workflow VCF_MERGE_VARIANTCALLERS {
 
@@ -34,8 +36,9 @@ workflow VCF_MERGE_VARIANTCALLERS {
         ch_vcfs,
         ch_fasta
     )
+    ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
 
-    //SPLITMULTIALLELIC.out.biallelic_renamed_vcf.view()
+    SPLITMULTIALLELIC.out.biallelic_renamed_vcf//.view()
 
     ch_for_bcftoolsmerge = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
     .map { meta, vcf, tbi -> 
@@ -60,7 +63,16 @@ workflow VCF_MERGE_VARIANTCALLERS {
 
     //TABIX_TABIX.out.tbi.view()
 
-    ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
+    BCFTOOLS_QUERY_STATS (
+        BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
+    )
+
+    CONSENSUS_GENOTYPE (
+        BCFTOOLS_QUERY_STATS.out.gt
+    )
+
+    CONSENSUS_GENOTYPE.out.consensus_gt.view()
+    CONSENSUS_GENOTYPE.out.discordances.view()
 
     vcf = BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
     //vcf.view()
