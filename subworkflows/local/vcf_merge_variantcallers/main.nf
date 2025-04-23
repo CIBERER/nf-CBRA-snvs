@@ -45,7 +45,7 @@ workflow VCF_MERGE_VARIANTCALLERS {
     .groupTuple(by: 0)
     .map { meta, vcfs, tbis ->
         [meta, vcfs, tbis]
-    }.view()
+    }//.view()
 
     BCFTOOLS_MERGE (
         ch_for_bcftoolsmerge,
@@ -54,11 +54,16 @@ workflow VCF_MERGE_VARIANTCALLERS {
         ch_intervals
     )
 
-    BCFTOOLS_MERGE.view()
+    TABIX_TABIX(
+        BCFTOOLS_MERGE.out.vcf
+    )
+
+    //TABIX_TABIX.out.tbi.view()
 
     ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
 
-    vcf = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
+    vcf = BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
+    //vcf.view()
 
     emit:
     vcf  // channel: [ [val(meta)], path(vcf), path(tbi)]
