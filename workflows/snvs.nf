@@ -25,7 +25,7 @@ WorkflowSnvs.initialise(params, log)
 
 // Check mandatory parameters
 
-ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
+ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty() 
 ch_fai   = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_snps = params.known_snps            ? Channel.fromPath(params.known_snps).collect()              : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
@@ -57,6 +57,8 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { MAPPING } from '../subworkflows/local/mapping'
 include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
+include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,7 +74,10 @@ include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 include { BWA_INDEX } from '../modules/nf-core/bwa/index/main'
-include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/createsequencedictionary/main'                                                                                                                                                                        
+include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/createsequencedictionary/main'
+include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
+include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
+                                                                                                                                           
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,6 +125,16 @@ workflow SNVS {
     ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
     }
 
+    
+    if (params.reference_str) { ch_ref_str = Channel.fromPath(params.reference_str) } else { 
+    GATK4_COMPOSESTRTABLEFILE (
+        ch_fasta.map {meta, fasta -> [fasta] },
+        ch_fai.map {meta, fai -> [fai]  },
+        ch_refdict.map {meta, dict -> [dict] }
+        )
+    ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+    }
+
     //ch_fai.view()
     
     ch_intervals = params.intervals ? INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
@@ -146,6 +161,17 @@ workflow SNVS {
     )
 
     //MAPPING.out.bam.view()
+
+    DRAGEN_VCF (
+        MAPPING.out.bam, 
+        ch_fasta,
+        ch_fai,
+        ch_refdict,
+        GATK4_COMPOSESTRTABLEFILE.out.str_table,
+        ch_intervals,
+        Channel.fromList([tuple([ id: 'dbsnp'],[])]),
+        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
+    )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

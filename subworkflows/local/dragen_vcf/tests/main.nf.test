@@ -1,0 +1,112 @@
+nextflow_workflow {
+
+    name "Test Subworkflow DRAGEN_VCF"
+    script "../main.nf"
+    workflow "DRAGEN_VCF"
+
+    tag "subworkflows"
+    tag "subworkflows/dragen_vcf"
+    tag "gatk4"
+    tag "gatk4/calibratedragstrmodel"
+
+    setup {
+
+        run("BWA_INDEX") {
+            script "../../../../modules/nf-core/bwa/index/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        run("MAPPING") {
+            script "../../../../subworkflows/local/mapping/main.nf"
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id : 'test_sample' ],
+                    [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
+                ])
+                input[1] =  Channel.fromList([
+                            tuple([ id: 'test_sample'],
+                            [])
+                        ])
+                input[2] = BWA_INDEX.out.index
+                input[3] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                    ])
+                input[4] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+                input[5] = Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true))
+                    ])
+                input[6] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz', checkIfExists: true)
+                input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz.tbi', checkIfExists: true)
+                """
+            }
+        }
+
+        run("GATK4_COMPOSESTRTABLEFILE") {
+            script "../../../../modules/nf-core/gatk4/composestrtablefile/main.nf"
+            process {
+                """
+                input[0] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                input[1] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true)
+                input[2] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true)
+                """
+            }
+        }
+    }
+
+
+    test("dragen_vcf - bam") {
+
+
+        when {
+            workflow {
+                """
+                input[0] = MAPPING.out.bam
+                input[1] = Channel.fromList([
+                        tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                ])
+                input[2] =  Channel.fromList([
+                    tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+                input[3] = Channel.fromList([
+                    tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true))
+                ])
+                input[4] = GATK4_COMPOSESTRTABLEFILE.out.str_table
+                input[5] =  Channel.fromList([
+                        tuple([ id: 'test_sample'],
+                        [])
+                    ])                
+                input[6] = Channel.fromList([
+                            tuple([ id: 'test_dbsnp'],
+                            [])
+                        ])
+                input[7] = Channel.fromList([
+                            tuple([ id: 'test_dbsnp'],
+                            [])
+                        ])                
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+}
