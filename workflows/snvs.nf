@@ -180,7 +180,7 @@ workflow SNVS {
     //ch_gatk.view()
     //ch_dragstr.view()
 
-    ch_vcfs_for_merge = ch_gatk.concat(ch_dragstr)//.view()
+    ch_vcfs_for_merge = ch_gatk.concat(ch_dragstr).view()
 
     VCF_MERGE_VARIANTCALLERS (
         ch_vcfs_for_merge,   

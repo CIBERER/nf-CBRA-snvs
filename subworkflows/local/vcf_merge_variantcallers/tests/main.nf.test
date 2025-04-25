@@ -155,6 +155,7 @@ nextflow_workflow {
                         tuple([ id: 'test_sample'],
                         [])
                     ])    
+                input[4] = "hg38"
                 """
             }
         }
