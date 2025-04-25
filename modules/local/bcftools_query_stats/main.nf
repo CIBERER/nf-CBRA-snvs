@@ -20,6 +20,7 @@ process BCFTOOLS_QUERY_STATS {
     tuple val(meta), path("*_RD_mean.txt"), emit: rd_mean
     tuple val(meta), path("*_AD_mean.txt"), emit: ad_mean
     tuple val(meta), path("*_VAF.txt"), emit: vaf
+    tuple val(meta), path("*_header.txt"), emit: programs
     path "versions.yml"           , emit: versions
 
     when:

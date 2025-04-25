@@ -3,6 +3,10 @@ include { BCFTOOLS_MERGE } from '../../../modules/nf-core/bcftools/merge/main'
 include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
 include { BCFTOOLS_QUERY_STATS } from '../../../modules/local/bcftools_query_stats/main'
 include { CONSENSUS_GENOTYPE } from '../../../modules/local/consensus_genotype/main'
+include { GET_SOFTWARE_INFO } from '../../../modules/local/get_software_info/main'
+include { CREATE_SAMPLE_INFO } from '../../../modules/local/create_sample_info/main'
+
+
 
 workflow VCF_MERGE_VARIANTCALLERS {
 
@@ -11,6 +15,7 @@ workflow VCF_MERGE_VARIANTCALLERS {
     ch_fasta        // channel (mandatory) : [ val(meta3), path(fasta) ]
     ch_fai          // channel (mandatory) : [ val(meta3), path(fai) ]
     ch_intervals    // channel (mandatory) : [ val(meta), path(bed) ]
+    assembly
     //ch_index        // channel (mandatory): [ val(meta2), path(index) ]
 
     main:
@@ -71,8 +76,19 @@ workflow VCF_MERGE_VARIANTCALLERS {
         BCFTOOLS_QUERY_STATS.out.gt
     )
 
-    CONSENSUS_GENOTYPE.out.consensus_gt.view()
-    CONSENSUS_GENOTYPE.out.discordances.view()
+    GET_SOFTWARE_INFO (
+        BCFTOOLS_QUERY_STATS.out.gt
+    )
+
+    ch_stats = CONSENSUS_GENOTYPE.out.consensus_gt.join(CONSENSUS_GENOTYPE.out.discordances).join(BCFTOOLS_QUERY_STATS.out.ad_mean).join(BCFTOOLS_QUERY_STATS.out.dp_mean).join(BCFTOOLS_QUERY_STATS.out.rd_mean).join(BCFTOOLS_QUERY_STATS.out.vd_mean).join(BCFTOOLS_QUERY_STATS.out.vaf).join(GET_SOFTWARE_INFO.out.sf_file).join(BCFTOOLS_QUERY_STATS.out.programs)
+    ch_stats.view()
+
+    CREATE_SAMPLE_INFO (
+        BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi).join(ch_stats),
+        assembly
+    )
+
+    CREATE_SAMPLE_INFO.out.final_vcf.view()
 
     vcf = BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
     //vcf.view()

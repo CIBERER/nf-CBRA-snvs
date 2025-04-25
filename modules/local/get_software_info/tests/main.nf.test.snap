@@ -1,0 +1,35 @@
+{
+    "splitmultiallelic - vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample.biallelic.GK.vcf.gz:md5,3411413bfafcf0022991fb7d165e2243"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,9fdfc65b78f7ac5e2d0ed7cd0209357a"
+                ],
+                "biallelic_renamed_vcf": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample.biallelic.GK.vcf.gz:md5,3411413bfafcf0022991fb7d165e2243"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,9fdfc65b78f7ac5e2d0ed7cd0209357a"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-04-10T07:17:09.586211078"
+    }
+}
