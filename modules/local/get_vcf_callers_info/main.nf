@@ -1,4 +1,4 @@
-process GET_SOFTWARE_INFO {
+process GET_VCF_CALLERS_INFO {
     conda "conda-forge::perl=5.32.1"
     
     input:
