@@ -11,7 +11,7 @@ process CREATE_SAMPLE_INFO {
     val (assembly)
     
     output:
-    tuple val(meta), path("${prefix}_FORMAT_SAMPLE.txt"), emit: final_vcf
+    tuple val(meta), path("${prefix}.${assembly}.final.vcf.gz"), emit: final_vcf
     //tuple val(meta), path("*.final.vcf.gz"), path("*.final.vcf.gz.tbi"), emit: final_vcf
     path "versions.yml"           , emit: versions
 
@@ -40,6 +40,21 @@ process CREATE_SAMPLE_INFO {
 
     bcftools view -h ${vcf} | grep "##" > ${prefix}.${assembly}.final.vcf
 
+    echo "##FORMAT=<ID=SF,Number=1,Type=String,Description=\\"Software\\">" >> ${prefix}.${assembly}.final.vcf
+    echo "##FORMAT=<ID=GD,Number=1,Type=String,Description=\\"Genotype discordances. 0 same genotype and 1 different genotype\\">" >> ${prefix}.${assembly}.final.vcf
+
+    # Loop through each program in the list
+    for PROGRAM in \$PROGRAMS; do
+      # Append the desired FORMAT lines to the temporary file
+      echo "##FORMAT=<ID=\${PROGRAM}_GT,Number=1,Type=String,Description=\"\${PROGRAM} genotype\">" >> ${prefix}.${assembly}.final.vcf
+      echo "##FORMAT=<ID=\${PROGRAM}_DP,Number=1,Type=String,Description=\"\${PROGRAM} depth\">" >> ${prefix}.${assembly}.final.vcf
+      echo "##FORMAT=<ID=\${PROGRAM}_VD,Number=1,Type=String,Description=\"\${PROGRAM} Variant frequency\">" >> ${prefix}.${assembly}.final.vcf
+    done
+
+    bcftools view -h ${vcf} | tail -n 1 | cut -f 1-10 | cut -d"." -f1 >> ${prefix}.${assembly}.final.vcf ## vcf header
+
+    paste -d "\\t" ${prefix}_VCF_CONTENT.txt ${prefix}_FORMAT_SAMPLE.txt >> ${prefix}.${assembly}.final.vcf ## add the content of the vcf to the final vcf
+    bgzip -c ${prefix}.${assembly}.final.vcf > ${prefix}.${assembly}.final.vcf.gz
     
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

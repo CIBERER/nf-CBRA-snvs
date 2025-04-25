@@ -1,6 +1,7 @@
 include { SPLITMULTIALLELIC                 } from '../../../modules/local/splitmultiallelic/main'
 include { BCFTOOLS_MERGE } from '../../../modules/nf-core/bcftools/merge/main'
 include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
+include { TABIX_TABIX as TABIX_TABIX_FINAL_VCF } from '../../../modules/nf-core/tabix/tabix/main'
 include { BCFTOOLS_QUERY_STATS } from '../../../modules/local/bcftools_query_stats/main'
 include { CONSENSUS_GENOTYPE } from '../../../modules/local/consensus_genotype/main'
 include { GET_VCF_CALLERS_INFO } from '../../../modules/local/get_vcf_callers_info/main'
@@ -15,27 +16,12 @@ workflow VCF_MERGE_VARIANTCALLERS {
     ch_fasta        // channel (mandatory) : [ val(meta3), path(fasta) ]
     ch_fai          // channel (mandatory) : [ val(meta3), path(fai) ]
     ch_intervals    // channel (mandatory) : [ val(meta), path(bed) ]
-    assembly
+    ch_assembly
     //ch_index        // channel (mandatory): [ val(meta2), path(index) ]
 
     main:
 
     ch_versions = Channel.empty()
-
-    //ch_vcfs_for_splitmultiallelic = ch_vcfs.transpose().map{ meta, vcf, tbi, program -> [meta, vcf, tbi, program]}.view()
-    //he conseguido que el canal haga lo que quiero, pero los vcfs de prueba que estoy usando no funcionan. 
-    //ch_vcfs.view()
-
-    // Split the input channel by program
-    // ch_vcfs_for_splitmultiallelic = ch_vcfs.flatMap { meta, vcf, tbi, programs ->
-    //     programs.collect { program ->
-    //         def new_meta = meta + [program: program]
-    //         [ new_meta, vcf, tbi, program ]
-    //     }
-    // }
-
-
-    //ch_vcfs_for_splitmultiallelic.view()
 
     SPLITMULTIALLELIC (
         ch_vcfs,
@@ -43,7 +29,7 @@ workflow VCF_MERGE_VARIANTCALLERS {
     )
     ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
 
-    SPLITMULTIALLELIC.out.biallelic_renamed_vcf//.view()
+    SPLITMULTIALLELIC.out.biallelic_renamed_vcf
 
     ch_for_bcftoolsmerge = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
     .map { meta, vcf, tbi -> 
@@ -53,7 +39,7 @@ workflow VCF_MERGE_VARIANTCALLERS {
     .groupTuple(by: 0)
     .map { meta, vcfs, tbis ->
         [meta, vcfs, tbis]
-    }//.view()
+    }
 
     BCFTOOLS_MERGE (
         ch_for_bcftoolsmerge,
@@ -65,8 +51,6 @@ workflow VCF_MERGE_VARIANTCALLERS {
     TABIX_TABIX(
         BCFTOOLS_MERGE.out.vcf
     )
-
-    //TABIX_TABIX.out.tbi.view()
 
     BCFTOOLS_QUERY_STATS (
         BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
@@ -81,17 +65,17 @@ workflow VCF_MERGE_VARIANTCALLERS {
     )
 
     ch_stats = CONSENSUS_GENOTYPE.out.consensus_gt.join(CONSENSUS_GENOTYPE.out.discordances).join(BCFTOOLS_QUERY_STATS.out.ad_mean).join(BCFTOOLS_QUERY_STATS.out.dp_mean).join(BCFTOOLS_QUERY_STATS.out.rd_mean).join(BCFTOOLS_QUERY_STATS.out.vd_mean).join(BCFTOOLS_QUERY_STATS.out.vaf).join(GET_VCF_CALLERS_INFO.out.sf_file).join(BCFTOOLS_QUERY_STATS.out.programs)
-    ch_stats.view()
 
     CREATE_SAMPLE_INFO (
         BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi).join(ch_stats),
-        assembly
+        ch_assembly
     )
 
-    CREATE_SAMPLE_INFO.out.final_vcf.view()
+    TABIX_TABIX_FINAL_VCF (
+        CREATE_SAMPLE_INFO.out.final_vcf
+    )
 
-    vcf = BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
-    //vcf.view()
+    vcf = CREATE_SAMPLE_INFO.out.final_vcf.join(TABIX_TABIX_FINAL_VCF.out.tbi).view()
 
     emit:
     vcf  // channel: [ [val(meta)], path(vcf), path(tbi)]
