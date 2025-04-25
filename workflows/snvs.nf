@@ -25,8 +25,8 @@ WorkflowSnvs.initialise(params, log)
 
 // Check mandatory parameters
 
-ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] } 
-ch_fai   = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }
+ch_fasta   = Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] } 
+ch_fai   = Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }
 ch_snps = params.known_snps            ? Channel.fromPath(params.known_snps)  : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
 
