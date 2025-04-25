@@ -38,7 +38,7 @@ workflow VCF_MERGE_VARIANTCALLERS {
     }
     .groupTuple(by: 0)
     .map { meta, vcfs, tbis ->
-        [meta, vcfs, tbis]
+        [meta, vcfs, tbis]MERGE_VCF_CALLERS
     }
 
     BCFTOOLS_MERGE (
