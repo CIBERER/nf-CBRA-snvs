@@ -15,18 +15,23 @@ workflow DEEP_VARIANT_VCF {
     main:
 
     ch_versions = Channel.empty()
+    //ch_bam.join(ch_intervals).view()
 
-
-    /*DEEPVARIANT (
-        ch_bam.join(ch_intervals),
-        ch_fasta,
-        ch_fai,
-        [[],[]],
-        [[],[]]
-    )*/
+    ch_input_for_deepvariant = ch_bam
+        .map { meta, bam, bai -> 
+            def simplified_meta = [id: meta.id]
+            [simplified_meta, bam, bai]
+        }
+        .join(ch_intervals.map { meta, bed -> 
+            def simplified_meta = meta instanceof Map ? [id: meta.id] : [id: meta]
+            [simplified_meta, bed]
+        }, by: 0)
+        .map { meta, bam, bai, bed -> [meta, bam, bai, bed] }
+        
+    // ch_input_for_deepvariant.view{ "Combined channel: $it" }
 
     DEEPVARIANT (
-        ch_bam.join(ch_intervals),
+        ch_input_for_deepvariant,
         ch_fasta,
         ch_fai,
         ch_gzi,
