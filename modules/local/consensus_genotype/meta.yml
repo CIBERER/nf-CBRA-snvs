@@ -1,17 +1,15 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "format2info"
+name: "consensus_genotype"
 
-description: Take FORMAT field from vcf and merge it with INFO field. 
+description: Takes GT_file with the GT field from each variant caller and get a consensus genotype. 
 keywords:
   - annotation
   - vcf
   - format
 tools:
-  - "format2info":
-      description: "format2info module takes FORMAT field from vcf file and merge it with INFO field. 
-      In addition, it extracts the name of the values in this new INFO field and save them in a text file. 
-      Both files, resulting vcf and text file are used to add sample info in the annotation step with VEP using --custom parameter."
+  - "consensus_genotype":
+      description: "CONSENSUS_GENOTYPE module takes GT_file obtained with BCFTOOLS_MERGE with the GT field from each variant caller and get a consensus genotype."
 
 input:
   - meta:
@@ -20,39 +18,35 @@ input:
         Groovy Map containing sample information
         e.g. `[ id:'sample1', single_end:false ]`
   
-  - vcf:
+  - gt_file:
       type: file
-      description: vcf file resulting from merging vcf files of individual variant callers. 
+      description: txt file containing GT field for each program caller separated by tabs.
       pattern: "*.{vcf.gz}"
 
-  - tbi: 
-      type: file
-      description: vcf index
-      pattern: "*.{vcf.gz.tbi}"
 
 output:
 
-  - vcf_to_annotate:
+  - consensus_gt:
     - meta:
         type: map
         description: |
           Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
-    - vcf_to_annotate:
+    - consensus_GT:
         type: file
-        description: vcf file containing FORMAT+INFO fields for annotation
-        pattern: "*.vcf_to_annotate.vcf"
+        description: txt file containing consensus GT field
+        pattern: "*_consensus_GT.txt"
 
-  - fields:
+  - discordances:
     - meta:
-          type: map
-          description: |
-            Groovy Map containing sample information
-            e.g. `[ id:'sample1', single_end:false ]`
-    - fields:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - discordances:
         type: file
-        description: text file with FORMAT+INFO fields column names for annotation with VEP
-        pattern: "*.fields.txt"
+        description: txt file containing 0 when all GT fields are equal and 1 when at least one GT field is different
+        pattern: "*_discordances.txt"
   
   - versions:
       - versions.yml:
@@ -61,10 +55,7 @@ output:
           pattern: "versions.yml"
 
 authors:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
+
 maintainers:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
