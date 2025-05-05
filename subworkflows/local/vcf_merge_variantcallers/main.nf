@@ -12,7 +12,7 @@ include { CREATE_SAMPLE_INFO } from '../../../modules/local/create_sample_info/m
 workflow VCF_MERGE_VARIANTCALLERS {
 
     take:
-    ch_vcfs        // channel (mandatory): tuple val(meta), path(vcfs), path(tbis), val(program)
+    ch_vcfs        // channel (mandatory): tuple val(meta), path(vcfs), path(tbis)
     ch_fasta        // channel (mandatory) : [ val(meta3), path(fasta) ]
     ch_fai          // channel (mandatory) : [ val(meta3), path(fai) ]
     ch_intervals    // channel (mandatory) : [ val(meta), path(bed) ]
@@ -23,23 +23,36 @@ workflow VCF_MERGE_VARIANTCALLERS {
 
     ch_versions = Channel.empty()
 
-    SPLITMULTIALLELIC (
-        ch_vcfs,
-        ch_fasta
-    )
-    ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
+    // SPLITMULTIALLELIC (
+    //     ch_vcfs,
+    //     ch_fasta
+    // )
+    // ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
 
-    SPLITMULTIALLELIC.out.biallelic_renamed_vcf
+    // SPLITMULTIALLELIC.out.biallelic_renamed_vcf
 
-    ch_for_bcftoolsmerge = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
-    .map { meta, vcf, tbi -> 
-        def new_meta = meta.subMap(['id'])
-        [new_meta, vcf, tbi]
-    }
-    .groupTuple(by: 0)
-    .map { meta, vcfs, tbis ->
+    //ch_for_bcftoolsmerge = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
+    
+    // ch_for_bcftoolsmerge = ch_vcfs
+    // .map { meta, vcf, tbi -> 
+    //     def new_meta = meta.subMap(['id'])
+    //     [new_meta, vcf, tbi]
+    // }
+    // .groupTuple(by: 0)
+    // .map { meta, vcfs, tbis ->
+    //     [meta, vcfs, tbis]
+    // }
+
+   ch_vcfs.map { item ->
+        def meta = item[0]
+        def files = item[1..-1].collect { file(it) }
+        def vcfs = files.findAll { it.name.endsWith('.vcf.gz') }
+        def tbis = files.findAll { it.name.endsWith('.vcf.gz.tbi') }
         [meta, vcfs, tbis]
     }
+    .set { ch_for_bcftoolsmerge }
+
+    ch_for_bcftoolsmerge.view()
 
     BCFTOOLS_MERGE (
         ch_for_bcftoolsmerge,

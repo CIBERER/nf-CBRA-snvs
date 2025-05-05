@@ -143,9 +143,7 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                input[0] = GATK_VCF.out.vcf.map { meta, vcf, tbi -> [meta + [program:"gatk"], vcf, tbi] }.concat(
-                    DRAGEN_VCF.out.vcf.map { meta, vcf, tbi -> [meta + [program:"dragen"], vcf, tbi] }
-                )
+                input[0] = GATK_VCF.out.vcf.join(DRAGEN_VCF.out.vcf)
                 input[1] =  Channel.fromList([
                         tuple([ id: 'genome'],
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))

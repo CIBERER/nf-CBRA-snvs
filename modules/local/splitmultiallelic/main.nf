@@ -7,9 +7,9 @@ process SPLITMULTIALLELIC {
         'biocontainers/bcftools:1.20--h8b25389_0' }"
 
     input:
-    tuple val(meta), path(vcf), path(tbi)//, val(program)
+    tuple val(meta), path(vcf), path(tbi)
     tuple val(meta2), path(fasta)
-    
+    val(program)
 
     output:
     tuple val(meta), path("${prefix}.biallelic.${program}.vcf.gz"), path("${prefix}.biallelic.${program}.vcf.gz.tbi"), emit: biallelic_renamed_vcf
@@ -21,7 +21,7 @@ process SPLITMULTIALLELIC {
     script:
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
-    program = task.ext.prefix ?: "${meta.program}"
+    //program = task.ext.prefix ?: "${meta.program}"
 
     """
     bcftools query -l ${vcf} > samples.${program}.txt
