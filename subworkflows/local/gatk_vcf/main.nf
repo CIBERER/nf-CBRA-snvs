@@ -10,7 +10,7 @@ include { GATK4_MERGEVCFS                                                }      
 
 include { TABIX_TABIX                                                    }      from '../../../modules/nf-core/tabix/tabix/main'
 include { BCFTOOLS_FILTER                                                }      from '../../../modules/nf-core/bcftools/filter/main'
-
+include { SPLITMULTIALLELIC                                                }      from '../../../modules/local/splitmultiallelic/main'
 
 workflow GATK_VCF {
 
@@ -39,7 +39,6 @@ workflow GATK_VCF {
         ch_dbsnp_tbi
     )
     ch_versions = ch_versions.mix(GATK4_HAPLOTYPECALLER.out.versions.first())
-
 
 
     GATK4_SELECTVARIANTS_SNP (
@@ -96,8 +95,16 @@ workflow GATK_VCF {
         GATK4_MERGEVCFS.out.vcf.join(GATK4_MERGEVCFS.out.tbi)
     )
     ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first())
+    
+    SPLITMULTIALLELIC (
+        BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi),
+        ch_fasta,
+        "gatk"
+    )
+
+    ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
  
-    vcf = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi)
+    vcf = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
 
     emit:
     vcf // channel: [ val(meta), path(vcf), path(tbi)]

@@ -3,6 +3,7 @@ include { GATK4_HAPLOTYPECALLER                                             }   
 include { GATK4_VARIANTFILTRATION                                           }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
 
 include { BCFTOOLS_FILTER                                                }      from '../../../modules/nf-core/bcftools/filter/main'
+include { SPLITMULTIALLELIC                                                }      from '../../../modules/local/splitmultiallelic/main'
 
 workflow DRAGEN_VCF {
 
@@ -53,7 +54,16 @@ workflow DRAGEN_VCF {
     )
     ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first())
 
-    vcf = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi)
+    SPLITMULTIALLELIC (
+        BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi),
+        ch_fasta,
+        "dragen"
+    )
+
+    ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
+ 
+    vcf = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
+
 
     emit:
     vcf  // channel: [ val(meta), path(vcf), path(tbi)]
