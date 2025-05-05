@@ -1,18 +1,20 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "format2info"
+name: "bcftools_query_stats"
 
-description: Take FORMAT field from vcf and merge it with INFO field. 
+description: Takes a merged VCF and extract multiple information. 
 keywords:
   - annotation
   - vcf
   - format
 tools:
-  - "format2info":
-      description: "format2info module takes FORMAT field from vcf file and merge it with INFO field. 
-      In addition, it extracts the name of the values in this new INFO field and save them in a text file. 
-      Both files, resulting vcf and text file are used to add sample info in the annotation step with VEP using --custom parameter."
-
+  - "bcftools_query_stats":
+      description: "bcftools_query_stats module takes a merged VCF and extract different information:
+        - 1. Extract program names (vcf callers used). 
+        - 2. Extract genotype, depth and variant allele depth (GT, DP, AD) of each program caller.
+        - 3. Calculate the average depth and variant allele depth.
+        - 4. Calculate variant allele depth (VAD)
+        "
 input:
   - meta:
       type: map
@@ -32,28 +34,116 @@ input:
 
 output:
 
-  - vcf_to_annotate:
+  - gt:
     - meta:
         type: map
         description: |
           Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
-    - vcf_to_annotate:
+    - GT:
         type: file
-        description: vcf file containing FORMAT+INFO fields for annotation
-        pattern: "*.vcf_to_annotate.vcf"
+        description: txt file containing GT field for each program caller
+        pattern: "*_GT.txt"
 
-  - fields:
+  - dp:
     - meta:
-          type: map
-          description: |
-            Groovy Map containing sample information
-            e.g. `[ id:'sample1', single_end:false ]`
-    - fields:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - DP:
         type: file
-        description: text file with FORMAT+INFO fields column names for annotation with VEP
-        pattern: "*.fields.txt"
+        description: txt file containing DP field for each program caller
+        pattern: "*_DP.txt"
+
+  - vd:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - VD:
+        type: file
+        description: txt file containing variant frequency (VD) field extracted from AD field for each program caller
+        pattern: "*_VD.txt"
+
+  - rd:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - RD:
+        type: file
+        description: txt file containing read depth (RD) field extracted from AD field for each program caller
+        pattern: "*_RD.txt"
   
+  - dp_mean:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - DP_mean:
+        type: file
+        description: txt file containing average depth
+        pattern: "*_DP_mean.txt"
+
+  - vd_mean:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - VD_mean:
+        type: file
+        description: txt file containing average VD
+        pattern: "*_VD_mean.txt"
+
+  - rd_mean:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - RD_mean:
+        type: file
+        description: txt file containing average RD
+        pattern: "*_RD_mean.txt"
+
+  - ad_mean:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - AD_mean:
+        type: file
+        description: txt file containing average allele depth (AD)
+        pattern: "*_AD_mean.txt"
+
+  - vaf:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - VAF:
+        type: file
+        description: txt file containing variant allele frequency (VAF) 
+        pattern: "*_VAF.txt"
+
+  - programs:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - header:
+        type: file
+        description: txt file containing the name of the program callers used to call variants extracted from the header of the vcf file
+        pattern: "*_header.txt"
+
   - versions:
       - versions.yml:
           type: file
@@ -61,10 +151,6 @@ output:
           pattern: "versions.yml"
 
 authors:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
 maintainers:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
