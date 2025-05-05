@@ -1,4 +1,3 @@
-include { SPLITMULTIALLELIC                 } from '../../../modules/local/splitmultiallelic/main'
 include { BCFTOOLS_MERGE } from '../../../modules/nf-core/bcftools/merge/main'
 include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
 include { TABIX_TABIX as TABIX_TABIX_FINAL_VCF } from '../../../modules/nf-core/tabix/tabix/main'
@@ -17,31 +16,10 @@ workflow VCF_MERGE_VARIANTCALLERS {
     ch_fai          // channel (mandatory) : [ val(meta3), path(fai) ]
     ch_intervals    // channel (mandatory) : [ val(meta), path(bed) ]
     ch_assembly
-    //ch_index        // channel (mandatory): [ val(meta2), path(index) ]
 
     main:
 
     ch_versions = Channel.empty()
-
-    // SPLITMULTIALLELIC (
-    //     ch_vcfs,
-    //     ch_fasta
-    // )
-    // ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
-
-    // SPLITMULTIALLELIC.out.biallelic_renamed_vcf
-
-    //ch_for_bcftoolsmerge = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
-    
-    // ch_for_bcftoolsmerge = ch_vcfs
-    // .map { meta, vcf, tbi -> 
-    //     def new_meta = meta.subMap(['id'])
-    //     [new_meta, vcf, tbi]
-    // }
-    // .groupTuple(by: 0)
-    // .map { meta, vcfs, tbis ->
-    //     [meta, vcfs, tbis]
-    // }
 
    ch_vcfs.map { item ->
         def meta = item[0]
@@ -91,7 +69,7 @@ workflow VCF_MERGE_VARIANTCALLERS {
     vcf = CREATE_SAMPLE_INFO.out.final_vcf.join(TABIX_TABIX_FINAL_VCF.out.tbi).view()
 
     emit:
-    vcf  // channel: [ [val(meta)], path(vcf), path(tbi)]
+    vcf                                        // channel: [ [val(meta)], path(vcf), path(tbi)]
     versions = ch_versions                     // channel: [ versions.yml ]
 
 }
