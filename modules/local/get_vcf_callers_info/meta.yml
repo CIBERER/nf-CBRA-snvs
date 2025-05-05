@@ -1,17 +1,15 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "format2info"
+name: "get_vcf_callers_info"
 
-description: Take FORMAT field from vcf and merge it with INFO field. 
+description: Accepts a GT_file containing the GT field from various variant callers and determines which programs detected each variant.
 keywords:
   - annotation
   - vcf
   - format
 tools:
-  - "format2info":
-      description: "format2info module takes FORMAT field from vcf file and merge it with INFO field. 
-      In addition, it extracts the name of the values in this new INFO field and save them in a text file. 
-      Both files, resulting vcf and text file are used to add sample info in the annotation step with VEP using --custom parameter."
+  - "get_vcf_callers_info":
+      description: "GET_VCF_CALLERS_INFO accepts a GT_file obtained with BCFTOOLS_MERGE containing the GT field from various variant callers and determines which programs detected each variant."
 
 input:
   - meta:
@@ -20,39 +18,34 @@ input:
         Groovy Map containing sample information
         e.g. `[ id:'sample1', single_end:false ]`
   
-  - vcf:
+  - gt_file:
       type: file
-      description: vcf file resulting from merging vcf files of individual variant callers. 
-      pattern: "*.{vcf.gz}"
-
-  - tbi: 
-      type: file
-      description: vcf index
-      pattern: "*.{vcf.gz.tbi}"
+      description: txt file containing GT field for each program caller separated by tabs.
+      pattern: "*_GT.txt"
 
 output:
 
-  - vcf_to_annotate:
+  - sf_file:
     - meta:
         type: map
         description: |
           Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
-    - vcf_to_annotate:
+    - SF_file:
         type: file
-        description: vcf file containing FORMAT+INFO fields for annotation
-        pattern: "*.vcf_to_annotate.vcf"
+        description: txt file containing a string with the name of the program that detected the variant separated by "_" 
+        pattern: "*_SF.txt"
 
-  - fields:
+  - column_files:
     - meta:
           type: map
           description: |
             Groovy Map containing sample information
             e.g. `[ id:'sample1', single_end:false ]`
-    - fields:
+    - column_files:
         type: file
-        description: text file with FORMAT+INFO fields column names for annotation with VEP
-        pattern: "*.fields.txt"
+        description: individual txt file for each program. It contains the name of the program if it detected the variant and an empty line if it didn't. 
+        pattern: "*.txt"
   
   - versions:
       - versions.yml:
@@ -61,10 +54,6 @@ output:
           pattern: "versions.yml"
 
 authors:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
 maintainers:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
