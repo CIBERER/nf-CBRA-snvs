@@ -1,6 +1,6 @@
 nextflow_workflow {
 
-    name "Test Subworkflow BCFTOOLS_QUERY_STATS"
+    name "Test Subworkflow CONSENSUS_GENOTYPE"
     script "../main.nf"
     config "./nextflow.config"
     workflow "CONSENSUS_GENOTYPE"
