@@ -1,5 +1,5 @@
 {
-    "splitmultiallelic - vcf": {
+    "bcftools_query_stats - vcf ": {
         "content": [
             {
                 "0": [
@@ -7,22 +7,166 @@
                         {
                             "id": "test_sample"
                         },
-                        "test_sample.biallelic.GK.vcf.gz:md5,3411413bfafcf0022991fb7d165e2243"
+                        "test_sample_GT.txt:md5,c6bb82e3fc42c6049b131e990cce7431"
                     ]
                 ],
                 "1": [
-                    "versions.yml:md5,9fdfc65b78f7ac5e2d0ed7cd0209357a"
-                ],
-                "biallelic_renamed_vcf": [
                     [
                         {
                             "id": "test_sample"
                         },
-                        "test_sample.biallelic.GK.vcf.gz:md5,3411413bfafcf0022991fb7d165e2243"
+                        "test_sample_DP.txt:md5,5cf0e6d081a47f175cd4756789455b2c"
+                    ]
+                ],
+                "10": [
+                    "versions.yml:md5,8c82948b5ba327ba4175106003d21255"
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_VD.txt:md5,313ae63a1dc071604f6bf8f1e6dfefaa"
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_RD.txt:md5,ae59a3ee19f9a594321a4e2752033ee8"
+                    ]
+                ],
+                "4": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_DP_mean.txt:md5,0add7edd323f7a7df46c1118870f9dd9"
+                    ]
+                ],
+                "5": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_VD_mean.txt:md5,58351ef788f43dcb71a58d8bd847c688"
+                    ]
+                ],
+                "6": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_RD_mean.txt:md5,0c89c4c336ea87db4775310f5c73f263"
+                    ]
+                ],
+                "7": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_AD_mean.txt:md5,a38ef9a1461a609010a13d56112b4cfb"
+                    ]
+                ],
+                "8": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_VAF.txt:md5,6d7393b63d68c9163de8d99a1ea3bc91"
+                    ]
+                ],
+                "9": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_header.txt:md5,d694a13ad4d64e9a0a455f3e3e29c150"
+                    ]
+                ],
+                "ad_mean": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_AD_mean.txt:md5,a38ef9a1461a609010a13d56112b4cfb"
+                    ]
+                ],
+                "dp": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_DP.txt:md5,5cf0e6d081a47f175cd4756789455b2c"
+                    ]
+                ],
+                "dp_mean": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_DP_mean.txt:md5,0add7edd323f7a7df46c1118870f9dd9"
+                    ]
+                ],
+                "gt": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_GT.txt:md5,c6bb82e3fc42c6049b131e990cce7431"
+                    ]
+                ],
+                "programs": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_header.txt:md5,d694a13ad4d64e9a0a455f3e3e29c150"
+                    ]
+                ],
+                "rd": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_RD.txt:md5,ae59a3ee19f9a594321a4e2752033ee8"
+                    ]
+                ],
+                "rd_mean": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_RD_mean.txt:md5,0c89c4c336ea87db4775310f5c73f263"
+                    ]
+                ],
+                "vaf": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_VAF.txt:md5,6d7393b63d68c9163de8d99a1ea3bc91"
+                    ]
+                ],
+                "vd": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_VD.txt:md5,313ae63a1dc071604f6bf8f1e6dfefaa"
+                    ]
+                ],
+                "vd_mean": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_VD_mean.txt:md5,58351ef788f43dcb71a58d8bd847c688"
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,9fdfc65b78f7ac5e2d0ed7cd0209357a"
+                    "versions.yml:md5,8c82948b5ba327ba4175106003d21255"
                 ]
             }
         ],
@@ -30,6 +174,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-04-10T07:17:09.586211078"
+        "timestamp": "2025-05-05T09:08:43.0670358"
     }
 }
