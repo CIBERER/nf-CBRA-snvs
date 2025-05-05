@@ -21,7 +21,7 @@ input:
   - gt_file:
       type: file
       description: txt file containing GT field for each program caller separated by tabs.
-      pattern: "*.{vcf.gz}"
+      pattern: "*_GT.txt"
 
 
 output:
