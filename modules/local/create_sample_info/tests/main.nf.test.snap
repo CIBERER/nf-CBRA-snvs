@@ -1,5 +1,5 @@
 {
-    "splitmultiallelic - vcf": {
+    "create_sample_info - vcf ": {
         "content": [
             {
                 "0": [
@@ -7,22 +7,22 @@
                         {
                             "id": "test_sample"
                         },
-                        "test_sample.biallelic.GK.vcf.gz:md5,3411413bfafcf0022991fb7d165e2243"
+                        "test_sample.hg38.final.vcf.gz:md5,22c58597fb8ae1f4804f112d5a3d0d6a"
                     ]
                 ],
                 "1": [
-                    "versions.yml:md5,9fdfc65b78f7ac5e2d0ed7cd0209357a"
+                    "versions.yml:md5,32a539049f8213df55ad25aff842740a"
                 ],
-                "biallelic_renamed_vcf": [
+                "final_vcf": [
                     [
                         {
                             "id": "test_sample"
                         },
-                        "test_sample.biallelic.GK.vcf.gz:md5,3411413bfafcf0022991fb7d165e2243"
+                        "test_sample.hg38.final.vcf.gz:md5,22c58597fb8ae1f4804f112d5a3d0d6a"
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,9fdfc65b78f7ac5e2d0ed7cd0209357a"
+                    "versions.yml:md5,32a539049f8213df55ad25aff842740a"
                 ]
             }
         ],
@@ -30,6 +30,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-04-10T07:17:09.586211078"
+        "timestamp": "2025-05-05T10:42:39.713519934"
     }
 }
