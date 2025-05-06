@@ -15,7 +15,6 @@ workflow DEEP_VARIANT_VCF {
     main:
 
     ch_versions = Channel.empty()
-    //ch_bam.join(ch_intervals).view()
 
     ch_input_for_deepvariant = ch_bam
         .map { meta, bam, bai -> 
@@ -27,8 +26,6 @@ workflow DEEP_VARIANT_VCF {
             [simplified_meta, bed]
         }, by: 0)
         .map { meta, bam, bai, bed -> [meta, bam, bai, bed] }
-        
-    // ch_input_for_deepvariant.view{ "Combined channel: $it" }
 
     DEEPVARIANT (
         ch_input_for_deepvariant,

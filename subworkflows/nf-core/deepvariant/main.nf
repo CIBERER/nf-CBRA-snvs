@@ -13,7 +13,7 @@ workflow DEEPVARIANT {
     main:
 
     ch_versions = Channel.empty()
-    ch_input.view().view{ "Combined channel 2: $it" }
+    
     DEEPVARIANT_MAKEEXAMPLES(ch_input, ch_fasta, ch_fai, ch_gzi, ch_par_bed)
     ch_versions = ch_versions.mix(DEEPVARIANT_MAKEEXAMPLES.out.versions.first())
 

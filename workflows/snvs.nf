@@ -34,7 +34,6 @@ ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : 
 ch_gzi = Channel.of([[],[]])
 ch_par_bed = params.ch_par_bed ? Channel.fromPath(params.ch_par_bed, checkIfExists: true).map { file -> [ [:], file ] } : Channel.of([[:], []])
 //ch_par_bed = Channel.of([[],[]])
-
 //ch_intervals = params.intervals ? Channel.fromPath(params.intervals).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value("")
 
 
@@ -139,8 +138,6 @@ workflow SNVS {
     ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
     }
 
-    //ch_fai.view()
-    
     ch_intervals = params.intervals ? INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
 
     MAPPING (
@@ -163,10 +160,6 @@ workflow SNVS {
         Channel.fromList([tuple([ id: 'dbsnp'],[])]),
         Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
     )
-
-
-    ch_intervals.view()
-    MAPPING.out.bam.view()
     
     DEEP_VARIANT_VCF (
         MAPPING.out.bam,
@@ -176,8 +169,6 @@ workflow SNVS {
         ch_gzi,
         ch_par_bed
     )
-
-    //MAPPING.out.bam.view()
 
    DRAGEN_VCF (
         MAPPING.out.bam, 
