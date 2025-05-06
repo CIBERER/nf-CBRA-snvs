@@ -29,12 +29,11 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai   = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] } : Channel.empty()
 ch_snps = params.known_snps            ? Channel.fromPath(params.known_snps)            : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
-//ch_gzi   = params.ch_gzi ? Channel.fromPath(params.ch_gzi).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
-//ch_par_bed   = params.ch_par_bed ? Channel.fromPath(params.ch_par_bed).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 
-
-ch_gzi = params.ch_gzi ? Channel.fromPath(params.ch_gzi).map { file -> tuple([id: file.baseName], file) } : Channel.empty().map { tuple([id: null], null) }
-ch_par_bed = params.ch_par_bed ? Channel.fromPath(params.ch_par_bed).map { file -> tuple([id: file.baseName], file) } : Channel.empty().map { tuple([id: null], null) }
+//deep variant parameters
+ch_gzi = Channel.of([[],[]])
+ch_par_bed = params.ch_par_bed ? Channel.fromPath(params.ch_par_bed, checkIfExists: true).map { file -> [ [:], file ] } : Channel.of([[:], []])
+//ch_par_bed = Channel.of([[],[]])
 
 //ch_intervals = params.intervals ? Channel.fromPath(params.intervals).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value("")
 
@@ -178,12 +177,9 @@ workflow SNVS {
         ch_par_bed
     )
 
-
-    DEEP_VARIANT_VCF.out.vcf.view()
-    vcf = DEEP_VARIANT_VCF.out.vcf
     //MAPPING.out.bam.view()
 
-    DRAGEN_VCF (
+   DRAGEN_VCF (
         MAPPING.out.bam, 
         ch_fasta,
         ch_fai,
