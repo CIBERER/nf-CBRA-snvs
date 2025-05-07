@@ -1,58 +1,65 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "format2info"
+name: "splitmultiallelic"
 
-description: Take FORMAT field from vcf and merge it with INFO field. 
+description: Take a vcf file and split multiallelic variants into separate lines. In addition, it adds the program name to the header.
 keywords:
   - annotation
   - vcf
   - format
 tools:
-  - "format2info":
-      description: "format2info module takes FORMAT field from vcf file and merge it with INFO field. 
-      In addition, it extracts the name of the values in this new INFO field and save them in a text file. 
-      Both files, resulting vcf and text file are used to add sample info in the annotation step with VEP using --custom parameter."
+  - "splitmultiallelic":
+      description: "splitmultiallelic module takes a vcf file and split multiallelic variants into separate lines with bcftools.
+        In addition, it adds the variant caller program name to the header with the format {samplename}.{program}."
 
 input:
-  - meta:
-      type: map
-      description: |
-        Groovy Map containing sample information
-        e.g. `[ id:'sample1', single_end:false ]`
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
   
-  - vcf:
-      type: file
-      description: vcf file resulting from merging vcf files of individual variant callers. 
-      pattern: "*.{vcf.gz}"
+    - vcf:
+        type: file
+        description: vcf file 
+        pattern: "*.{vcf.gz}"
 
-  - tbi: 
-      type: file
-      description: vcf index
-      pattern: "*.{vcf.gz.tbi}"
+    - tbi: 
+        type: file
+        description: vcf index
+        pattern: "*.{vcf.gz.tbi}"
+
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. [ id:'genome' ]
+    - fasta:
+        type: file
+        description: "The fasta reference file"
+        pattern: "*.{fasta,fa}"
+  - - program: 
+        type: val
+        description: "Program name to add to the header"
 
 output:
 
-  - vcf_to_annotate:
+  - biallelic_renamed_vcf:
     - meta:
         type: map
         description: |
           Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
-    - vcf_to_annotate:
+    - vcf:
         type: file
-        description: vcf file containing FORMAT+INFO fields for annotation
-        pattern: "*.vcf_to_annotate.vcf"
+        description: biallelic vcf file with program name in the header 
+        pattern: "*.biallelic.${program}.vcf.gz"
+    - tbi:
+        type: file
+        description: vcf index
+        pattern: "*.biallelic.${program}.vcf.gz.tbi"
 
-  - fields:
-    - meta:
-          type: map
-          description: |
-            Groovy Map containing sample information
-            e.g. `[ id:'sample1', single_end:false ]`
-    - fields:
-        type: file
-        description: text file with FORMAT+INFO fields column names for annotation with VEP
-        pattern: "*.fields.txt"
+
   
   - versions:
       - versions.yml:
@@ -61,10 +68,6 @@ output:
           pattern: "versions.yml"
 
 authors:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
 maintainers:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
