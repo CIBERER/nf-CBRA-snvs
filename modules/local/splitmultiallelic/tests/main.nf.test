@@ -20,14 +20,14 @@ nextflow_process {
                 
                 input[0] = Channel.of([
                     [ id : 'test_sample' ], // meta map
-                    file("/mnt/tblab/yolanda/GT-Bioinfo/test_gatk4_vcf/fix_mapping_test_dragen_2/bcftools/Sample1_T1.gatk.PASS.vcf.gz", checkIfExists: true),
-                    file("/mnt/tblab/yolanda/GT-Bioinfo/test_gatk4_vcf/fix_mapping_test_dragen_2/bcftools/Sample1_T1.gatk.PASS.vcf.gz.tbi", checkIfExists: true),
-                    "GK"
+                    file("https://zenodo.org/records/15355673/files/Sample1_T1.gatk.PASS.vcf.gz?download=1", checkIfExists: true),
+                    file("https://zenodo.org/records/15355673/files/Sample1_T1.gatk.PASS.vcf.gz.tbi?download=1", checkIfExists: true)
                 ])
                 input[1] =  Channel.fromList([
                     tuple([ id: 'genome'],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
                 ])
+                input[2] =  "gatk"
                 """
             }
         }
