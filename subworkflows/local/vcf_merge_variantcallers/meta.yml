@@ -18,7 +18,8 @@ input:
       description: |
         The input channel containing the vcf and tbi files from different variant callers
         Structure: [ val(meta), [ path(vcfs) ], [ path(tbis) ] ]
-      pattern: "*.{.vcf.gz}, *.{.vcf.gz.tbi}"
+      pattern_vcfs: "*.{.vcf.gz}"
+      pattern_tbis: "*.{.vcf.gz.tbi}" 
   - ch_fasta:
       type: file
       description: |
