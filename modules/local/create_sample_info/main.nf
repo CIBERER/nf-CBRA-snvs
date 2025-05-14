@@ -12,7 +12,6 @@ process CREATE_SAMPLE_INFO {
     
     output:
     tuple val(meta), path("${prefix}.${assembly}.final.vcf.gz"), emit: final_vcf
-    //tuple val(meta), path("*.final.vcf.gz"), path("*.final.vcf.gz.tbi"), emit: final_vcf
     path "versions.yml"           , emit: versions
 
     when:
