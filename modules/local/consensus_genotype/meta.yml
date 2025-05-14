@@ -9,7 +9,8 @@ keywords:
   - format
 tools:
   - "consensus_genotype":
-      description: "CONSENSUS_GENOTYPE module takes GT_file obtained with BCFTOOLS_MERGE with the GT field from each variant caller and get a consensus genotype."
+      description: "CONSENSUS_GENOTYPE module takes GT_file obtained with BCFTOOLS_MERGE with the GT field from each variant caller and get a consensus genotype.
+        Each variant caller is assigned a weight based on the number of calls it makes. In the event of a tie, prioritization is determined by the caller with the highest number of calls, with weights decreasing sequentially from the most to the least calls."
 
 input:
   - meta:
