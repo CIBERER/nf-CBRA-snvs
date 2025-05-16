@@ -1,12 +1,14 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "gatk_vcf"
-description: Variant Calling of SNVs and germline indels with the GATK Haplotypecaller tool and PASS variant filtering.  
+description: Variant Calling of SNVs and germline indels with the GATK Haplotypecaller tool and PASS variant filtering. Multiallelic variants are split into separate lines and the program name (gatk) is added to the header.  
 keywords:
   - bam
   - variant calling
   - haplotypecaller
   - vcf
   - filtering
+  - split multiallelic
+
 components:
   - gatk4/haplotypecaller
   - gatk4/selectvariants
@@ -16,6 +18,7 @@ components:
   - gatk4/mergevcfs
   - tabix/tabix
   - bcftools/filter
+  - splitmultiallelic
   
 input:
   - ch_bam:

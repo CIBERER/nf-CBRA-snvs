@@ -1,6 +1,6 @@
 include { DEEPVARIANT                                                    }      from '../../../subworkflows/nf-core/deepvariant/main'
 include { BCFTOOLS_FILTER                                                }      from '../../../modules/nf-core/bcftools/filter/main'
-
+include { SPLITMULTIALLELIC                                                }      from '../../../modules/local/splitmultiallelic/main'
 
 workflow DEEP_VARIANT_VCF {
 
@@ -16,16 +16,7 @@ workflow DEEP_VARIANT_VCF {
 
     ch_versions = Channel.empty()
 
-    ch_input_for_deepvariant = ch_bam
-        .map { meta, bam, bai -> 
-            def simplified_meta = [id: meta.id]
-            [simplified_meta, bam, bai]
-        }
-        .join(ch_intervals.map { meta, bed -> 
-            def simplified_meta = meta instanceof Map ? [id: meta.id] : [id: meta]
-            [simplified_meta, bed]
-        }, by: 0)
-        .map { meta, bam, bai, bed -> [meta, bam, bai, bed] }
+    ch_input_for_deepvariant = ch_bam.join(ch_intervals)
 
     DEEPVARIANT (
         ch_input_for_deepvariant,
@@ -40,8 +31,15 @@ workflow DEEP_VARIANT_VCF {
         DEEPVARIANT.out.vcf.join(DEEPVARIANT.out.vcf_index)
     )
     ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first())
- 
-    vcf = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi)
+
+    SPLITMULTIALLELIC (
+        BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi),
+        ch_fasta,
+        "deepvariant"
+    )
+    ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
+
+    vcf = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
 
     emit:
     vcf                                        // channel: [ val(meta), path(vcf), path(tbi)]

@@ -29,12 +29,12 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai   = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] } : Channel.empty()
 ch_snps = params.known_snps            ? Channel.fromPath(params.known_snps)            : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
+ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first()
+
 
 //deep variant parameters
 ch_gzi = Channel.of([[],[]])
 ch_par_bed = params.ch_par_bed ? Channel.fromPath(params.ch_par_bed, checkIfExists: true).map { file -> [ [:], file ] } : Channel.of([[:], []])
-//ch_par_bed = Channel.of([[],[]])
-//ch_intervals = params.intervals ? Channel.fromPath(params.intervals).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value("")
 
 
 /*
@@ -61,6 +61,7 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { MAPPING } from '../subworkflows/local/mapping'
 include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
 include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
+include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 
 /*
@@ -80,7 +81,6 @@ include { BWA_INDEX } from '../modules/nf-core/bwa/index/main'
 include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/createsequencedictionary/main'
 include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
-                                                                                                                                           
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -179,6 +179,20 @@ workflow SNVS {
         ch_intervals,
         Channel.fromList([tuple([ id: 'dbsnp'],[])]),
         Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
+    )
+
+    ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : Channel.empty()
+    ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : Channel.empty()
+    ch_deepvariant = params.run_deepvariant ? DEEP_VARIANT_VCF.out.vcf : Channel.empty()
+
+    ch_vcfs_for_merge = ch_gatk.join(ch_dragstr).join(ch_deepvariant)
+
+    VCF_MERGE_VARIANTCALLERS (
+        ch_vcfs_for_merge,   
+        ch_fasta,
+        ch_fai,
+        ch_intervals,
+        ch_assembly
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

@@ -1,18 +1,20 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "deep_variant_vcf"
-description: Variant Calling of SNVs and germline indels with the deep variant tool and PASS variant filtering.  
+description: Variant Calling of SNVs and germline indels with the deep variant tool and PASS variant filtering. Multiallelic variants are split into separate lines and the program name (deepvariant) is added to the header. 
 keywords:
   - bam
   - variant calling
   - deep variant
   - vcf
   - filtering
+  - split multiallelic
 components:
   - deepvariant
   - bcftools/filter
   - deepvariant/makeexamples
   - deepvariant/callvariants
   - deepvariant/postprocessvariants
+  - splitmultiallelic
   
 input:
   - ch_bam:

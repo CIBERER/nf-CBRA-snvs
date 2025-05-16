@@ -1,0 +1,104 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "create_sample_info"
+
+description: Accepts a vcf file and txt files with information about the sample and the variant callers used. It generates a final vcf file with all the information in the FORMAT and INFO fields. 
+keywords:
+  - annotation
+  - vcf
+  - format
+tools:
+  - "create_sample_info":
+      description: "CREATE_SAMPLE_INFO accepts a vcf file and txt files with GT_consensus, AD_mean, DP_mean, VAF, SF and GT_discordances information. 
+        It generates the final vcf file with all the information in the FORMAT and INFO fields and the FORMAT lines to the vcf header."
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    
+    - vcf:
+        type: file
+        description: vcf file containing the merged variants detected by the different variant callers.  
+        pattern: "*vcf.gz"
+
+    - tbi:
+        type: file
+        description: tbi file.  
+        pattern: "*vcf.gz.tbi"
+
+    - GT_consensus:
+        type: file
+        description: txt file containing the consensus GT of the different variant callers.  
+        pattern: "*_consensus_GT.txt"
+
+    - GT_discordances:
+        type: file
+        description: txt file containing 0 when all GT fields are equal and 1 when at least one GT field is different
+        pattern: "*_discordances.txt"
+
+    - AD_mean:
+        type: file
+        description: txt file containing average allele depth (AD)
+        pattern: "*_AD_mean.txt"
+
+    - DP_mean:
+        type: file
+        description: txt file containing average depth  
+        pattern: "*_DP_mean.txt"
+
+    - RD_mean:
+        type: file
+        description: txt file containing average RD
+        pattern: "*_RD_mean.txt"
+
+    - VD_mean:
+        type: file
+        description: txt file containing average VD
+        pattern: "*_VD_mean.txt"
+
+    - VAF:
+        type: file
+        description: txt file containing variant allele frequency (VAF) 
+        pattern: "*_VAF.txt"
+
+    - SF:
+        type: file
+        description: txt file containing a string with the name of the program that detected the variant separated by "_" (SF field)  
+        pattern: "*_SF.txt"
+
+    - programs:
+        type: file
+        description: txt file containing the name of the program callers used to call variants extracted from the header of the vcf file separaded by tabs.
+        pattern: "*_header.txt"
+  
+  - assembly: 
+        type: val
+        description: Assembly used
+        default: meta.id from fasta channel
+
+output:
+
+  - final_vcf:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - vcf:
+        type: file
+        description: Final vcf file with all the information in the FORMAT and INFO fields and the FORMAT lines to the vcf header.
+        pattern: "*.${assembly}.final.vcf.gz"
+  
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"
