@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "deep_variant_vcf"
+description: Variant Calling of SNVs and germline indels with the deep variant tool and PASS variant filtering. Multiallelic variants are split into separate lines and the program name (deepvariant) is added to the header. 
+keywords:
+  - bam
+  - variant calling
+  - deep variant
+  - vcf
+  - filtering
+  - split multiallelic
+components:
+  - deepvariant
+  - bcftools/filter
+  - deepvariant/makeexamples
+  - deepvariant/callvariants
+  - deepvariant/postprocessvariants
+  - splitmultiallelic
+  
+input:
+  - ch_bam:
+      type: file
+      description: |
+        The input channel containing the bam and bai files
+        Structure: [ val(meta), path(bam) , path(bai) ]
+      pattern: "*.{fastq/fastq.gz}"
+  - ch_intervals:
+      type: file
+      description: |
+        Bed file with the genomic regions included in the library (optional)
+        Structure: [ val(meta),  path(bed)  ]
+  - ch_fasta:
+      type: file
+      description: |
+        Reference genome in FASTA format
+        Structure: [ val(meta2),  path(fasta)  ]
+      pattern: "*.{fasta,fa}"
+  - ch_fai:
+      type: file
+      description: |
+        Reference index in FAI format
+        Structure: [ val(meta2),  path(fai)  ]
+      pattern: "*.{fai}"
+  - ch_gzi:
+      type: string
+      description: |
+        Reference genome index in gzi format (either gzi or fai should be used) (optional)
+        Structure: [ val(meta4), val(gzi) ]
+  - ch_par_bed:
+      type: string
+      description: |
+        bed file of pseudoautosomal regions (optional)
+        Structure: [ val(meta5), val(par_bed) ]
+      pattern: "*.bed"
+      
+output:
+  - vcf:
+      type: file
+      description: |
+        Channel containing vcf and tbi files
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+authors:
+  - "@guriaregojo"
+  - "@yocra3"
+maintainers:
+  - "@guriaregojo"
+  - "@yocra3"

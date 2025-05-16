@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "dragen_vcf"
-description: Variant Calling of SNVs and germline indels with the GATK Haplotypecaller tool in dragen mode and PASS variant filtering.  
+description: Variant Calling of SNVs and germline indels with the GATK Haplotypecaller tool in dragen mode and PASS variant filtering. Multiallelic variants are split into separate lines and the program name (dragen) is added to the header. 
 keywords:
   - bam
   - variant calling
@@ -8,6 +8,7 @@ keywords:
   - dragen
   - vcf
   - filtering
+  - split multiallelic
 components:
   - gatk4/haplotypecaller
   - gatk4/selectvariants
@@ -17,6 +18,7 @@ components:
   - gatk4/mergevcfs
   - tabix/tabix
   - bcftools/filter
+  - splitmultiallelic
   
 input:
   - ch_bam:
@@ -53,13 +55,13 @@ input:
       description: |
         VCF file containing known sites (optional)
         Structure: [ val(meta3),  path(vcf)  ]
-       pattern: "*.vcf.gz"
+        pattern: "*.vcf.gz"
   - ch_dbsnp_tbi:
       type: file
       description: |
         VCF index of dbsnp (optional)
         Structure: [ val(meta3),  path(tbi)  ]
-       pattern: "*.vcf.gz.tbi"
+        pattern: "*.vcf.gz.tbi"
       
 output:
   - vcf:

@@ -5,6 +5,11 @@
     "https://github.com/nf-core/modules.git": {
       "modules": {
         "nf-core": {
+          "bcftools/filter": {
+            "branch": "master",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+            "installed_by": ["modules"]
+          },
           "bwa/index": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
@@ -24,6 +29,21 @@
             "branch": "master",
             "git_sha": "ccf06a896339d2a4ed8594daa9f9adb827cb8189",
             "installed_by": ["modules"]
+          },
+          "deepvariant/callvariants": {
+            "branch": "master",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+            "installed_by": ["deepvariant"]
+          },
+          "deepvariant/makeexamples": {
+            "branch": "master",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+            "installed_by": ["deepvariant"]
+          },
+          "deepvariant/postprocessvariants": {
+            "branch": "master",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+            "installed_by": ["deepvariant"]
           },
           "ensemblvep/vep": {
             "branch": "master",
@@ -118,7 +138,7 @@
           "samtools/index": {
             "branch": "master",
             "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
-            "installed_by": ["bam_sort_stats_samtools"]
+            "installed_by": ["bam_sort_stats_samtools", "modules"]
           },
           "samtools/sort": {
             "branch": "master",
@@ -153,6 +173,11 @@
             "branch": "master",
             "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
             "installed_by": ["bam_sort_stats_samtools"]
+          },
+          "deepvariant": {
+            "branch": "master",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+            "installed_by": ["subworkflows"]
           },
           "fastq_align_bwa": {
             "branch": "master",
