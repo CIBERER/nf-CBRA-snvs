@@ -35,8 +35,6 @@ ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { 
 //deep variant parameters
 ch_gzi = Channel.of([[],[]])
 ch_par_bed = params.ch_par_bed ? Channel.fromPath(params.ch_par_bed, checkIfExists: true).map { file -> [ [:], file ] } : Channel.of([[:], []])
-//ch_par_bed = Channel.of([[],[]])
-//ch_intervals = params.intervals ? Channel.fromPath(params.intervals).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value("")
 
 
 /*
@@ -183,19 +181,11 @@ workflow SNVS {
         Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
     )
 
-    //ch_gatk = params.run_gatk ? GATK_VCF.out.vcf.map { meta, vcf, tbi -> [meta + [program:"Gatk"], vcf, tbi] } : Channel.empty()
-    //ch_gatk = GATK_VCF.out.vcf.map { meta, vcf, tbi -> [meta + [program:"gatk"], vcf, tbi] }//.view()
-    //ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf.map { meta, vcf, tbi -> [meta + [program:"Dragen"], vcf, tbi] } : Channel.empty()
-    //ch_dragstr = DRAGEN_VCF.out.vcf.map { meta, vcf, tbi -> [meta + [program:"dragen"], vcf, tbi] }//.view()
-
     ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : Channel.empty()
     ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : Channel.empty()
     ch_deepvariant = params.run_deepvariant ? DEEP_VARIANT_VCF.out.vcf : Channel.empty()
-    ch_gatk.view()
-    ch_dragstr.view()
-    ch_deepvariant.view()
 
-    ch_vcfs_for_merge = ch_gatk.join(ch_dragstr).join(ch_deepvariant).view()
+    ch_vcfs_for_merge = ch_gatk.join(ch_dragstr).join(ch_deepvariant)
 
     VCF_MERGE_VARIANTCALLERS (
         ch_vcfs_for_merge,   
