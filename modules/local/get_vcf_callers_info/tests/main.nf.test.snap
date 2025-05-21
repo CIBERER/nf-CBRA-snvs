@@ -1,0 +1,59 @@
+{
+    "get_vcf_callers_info - gt_file ": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_SF.txt:md5,777c9906922e7d803c1f915388d43a9c"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        [
+                            "dragen.txt:md5,f210268825361009fb989c2c1d4c79b0",
+                            "gatk.txt:md5,eb8969c52f9ad57f7dfea72ac14a88dd",
+                            "test_sample_SF.txt:md5,777c9906922e7d803c1f915388d43a9c"
+                        ]
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,f28b81f2210329f01b7eed95730f449d"
+                ],
+                "column_files": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        [
+                            "dragen.txt:md5,f210268825361009fb989c2c1d4c79b0",
+                            "gatk.txt:md5,eb8969c52f9ad57f7dfea72ac14a88dd",
+                            "test_sample_SF.txt:md5,777c9906922e7d803c1f915388d43a9c"
+                        ]
+                    ]
+                ],
+                "sf_file": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_SF.txt:md5,777c9906922e7d803c1f915388d43a9c"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,f28b81f2210329f01b7eed95730f449d"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-05-16T07:37:09.663572053"
+    }
+}

@@ -1,0 +1,204 @@
+nextflow_workflow {
+
+    name "Test Subworkflow CONSENSUS_GENOTYPE"
+    script "../main.nf"
+    config "./nextflow.config"
+    workflow "CONSENSUS_GENOTYPE"
+
+    tag "modules"
+    tag "modules/local/consensus_genotype"
+
+
+   setup {
+
+        run("BWA_INDEX") {
+            script "../../../../modules/nf-core/bwa/index/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+        run("PICARD_CREATESEQUENCEDICTIONARY") {
+            script "../../../../modules/nf-core/picard/createsequencedictionary/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+        run("MAPPING") {
+            script "../../../../subworkflows/local/mapping/main.nf"
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id : 'test_sample' ],
+                    [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
+                ])
+                input[1] =  Channel.fromList([
+                            tuple([ id: 'test_sample'],
+                            [])
+                        ])
+                input[2] = BWA_INDEX.out.index
+                input[3] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                    ])
+                input[4] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+                input[5] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+                input[6] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz', checkIfExists: true)
+                input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz.tbi', checkIfExists: true)
+                """
+            }
+        }
+
+        run("GATK_VCF") {
+            script "../../../../subworkflows/local/gatk_vcf/main.nf"
+            process {
+                """
+                input[0] = MAPPING.out.bam
+                input[1] =  Channel.fromList([
+                        tuple([ id: 'test_sample'],
+                        [])
+                    ])
+                input[2] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                    ])
+                input[3] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+                input[4] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+                input[5] = input[5] =  Channel.fromList([
+                            tuple([ id: 'test_dbsnp'],
+                            [])
+                        ])
+                input[6] = input[5] =  Channel.fromList([
+                            tuple([ id: 'test_dbsnp'],
+                            [])
+                        ])
+                """
+            }
+        }
+
+        run("GATK4_COMPOSESTRTABLEFILE") {
+            script "../../../../modules/nf-core/gatk4/composestrtablefile/main.nf"
+            process {
+                """
+                input[0] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                input[1] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true)
+                input[2] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true)
+                """
+            }
+        }
+
+        run("DRAGEN_VCF") {
+            script "../../../../subworkflows/local/dragen_vcf/main.nf"
+            process {
+                 """
+                input[0] = MAPPING.out.bam
+                input[1] = Channel.fromList([
+                        tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                ])
+                input[2] =  Channel.fromList([
+                    tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+                input[3] = Channel.fromList([
+                    tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.dict', checkIfExists: true))
+                ])
+                input[4] = GATK4_COMPOSESTRTABLEFILE.out.str_table
+                input[5] =  Channel.fromList([
+                        tuple([ id: 'test_sample'],
+                        [])
+                    ])                
+                input[6] = Channel.fromList([
+                            tuple([ id: 'test_dbsnp'],
+                            [])
+                        ])
+                input[7] = Channel.fromList([
+                            tuple([ id: 'test_dbsnp'],
+                            [])
+                        ])                
+                """
+            }
+        }
+
+
+        run("BCFTOOLS_MERGE") {
+            script "../../../../modules/nf-core/bcftools/merge/main.nf"
+            process {
+                 """
+                input[0] = GATK_VCF.out.vcf.join(DRAGEN_VCF.out.vcf).map { item ->
+                def meta = item[0]
+                def files = item[1..-1].collect { file(it) }
+                def vcfs = files.findAll { it.name.endsWith('.vcf.gz') }
+                def tbis = files.findAll { it.name.endsWith('.vcf.gz.tbi') }
+                [meta, vcfs, tbis]
+                }
+                input[1] = Channel.fromList([
+                        tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                ])
+                input[2] =  Channel.fromList([
+                    tuple([ id: 'genome'],file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+                input[3] =  Channel.fromList([
+                    tuple([ id: 'test_sample'],
+                    [])
+                ]) 
+         
+                """
+            }
+        }
+
+        run("TABIX_TABIX") {
+            script "../../../../modules/nf-core/tabix/tabix/main.nf"
+            process {
+                 """
+                input[0] = BCFTOOLS_MERGE.out.vcf
+                """
+            }
+        }
+
+        run("BCFTOOLS_QUERY_STATS") {
+            script "../../../../modules/local/bcftools_query_stats/main.nf"
+            process {
+                 """
+                input[0] = BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
+                """
+            }
+        }
+
+    }
+
+
+    test("consensus_genotype - gt_file ") {
+
+
+        when {
+            workflow {
+                """
+                input[0] = BCFTOOLS_QUERY_STATS.out.gt
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+}
