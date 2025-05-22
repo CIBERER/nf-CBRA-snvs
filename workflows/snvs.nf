@@ -63,6 +63,7 @@ include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
 include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
 include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
+include { CONVERT_MT_BAM_TO_FASTQ           } from '../subworkflows/local/convert_mt_bam_to_fastq'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,7 +152,7 @@ workflow SNVS {
         ch_snps_tbi
     )
 
-    GATK_VCF (
+  /*  GATK_VCF (
         MAPPING.out.bam,
         ch_intervals,
         ch_fasta,
@@ -194,10 +195,11 @@ workflow SNVS {
         ch_intervals,
         ch_assembly
     )
+    */
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    )
+    ) 
 
     CONVERT_MT_BAM_TO_FASTQ (
         MAPPING.out.bam,

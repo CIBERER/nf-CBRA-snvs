@@ -24,8 +24,8 @@ nextflow_workflow {
             process {
                 """
                 input[0] = [
-                    [ id: 'genome'],
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                    [ id: 'references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta'],
+                    file('/mnt/genetica7/references_chrM/chrM_hg38/references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta', checkIfExists: true)
                 ]
                 """
             }
@@ -36,8 +36,8 @@ nextflow_workflow {
             process {
                 """
                 input[0] = [
-                    [ id: 'genome'],
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                    [ id: 'references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta'],
+                    file('/mnt/genetica7/references_chrM/chrM_hg38/references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta', checkIfExists: true)
                 ]
                 """
             }
@@ -49,8 +49,8 @@ nextflow_workflow {
                 """
                 input[0] = Channel.of([
                     [ id : 'test_sample' ],
-                    [file('ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR121/036/ERR12163936/ERR12163936_1.fastq.gz', checkIfExists: true),
-                    file('ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR121/036/ERR12163936/ERR12163936_2.fastq.gz', checkIfExists: true)]
+                    [file('ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR770/005/SRR7700725/SRR7700725_1.fastq.gz', checkIfExists: true),
+                    file('ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR770/005/SRR7700725/SRR7700725_2.fastq.gz', checkIfExists: true)]
                 ])
                 input[1] =  Channel.fromList([
                             tuple([ id: 'test_sample'],
@@ -58,12 +58,12 @@ nextflow_workflow {
                         ])
                 input[2] = BWA_INDEX.out.index
                 input[3] =  Channel.fromList([
-                        tuple([ id: 'genome'],
-                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                        tuple([ id: 'references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta'],
+                        file('/mnt/genetica7/references_chrM/chrM_hg38/references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta', checkIfExists: true))
                     ])
                 input[4] =  Channel.fromList([
-                        tuple([ id: 'genome'],
-                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                        tuple([ id: 'references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta'],
+                        file('/mnt/genetica7/references_chrM/chrM_hg38/references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta.fai', checkIfExists: true))
                     ])
                 input[5] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
                 input[6] = Channel.empty()
@@ -79,25 +79,40 @@ nextflow_workflow {
         when {
             workflow {
                 """
+                println "Starting workflow execution"
+                
                 input[0] = MAPPING.out.bam
-                input[1] =  Channel.fromList([
-                        tuple([ id: 'genome'],
-                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
-                    ])
-                input[2] =  Channel.fromList([
-                        tuple([ id: 'genome'],
-                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
-                        ])
+                println "Input[0] (BAM) set: \${input[0]}"
+                
+                input[1] = Channel.fromList([
+                    tuple([ id: 'references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta'],
+                    file('/mnt/genetica7/references_chrM/chrM_hg38/references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta', checkIfExists: true))
+                ])
+                println "Input[1] (Reference FASTA) set: \${input[1]}"
+                
+                input[2] = Channel.fromList([
+                    tuple([ id: 'references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta'],
+                    file('/mnt/genetica7/references_chrM/chrM_hg38/references_hg38_v0_chrM_Homo_sapiens_assembly38.chrM.fasta.fai', checkIfExists: true))
+                ])
+                println "Input[2] (Reference FAI) set: \${input[2]}"
+                
                 input[3] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+                println "Input[3] (Reference Dict) set: \${input[3]}"
+                
+                println "All inputs set, ready to execute workflow"
                 """
             }
         }
 
         then {
-            assertAll(
-                { assert workflow.success},
-                { assert snapshot(workflow.out).match()}
-            )
+            println "Workflow execution completed"
+            println "Workflow success: \${workflow.success}"
+            println "Number of executed tasks: \${workflow.trace.tasks().size()}"
+            println "Workflow output: \${workflow.out}"
+            
+            assert workflow.success
+            assert workflow.trace.tasks().size() > 0
+            assert snapshot(workflow.out).match()
         }
     }
 

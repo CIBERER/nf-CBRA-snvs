@@ -1,0 +1,2 @@
+sample,fastq_1,fastq_2
+Sample1,ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR770/005/SRR7700725/SRR7700725_1.fastq.gz,ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR770/005/SRR7700725/SRR7700725_2.fastq.gz
