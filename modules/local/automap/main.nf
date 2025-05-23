@@ -4,8 +4,12 @@ process AUTOMAP {
     errorStrategy 'retry'
 
     // Conda is not supported
-    container "/mnt/tblab/yolanda/automap/automap.sif"
-    
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'docker://docker.io/yolandabq/automap:1' :
+        'docker.io/yolandabq/automap:1' }"
+
+
+
     input:
     tuple val(meta), path(vcf), path(tbi)
     val automap_assembly
