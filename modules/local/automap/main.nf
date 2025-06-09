@@ -11,7 +11,7 @@ process AUTOMAP {
 
 
     input:
-    tuple val(meta), path(vcf), path(tbi)
+    tuple val(meta), path(vcf)
     val automap_assembly
     path projectDir
 

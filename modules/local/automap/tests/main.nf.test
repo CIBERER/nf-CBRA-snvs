@@ -18,8 +18,7 @@ nextflow_process {
                 """                
                 input[0] = [
                     [ id:'test', single_end:false ], // meta map
-                    file("/mnt/tblab/GURYBQ/10-1918.hg38.final.vcf.gz", checkIfExists: true),
-                    file("/mnt/tblab/GURYBQ/10-1918.hg38.final.vcf.gz.tbi", checkIfExists: true)
+                    file("https://raw.githubusercontent.com/mquinodo/AutoMap/refs/heads/master/Test/TestSample.vcf", checkIfExists: true)
                 ]
                 input[1] = "hg38"
                 input[2] = "${projectDir}"
