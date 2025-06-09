@@ -1,0 +1,127 @@
+nextflow_workflow {
+
+    name "Test Subworkflow MAPPING"
+    script "../main.nf"
+    workflow "MAPPING"
+
+    tag "subworkflows"
+    tag "subworkflows/mapping"
+    tag "bwa"
+    tag "bwa/mem"
+    tag "gatk4"
+    tag "gatk4/fastqtosam"
+    tag "gatk4/mergebamalignment"
+    tag "gatk4/fastqtosam"
+    tag "gatk4/baserecalibrator"
+    tag "gatk4/applybqr"
+    tag "gatk4spark"
+    tag "gatk4spark/markduplicates"    
+    tag "picard"
+    tag "picard/sortsam"
+
+
+    setup {
+
+        run("BWA_INDEX") {
+            script "../../../../modules/nf-core/bwa/index/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+        run("PICARD_CREATESEQUENCEDICTIONARY") {
+            script "../../../../modules/nf-core/picard/createsequencedictionary/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+    }
+
+    test("mapping - fastq - with intervals") {
+
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id : 'test_sample' ],
+                    [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
+                ])
+                input[1] =  Channel.fromList([
+                        tuple([ id: 'test_sample'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.bed', checkIfExists: true))
+                    ])                
+                input[2] = BWA_INDEX.out.index
+                input[3] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                    ])
+                input[4] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+                input[5] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+                input[6] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz', checkIfExists: true)
+                input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz.tbi', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+
+        test("mapping - fastq - without intervals") {
+
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id : 'test_sample' ],
+                    [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
+                ])
+                input[1] =  Channel.fromList([
+                            tuple([ id: 'test_sample'],
+                            [])
+                        ])
+                input[2] = BWA_INDEX.out.index
+                input[3] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                    ])
+                input[4] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+                input[5] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+                input[6] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz', checkIfExists: true)
+                input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz.tbi', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+}

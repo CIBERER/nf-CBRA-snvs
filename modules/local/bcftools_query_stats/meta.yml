@@ -1,0 +1,156 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "bcftools_query_stats"
+
+description: Takes a merged VCF and extract multiple information. 
+keywords:
+  - annotation
+  - vcf
+  - format
+tools:
+  - "bcftools_query_stats":
+      description: "bcftools_query_stats module takes a merged VCF and extract different information:
+        - 1. Extract program names (vcf callers used). 
+        - 2. Extract genotype, depth and variant allele depth (GT, DP, AD) of each program caller.
+        - 3. Calculate the average depth and variant allele depth.
+        - 4. Calculate variant allele depth (VAD)
+        "
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  
+  - vcf:
+      type: file
+      description: vcf file resulting from merging vcf files of individual variant callers. 
+      pattern: "*.{vcf.gz}"
+
+  - tbi: 
+      type: file
+      description: vcf index
+      pattern: "*.{vcf.gz.tbi}"
+
+output:
+
+  - gt:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - GT:
+        type: file
+        description: txt file containing GT field for each program caller
+        pattern: "*_GT.txt"
+
+  - dp:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - DP:
+        type: file
+        description: txt file containing DP field for each program caller
+        pattern: "*_DP.txt"
+
+  - vd:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - VD:
+        type: file
+        description: txt file containing variant frequency (VD) field extracted from AD field for each program caller
+        pattern: "*_VD.txt"
+
+  - rd:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - RD:
+        type: file
+        description: txt file containing read depth (RD) field extracted from AD field for each program caller
+        pattern: "*_RD.txt"
+  
+  - dp_mean:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - DP_mean:
+        type: file
+        description: txt file containing average depth
+        pattern: "*_DP_mean.txt"
+
+  - vd_mean:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - VD_mean:
+        type: file
+        description: txt file containing average VD
+        pattern: "*_VD_mean.txt"
+
+  - rd_mean:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - RD_mean:
+        type: file
+        description: txt file containing average RD
+        pattern: "*_RD_mean.txt"
+
+  - ad_mean:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - AD_mean:
+        type: file
+        description: txt file containing average allele depth (AD)
+        pattern: "*_AD_mean.txt"
+
+  - vaf:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - VAF:
+        type: file
+        description: txt file containing variant allele frequency (VAF) 
+        pattern: "*_VAF.txt"
+
+  - programs:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - header:
+        type: file
+        description: txt file containing the name of the program callers used to call variants extracted from the header of the vcf file
+        pattern: "*_header.txt"
+
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"

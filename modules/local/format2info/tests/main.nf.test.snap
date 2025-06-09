@@ -1,0 +1,55 @@
+{
+    "format2info - vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test.vcf_to_annotate.vcf:md5,b71e8b32ce5b158cf871ad32e5d973de"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test.fields.txt:md5,637a08b0a88d82b93cb41acc13866039"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,228c36eb4b6c94cbbac8f502502faf05"
+                ],
+                "fields": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test.fields.txt:md5,637a08b0a88d82b93cb41acc13866039"
+                    ]
+                ],
+                "vcf_to_annotate": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test.vcf_to_annotate.vcf:md5,b71e8b32ce5b158cf871ad32e5d973de"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,228c36eb4b6c94cbbac8f502502faf05"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.0",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2024-11-05T11:27:51.870445723"
+    }
+}

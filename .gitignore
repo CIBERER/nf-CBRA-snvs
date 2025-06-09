@@ -1,2 +1,3 @@
-.nf-test/
-.nf-test.log
+.nf-test*
+.nextflow/
+work/

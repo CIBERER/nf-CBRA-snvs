@@ -1,0 +1,70 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "format2info"
+
+description: Take FORMAT field from vcf and merge it with INFO field. 
+keywords:
+  - annotation
+  - vcf
+  - format
+tools:
+  - "format2info":
+      description: "format2info module takes FORMAT field from vcf file and merge it with INFO field. 
+      In addition, it extracts the name of the values in this new INFO field and save them in a text file. 
+      Both files, resulting vcf and text file are used to add sample info in the annotation step with VEP using --custom parameter."
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  
+  - vcf:
+      type: file
+      description: vcf file resulting from merging vcf files of individual variant callers. 
+      pattern: "*.{vcf.gz}"
+
+  - tbi: 
+      type: file
+      description: vcf index
+      pattern: "*.{vcf.gz.tbi}"
+
+output:
+
+  - vcf_to_annotate:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - vcf_to_annotate:
+        type: file
+        description: vcf file containing FORMAT+INFO fields for annotation
+        pattern: "*.vcf_to_annotate.vcf"
+
+  - fields:
+    - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1', single_end:false ]`
+    - fields:
+        type: file
+        description: text file with FORMAT+INFO fields column names for annotation with VEP
+        pattern: "*.fields.txt"
+  
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@rafafariasvarona"
+  - "@yolandabq"
+  - "@guriaregojo"
+maintainers:
+  - "@rafafariasvarona"
+  - "@yolandabq"
+  - "@guriaregojo"

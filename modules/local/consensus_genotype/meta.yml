@@ -1,0 +1,64 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "consensus_genotype"
+
+description: Takes GT_file with the GT field from each variant caller and get a consensus genotype. 
+keywords:
+  - annotation
+  - vcf
+  - format
+tools:
+  - "consensus_genotype":
+      description: "CONSENSUS_GENOTYPE module takes GT_file obtained with BCFTOOLS_MERGE with the GT field from each variant caller and get a consensus genotype.
+        Each variant caller is assigned a weight based on the number of calls it makes, with weights ranging from 2 to the total number of variant callers plus 1. 
+        In the event of a tie, prioritization is determined by the caller with the highest number of calls, with weights decreasing sequentially from the most to the least calls.
+        Discordances are also identified, where 0 indicates that all GT fields are equal and 1 indicates that at least one GT field is different."
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  
+  - gt_file:
+      type: file
+      description: txt file containing GT field for each program caller separated by tabs.
+      pattern: "*_GT.txt"
+
+
+output:
+
+  - consensus_gt:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - consensus_GT:
+        type: file
+        description: txt file containing consensus GT field
+        pattern: "*_consensus_GT.txt"
+
+  - discordances:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - discordances:
+        type: file
+        description: txt file containing 0 when all GT fields are equal and 1 when at least one GT field is different
+        pattern: "*_discordances.txt"
+  
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+
+maintainers:
+  - "@yolandabq"
