@@ -44,10 +44,14 @@ output:
         description: |
           Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
-    - HomRegions: 
+    - roh_automap_tsv: 
         type: file
         description: |
-          Path to the HomRegion file. 
+          Path to the HomRegion file in tsv format. 
+    - roh_automap_pdf: 
+        type: file
+        description: |
+          Path to the HomRegion file in pdf format. 
   
   - versions:
       type: file

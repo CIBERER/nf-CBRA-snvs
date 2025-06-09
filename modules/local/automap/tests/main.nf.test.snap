@@ -8,25 +8,37 @@
                             "id": "test",
                             "single_end": false
                         },
-                        [
-                            "TestSample.HomRegions.pdf:md5,5daa9b5bd3642d9dfcfe588af776dfb6",
-                            "TestSample.HomRegions.tsv:md5,45a2378a6f760cac0e05fd1264f995bb"
-                        ]
+                        "TestSample.HomRegions.tsv:md5,45a2378a6f760cac0e05fd1264f995bb"
                     ]
                 ],
                 "1": [
-                    "versions.yml:md5,db647745175c1b36911a7e1290d82a74"
-                ],
-                "roh_automap": [
                     [
                         {
                             "id": "test",
                             "single_end": false
                         },
-                        [
-                            "TestSample.HomRegions.pdf:md5,5daa9b5bd3642d9dfcfe588af776dfb6",
-                            "TestSample.HomRegions.tsv:md5,45a2378a6f760cac0e05fd1264f995bb"
-                        ]
+                        "TestSample.HomRegions.pdf:md5,c02679e6ac09e0e24296f27ed2fc4dda"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,db647745175c1b36911a7e1290d82a74"
+                ],
+                "roh_automap_pdf": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "TestSample.HomRegions.pdf:md5,c02679e6ac09e0e24296f27ed2fc4dda"
+                    ]
+                ],
+                "roh_automap_tsv": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "TestSample.HomRegions.tsv:md5,45a2378a6f760cac0e05fd1264f995bb"
                     ]
                 ],
                 "versions": [
@@ -38,6 +50,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-06-09T08:49:57.331701972"
+        "timestamp": "2025-06-09T09:01:54.952924521"
     }
 }

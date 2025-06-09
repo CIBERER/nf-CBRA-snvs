@@ -16,7 +16,8 @@ process AUTOMAP {
     path projectDir
 
     output:
-    tuple val(meta), path("*HomRegions*"), emit: roh_automap
+    tuple val(meta), path("*HomRegions*.tsv"), emit: roh_automap_tsv
+    tuple val(meta), path("*HomRegions*.pdf"), emit: roh_automap_pdf
     path "versions.yml"           , emit: versions
 
     when:
