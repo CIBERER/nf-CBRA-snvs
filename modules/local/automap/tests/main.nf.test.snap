@@ -1,0 +1,55 @@
+{
+    "automap - vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "TestSample.HomRegions.tsv:md5,45a2378a6f760cac0e05fd1264f995bb"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "TestSample.HomRegions.pdf:md5,c02679e6ac09e0e24296f27ed2fc4dda"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,db647745175c1b36911a7e1290d82a74"
+                ],
+                "roh_automap_pdf": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "TestSample.HomRegions.pdf:md5,c02679e6ac09e0e24296f27ed2fc4dda"
+                    ]
+                ],
+                "roh_automap_tsv": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "TestSample.HomRegions.tsv:md5,45a2378a6f760cac0e05fd1264f995bb"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,db647745175c1b36911a7e1290d82a74"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-06-09T09:01:54.952924521"
+    }
+}
