@@ -10,7 +10,7 @@ process FORMAT2INFO {
     tuple val(meta), path(vcf), path(tbi)
 
     output:
-    tuple val(meta), path("${prefix}.vcf_to_annotate.vcf"), emit: vcf_to_annotate
+    tuple val(meta), path("${prefix}.vcf_to_annotate.vcf.gz"), emit: vcf_to_annotate
     tuple val(meta), path("${prefix}.fields.txt"), emit: fields
     path "versions.yml"           , emit: versions
 
@@ -22,7 +22,7 @@ process FORMAT2INFO {
     prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    FORMAT=(GT AD DP VAF SF GD DV_GT DV_DP DV_VD DR_GT DR_DP DR_VD GK_GT GK_DP GK_VD)
+    FORMAT=\$(gunzip -c ${vcf} | awk '/^#[^#]/{getline; gsub(":", " ", \$9); print \$9}') 
 
 	bcftools view -h ${vcf} | grep "##" > ${prefix}.vcf_to_annotate.vcf
 	echo "##INFO=<ID=variant_id,Number=.,Type=String,Description=\\"variant identification\\">" >> ${prefix}.vcf_to_annotate.vcf
@@ -52,6 +52,8 @@ process FORMAT2INFO {
 		 
 	for sample in \$(bcftools query -l ${vcf}); do for field in \${FORMAT[@]}; do fields="\$(echo "\${fields},\${sample}_\${field}")"; done; done
 	echo \${fields} > ${prefix}.fields.txt
+
+    bgzip -c ${prefix}.vcf_to_annotate.vcf > ${prefix}.vcf_to_annotate.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
