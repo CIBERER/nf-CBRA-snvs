@@ -1,42 +1,22 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: "vcf_merge_variantcallers"
-description: It takes vcf files from different variant callers and merge them into a single vcf file. 
+name: "check_process_automap"
+description: Check if the vcf file contains more than 10000 variants and run automap if so.
 keywords:
   - vcf
-  - merge
+  - automap
 components:
-  - bcftools/merge
-  - tabix/tabix
-  - bcftools_query_stats
-  - consensus_genotype
-  - get_vcf_callers_info
-  - create_sample_info
+  - validate_automap
+  - automap
+
 
 input:
-  - ch_vcfs:
+  - ch_vcf:
       type: file
       description: |
-        The input channel containing the vcf and tbi files from different variant callers
-        Structure: [ val(meta), [ path(vcfs) ], [ path(tbis) ] ]
-      pattern_vcfs: "*.{.vcf.gz}"
-      pattern_tbis: "*.{.vcf.gz.tbi}" 
-  - ch_fasta:
-      type: file
-      description: |
-        Reference genome in FASTA format
-        Structure: [ val(meta3), [ path(fasta) ] ]
-      pattern: "*.{fasta,fa}"
-  - ch_fai:
-      type: file
-      description: |
-        Reference index in FAI format
-        Structure: [ val(meta3), [ path(fai) ] ]
-      pattern: "*.{fai}"
-  - ch_intervals:
-      type: file
-      description: |
-        Bed file with the genomic regions included in the library (optional)
-        Structure: [ val(meta), [ path(bed) ] ]
+        The input channel containing the vcf file
+        Structure: [ val(meta), path(vcf)]
+      pattern: "*.{vcf.gz}"
+
   - assembly: 
       type: val
       description: |
@@ -44,17 +24,12 @@ input:
         e.g. "hg38"
       
 output:
-  - vcf:
+  - automap:
       type: file
       description: |
-        Channel containing merges vcf file
-        Structure: [ val(meta), path(vcf), path(tbi) ]
-  - versions:
-      type: file
-      description: |
-        File containing software versions
-        Structure: [ path(versions.yml) ]
-      pattern: "versions.yml"
+        Path to the HomRegion file in tsv format.
+        Structure: [ val(meta), path(tsv)]
+
 authors:
   - "@yolandabq"
   - "@yocra3"

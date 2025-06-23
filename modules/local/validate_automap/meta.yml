@@ -1,39 +1,25 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "automap"
+name: "validate automap"
 ## TODO nf-core: Add a description of the module and list keywords
-description: Find regions of homozygosity (ROHs) from sequencing data of human samples.
+description: Check if the vcf file contains more than 10000 variants. 
 keywords:
   - homozygosity
   - genomics
 tools:
   - "automap":
       ## TODO nf-core: Add a description and other details for the software below
-      description: "Automap is a tool to find regions of homozygosity (ROHs) from sequencing data of human samples. Version AutoMap v1.3"
+      description: "Automap is a tool to find regions of homozygosity (ROHs) from sequencing data of human samples. Version AutoMap v1.3. It needs more than 10000 high quality variants in the vcf file to run."
       homepage: "https://github.com/mquinodo/AutoMap"
       documentation: "https://github.com/mquinodo/AutoMap"
 
 input:
-  - meta:
-      type: map
+  - ch_vcf:
+      type: file
       description: |
-        Groovy Map containing sample information
-        e.g. `[ id:'sample1', single_end:false ]`
-
-  - vcf:
-      type: file
-      description: vcf file resulting from merging vcf files of individual variant callers. 
+        The input channel containing the vcf file
+        Structure: [ val(meta), path(vcf)]
       pattern: "*.{vcf.gz}"
-
-  - tbi: 
-      type: file
-      description: vcf index
-      pattern: "*.{vcf.gz.tbi}"
-
-  - automap_assembly: 
-      type: value
-      description: used assembly (hg38, hg19)
-      pattern: hg38 or hg19
 
 ## TODO nf-core: Add a description of all of the variables used as output
 output:
@@ -44,25 +30,19 @@ output:
         description: |
           Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
-    - roh_automap_tsv: 
+    - vcf:
         type: file
+        description: vcf file resulting from merging vcf files of individual variant callers. 
+        pattern: "*.{vcf.gz}"
+    - env('VALIDATION_STATUS'): 
+        type: boolean 
         description: |
-          Path to the HomRegion file in tsv format. 
-    - roh_automap_pdf: 
-        type: file
-        description: |
-          Path to the HomRegion file in pdf format. 
-  
-  - versions:
-      type: file
-      description: File containing software versions
-      pattern: "versions.yml"
+          Boolean indicating if the vcf file contains more than 10000 variants. 
+
 
 authors:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
+  - "@yocra3"
 maintainers:
-  - "@rafafariasvarona"
   - "@yolandabq"
-  - "@guriaregojo"
+  - "@yocra3"
