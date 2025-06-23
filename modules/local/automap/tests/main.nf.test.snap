@@ -17,11 +17,11 @@
                             "id": "test",
                             "single_end": false
                         },
-                        "TestSample.HomRegions.pdf:md5,80621b495c1e9a3410735c00ef09e109"
+                        "TestSample.HomRegions.pdf:md5,4fef1193433083bd5b95b026bbea75d1"
                     ]
                 ],
                 "2": [
-                    "versions.yml:md5,db647745175c1b36911a7e1290d82a74"
+                    "versions.yml:md5,7bd6a6441c6db73419c61ac6d16a3d4f"
                 ],
                 "roh_automap_file": [
                     [
@@ -38,11 +38,11 @@
                             "id": "test",
                             "single_end": false
                         },
-                        "TestSample.HomRegions.pdf:md5,80621b495c1e9a3410735c00ef09e109"
+                        "TestSample.HomRegions.pdf:md5,4fef1193433083bd5b95b026bbea75d1"
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,db647745175c1b36911a7e1290d82a74"
+                    "versions.yml:md5,7bd6a6441c6db73419c61ac6d16a3d4f"
                 ]
             }
         ],
@@ -50,6 +50,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-06-16T08:21:12.612077926"
+        "timestamp": "2025-06-23T10:46:44.307874251"
     }
 }

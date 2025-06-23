@@ -13,7 +13,6 @@ process AUTOMAP {
     input:
     tuple val(meta), path(vcf)
     val automap_assembly
-    path projectDir
 
     output:
     tuple val(meta), path("*HomRegions*.tsv"), emit: roh_automap_file

@@ -21,7 +21,6 @@ nextflow_process {
                     file("https://raw.githubusercontent.com/mquinodo/AutoMap/refs/heads/master/Test/TestSample.vcf", checkIfExists: true)
                 ]
                 input[1] = "hg38"
-                input[2] = "${projectDir}"
                 """
             }
         }
