@@ -8,8 +8,6 @@ process AUTOMAP {
         'docker://docker.io/yolandabq/automap:1' :
         'docker.io/yolandabq/automap:1' }"
 
-
-
     input:
     tuple val(meta), path(vcf)
     val automap_assembly
