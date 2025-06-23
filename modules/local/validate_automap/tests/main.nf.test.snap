@@ -1,0 +1,33 @@
+{
+    "validate_automap - vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "TestSample.vcf:md5,c9fd342f1691361a843356149e24f901",
+                        "PASS"
+                    ]
+                ],
+                "validate_automap": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "TestSample.vcf:md5,c9fd342f1691361a843356149e24f901",
+                        "PASS"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-06-23T10:31:45.384814062"
+    }
+}
