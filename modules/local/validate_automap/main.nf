@@ -12,7 +12,7 @@ process VALIDATE_AUTOMAP {
 
     """
     line_count=\$(zgrep -v "#" ${vcf} | wc -l)
-    if [ \$line_count -ge 1000 ]; then
+    if [ \$line_count -ge 10000 ]; then
         VALIDATION_STATUS="PASS"
         echo "File validation passed" > ${prefix}.automap.validation.log
     else
