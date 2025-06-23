@@ -20,14 +20,11 @@ workflow CHECK_PROCESS_AUTOMAP {
         | filter { meta, file, status -> status == "PASS" }
         | map { meta, file, status -> [meta, file] }
 
-    valid_files.view()
-
     AUTOMAP (
         valid_files,
         automap_assembly
     )
 
-    AUTOMAP.out.roh_automap_file.view()
     automap = AUTOMAP.out.roh_automap_file
 
     emit:
