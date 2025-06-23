@@ -17,7 +17,7 @@ process VALIDATE_AUTOMAP {
         echo "File validation passed" > ${prefix}.automap.validation.log
     else
         VALIDATION_STATUS="FAIL"
-        echo "File validation failed: only \$line_count lines" > ${prefix}.automap.validation.fail.log
+        echo "File validation failed: only \$line_count variants" > ${prefix}.automap.validation.fail.log
     fi
     """
 }
