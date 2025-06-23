@@ -1,0 +1,46 @@
+{
+    "automap - vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "TestSample.HomRegions.tsv:md5,45a2378a6f760cac0e05fd1264f995bb"
+                    ]
+                ],
+                "automap": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "TestSample.HomRegions.tsv:md5,45a2378a6f760cac0e05fd1264f995bb"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-06-23T12:43:30.433165576"
+    },
+    "automap not working - vcf": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "automap": [
+                    
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-06-23T12:43:38.19488595"
+    }
+}
