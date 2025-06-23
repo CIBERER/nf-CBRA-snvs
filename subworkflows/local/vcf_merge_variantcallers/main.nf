@@ -30,8 +30,6 @@ workflow VCF_MERGE_VARIANTCALLERS {
     }
     .set { ch_for_bcftoolsmerge }
 
-    ch_for_bcftoolsmerge.view()
-
     BCFTOOLS_MERGE (
         ch_for_bcftoolsmerge,
         ch_fasta,
@@ -66,7 +64,7 @@ workflow VCF_MERGE_VARIANTCALLERS {
         CREATE_SAMPLE_INFO.out.final_vcf
     )
 
-    vcf = CREATE_SAMPLE_INFO.out.final_vcf.join(TABIX_TABIX_FINAL_VCF.out.tbi).view()
+    vcf = CREATE_SAMPLE_INFO.out.final_vcf.join(TABIX_TABIX_FINAL_VCF.out.tbi)
 
     emit:
     vcf                                        // channel: [ [val(meta)], path(vcf), path(tbi)]
