@@ -50,7 +50,7 @@ process BCFTOOLS_QUERY_STATS {
     paste -d, ${prefix}_RD_mean.txt ${prefix}_VD_mean.txt > ${prefix}_AD_mean.txt
 
     # Calculate variant allele depth (VAD)
-    paste ${prefix}_VD_mean.txt ${prefix}_DP_mean.txt | awk -v OFMT=%.2f '{print(\$1/\$2)}' > ${prefix}_VAF.txt
+    paste ${prefix}_VD_mean.txt ${prefix}_DP_mean.txt | awk -v OFMT=%.2f '{if (\$2 == 0) print "-nan"; else print(\$1/\$2)}' > ${prefix}_VAF.txt
 
 
     cat <<-END_VERSIONS > versions.yml
