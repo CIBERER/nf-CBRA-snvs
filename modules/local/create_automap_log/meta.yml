@@ -24,7 +24,7 @@ input:
 output:
   #Only when we have meta
   - log_file:
-        type: map
+        type: file
         description: Automap log file containing the sample name, the automap status and the vcf file
         pattern: "automap_execution_log.txt"
   - versions.yml:

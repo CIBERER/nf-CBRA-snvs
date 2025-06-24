@@ -1,13 +1,12 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "check_process_automap"
-description: Check if the vcf file contains more than 10000 variants and run automap if so.
+description: Run automap and check the process status, creating a log file. 
 keywords:
   - vcf
   - automap
 components:
-  - validate_automap
   - automap
-
+  - create_automap_log
 
 input:
   - ch_vcf:
@@ -29,7 +28,11 @@ output:
       description: |
         Path to the HomRegion file in tsv format.
         Structure: [ val(meta), path(tsv)]
-
+  - log_file:
+        type: file
+        description: Automap log file containing the sample name, the automap status and the vcf file
+        pattern: "automap_execution_log.txt"
+        
 authors:
   - "@yolandabq"
   - "@yocra3"
