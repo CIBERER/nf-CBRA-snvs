@@ -15,7 +15,7 @@ nextflow_workflow {
                 """
                 input[0] = Channel.of([
                     [ id:'test'], // meta map
-                    file("/mnt/tblab/yolanda/GT-Bioinfo/annotation/test/GIAB/results/snvs/NA12878-HG001_T1.hg38.final.chr1.chr22.vcf.gz", checkIfExists: true)
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz?download=1", checkIfExists: true)
                 ])
                 input[1] = "hg38"
                 """
