@@ -1,0 +1,25 @@
+{
+    "validate_automap - vcf": {
+        "content": [
+            {
+                "0": [
+                    "automap_execution_log.txt:md5,73213781322a9239a17cfd974a610cd7"
+                ],
+                "1": [
+                    "versions.yml:md5,5b0c36c698d75a118b031e73db6e16d6"
+                ],
+                "log_file": [
+                    "automap_execution_log.txt:md5,73213781322a9239a17cfd974a610cd7"
+                ],
+                "versions": [
+                    "versions.yml:md5,5b0c36c698d75a118b031e73db6e16d6"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-06-24T13:05:27.043072624"
+    }
+}
