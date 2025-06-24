@@ -1,5 +1,5 @@
 include { AUTOMAP } from '../../../modules/local/automap/main'
-include { VALIDATE_AUTOMAP } from '../../../modules/local/validate_automap/main'
+include { CREATE_AUTOMAP_LOG } from '../../../modules/local/create_automap_log/main'
 
 workflow CHECK_PROCESS_AUTOMAP {
 
@@ -9,25 +9,31 @@ workflow CHECK_PROCESS_AUTOMAP {
 
     main:
 
-    VALIDATE_AUTOMAP (
-        ch_vcfs
-    )
-    
-    VALIDATE_AUTOMAP.out.validate_automap.view()
-
-    // Filter only files that passed validation
-    valid_files = VALIDATE_AUTOMAP.out.validate_automap
-        | filter { meta, file, status -> status == "PASS" }
-        | map { meta, file, status -> [meta, file] }
-
+    // Run AUTOMAP - failures will be ignored
     AUTOMAP (
-        valid_files,
+        ch_vcfs,
         automap_assembly
     )
+    
+    // Create a channel with all samples and their status
+    // Join input with output to determine success/failure
+    status_channel = ch_vcfs
+        .map { meta, vcf -> [meta, vcf] }  // Simplify to just meta and vcf
+        .join(AUTOMAP.out.roh_automap_file, remainder: true)
+        .map { meta, vcf, automap_file -> 
+            def status = automap_file ? "SUCCESS" : "FAILED"
+            [meta, status, vcf]
+        }
 
-    automap = AUTOMAP.out.roh_automap_file
+    // Create log file
+    VALIDATE_AUTOMAP (
+        status_channel.collect()
+    )
+
+    // Emit only successful results
+    successful_samples = AUTOMAP.out.roh_automap_file
 
     emit:
-    automap                                        // channel: [ [val(meta)], path(tsv)]
-
+    automap = successful_samples
+    log_file = VALIDATE_AUTOMAP.out.log_file
 }

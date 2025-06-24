@@ -15,7 +15,7 @@ nextflow_workflow {
                 """
                 input[0] = Channel.of([
                     [ id:'test'], // meta map
-                    file("https://raw.githubusercontent.com/mquinodo/AutoMap/refs/heads/master/Test/TestSample.vcf", checkIfExists: true)
+                    file("/mnt/tblab/yolanda/GT-Bioinfo/annotation/test/GIAB/results/snvs/NA12878-HG001_T1.hg38.final.chr1.chr22.vcf.gz", checkIfExists: true)
                 ])
                 input[1] = "hg38"
                 """
