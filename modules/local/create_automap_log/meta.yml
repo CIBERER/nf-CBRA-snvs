@@ -1,44 +1,36 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "validate automap"
+name: "create_automap_log"
 ## TODO nf-core: Add a description of the module and list keywords
-description: Check if the vcf file contains more than 10000 variants. 
+description: Check if automap has been run properly and create a log file.
 keywords:
   - homozygosity
   - genomics
 tools:
   - "automap":
       ## TODO nf-core: Add a description and other details for the software below
-      description: "Automap is a tool to find regions of homozygosity (ROHs) from sequencing data of human samples. Version AutoMap v1.3. It needs more than 10000 high quality variants in the vcf file to run."
+      description: "Automap is a tool to find regions of homozygosity (ROHs) from sequencing data of human samples. Version AutoMap v1.3."
       homepage: "https://github.com/mquinodo/AutoMap"
       documentation: "https://github.com/mquinodo/AutoMap"
 
 input:
-  - ch_vcf:
-      type: file
+  - status_list:
+      type: list
       description: |
-        The input channel containing the vcf file
-        Structure: [ val(meta), path(vcf)]
-      pattern: "*.{vcf.gz}"
+        The input channel containing the sample name, the automap status and the vcf file
+        Structure: [ val(meta), val(status), path(vcf)]
 
 ## TODO nf-core: Add a description of all of the variables used as output
 output:
   #Only when we have meta
-  - roh_automap:
-    - meta:
+  - log_file:
         type: map
-        description: |
-          Groovy Map containing sample information
-          e.g. `[ id:'sample1', single_end:false ]`
-    - vcf:
-        type: file
-        description: vcf file resulting from merging vcf files of individual variant callers. 
-        pattern: "*.{vcf.gz}"
-    - env('VALIDATION_STATUS'): 
-        type: boolean 
-        description: |
-          Boolean indicating if the vcf file contains more than 10000 variants. 
-
+        description: Automap log file containing the sample name, the automap status and the vcf file
+        pattern: "automap_execution_log.txt"
+  - versions.yml:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
 
 authors:
   - "@yolandabq"
