@@ -1,7 +1,7 @@
 process AUTOMAP {
     tag "$meta.id"
     label 'process_single'
-    errorStrategy 'retry'
+    errorStrategy 'ignore'
 
     // Conda is not supported
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
