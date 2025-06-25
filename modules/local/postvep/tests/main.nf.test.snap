@@ -1,0 +1,29 @@
+{
+    "postvep - vcf ": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,c244add25d4b81c33a3cc417f5752e48"
+                    ]
+                ],
+                "pvm_tsv": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,c244add25d4b81c33a3cc417f5752e48"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-06-25T13:15:40.569310408"
+    }
+}
