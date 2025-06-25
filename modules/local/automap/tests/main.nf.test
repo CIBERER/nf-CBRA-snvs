@@ -18,10 +18,9 @@ nextflow_process {
                 """                
                 input[0] = [
                     [ id:'test', single_end:false ], // meta map
-                    file("https://raw.githubusercontent.com/mquinodo/AutoMap/refs/heads/master/Test/TestSample.vcf", checkIfExists: true)
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz?download=1", checkIfExists: true)
                 ]
                 input[1] = "hg38"
-                input[2] = "${projectDir}"
                 """
             }
         }
