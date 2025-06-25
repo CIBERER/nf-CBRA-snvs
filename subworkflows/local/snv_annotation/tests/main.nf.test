@@ -1,0 +1,62 @@
+nextflow_workflow {
+
+    name "Test Subworkflow SNV_ANNOTATION"
+    script "../main.nf"
+    config "./nextflow.config"
+
+    workflow "SNV_ANNOTATION"
+    tag "subworkflows"
+    tag "snv_annotation"
+
+
+/*     setup {
+        run("ENSEMBLVEP_DOWNLOAD") {
+            script "../../../../modules/nf-core/ensemblvep/download/main.nf"
+
+            process {
+                """
+                input[0] = Channel.of([
+                    [id:"113_WBcel235"],
+                    "WBcel235",
+                    "caenorhabditis_elegans",
+                    "113"
+                ])
+                """
+            }
+        }
+    } */
+
+
+    test("annotation - vcf") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id:'test'], // meta map
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz?download=1", checkIfExists: true),
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz.tbi?download=1", checkIfExists: true)
+                ])
+                input[1] = Channel.value([
+                    [id:"fasta"],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)])
+                input[2] = "GRCh38"
+                input[3] = "homo_sapiens"
+                input[4] = "112"
+                input[5] = file("/mnt/genetica5/vep_2024")
+                input[6] = Channel.of([ id: 'test' ], [])
+                input[7] = []
+                input[8] = 0.01
+                input[9] = "hg38"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+}
