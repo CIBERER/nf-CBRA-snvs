@@ -20,7 +20,7 @@ option_list = list(
               help="\t\t Output file", metavar="character"),
 
   make_option(c("-a", "--automap"), type="character", default=NULL,
-              help="\t\tAutomap output file", metavar="character"),
+              help="\t\tAutomap output file (optional)", metavar="character"),
   
   make_option(c("-f", "--maf"), type="double", default=0.1,
                help="\t\tMinimum allele frequency to filter", metavar="character")
@@ -34,6 +34,7 @@ input = opt$input
 output = opt$output
 automap_path = opt$automap
 maf = opt$maf
+
 
 ################
 # Data loading # 
@@ -114,7 +115,7 @@ for (sample in samples){
       warning=function(e) print(paste0("There is no ", field, " information of the sample ", sample))
       )
   }
-  
+  df_out[,paste0(sample, "_ROH")] <- "NaN"
   # Sacar del output de autopmap
   tryCatch(
     {
@@ -126,8 +127,14 @@ for (sample in samples){
         df_out[df_out$POS >= automap$V2[i] & df_out$POS <= automap$V3[i] & gsub("chr","",df_out$CHROM) == gsub("chr","",automap$V1[i]), paste0(sample,"_ROH")] = "True"
       }
     },
-    error=function(e) print(paste0("There is no AutoMap information of the sample ", sample)), 
-    warning=function(e) print(paste0("There is no AutoMap information of the sample ", sample))
+    error = function(e) {
+    # Handle errors: File not found or other issues
+    print(paste0("There is no AutoMap information for the sample ", sample))
+    },
+    warning = function(w) {
+    # Handle warnings
+    print(paste0("Warning encountered for the sample ", sample, ": ", conditionMessage(w)))
+    }
   )
 }
 

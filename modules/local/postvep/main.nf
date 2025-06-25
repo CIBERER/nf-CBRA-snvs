@@ -20,13 +20,14 @@ process POSTVEP {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def automap = roh_automap ? "--automap ${roh_automap}" : ''
 
     """
     postVEP_modification.R \\
     --input ${vep_tsv} \\
     --output ${prefix}.${assembly}.SNV.INDEL.annotated.tsv \\
     --maf ${maf} \\
-    --automap ${roh_automap}
+    ${automap}
 
     
     cat <<-END_VERSIONS > versions.yml
