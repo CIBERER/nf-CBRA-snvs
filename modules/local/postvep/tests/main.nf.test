@@ -33,4 +33,30 @@ nextflow_workflow {
             )
         }
     }
+
+    test("postvep with no AUTOMAP - vcf ") {
+
+        
+        when {
+            workflow {
+                
+                """
+                input[0] = Channel.of([
+                    [ id:'test'], // meta map
+                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
+                    []
+                ])
+                input[1] = 0.01
+                input[2] = "hg38"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
 }
