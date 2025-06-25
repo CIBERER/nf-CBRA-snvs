@@ -3,7 +3,6 @@ include { AUTOMAP                                                }      from '..
 include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
 include { ENSEMBLVEP_VEP                                                }      from '../../../modules/nf-core/ensemblvep/vep/main'
 //include { POSTVEP } from '../../../modules/local/postvep/main'
-//include { AUTOMAP } from '../../../modules/local/automap/main' 
 
 workflow SNV_ANNOTATION {
 
@@ -17,13 +16,25 @@ workflow SNV_ANNOTATION {
     ch_custom_extra_files            // channel (optional)  : [ val(meta), path(custom_extra_files) ]
     ch_extra_files                   // channel (optional)  : [ path(extra_files) ]  
     maf
-    genome_ref
 
     main:
 
     ch_versions = Channel.empty()
     //ch_vcf.view()
     //ch_extra_files.view()
+
+    ucsc_genome = genome.map { genome_val ->
+        switch(genome_val) {
+            case 'GRCh38':
+                return 'hg38'
+            case 'GRCh37':
+                return 'hg19'
+            default:
+                error "Unsupported genome version: ${genome_val}"
+        }
+    }
+
+    ucsc_genome.view()
 
     FORMAT2INFO (
          ch_vcf
@@ -32,10 +43,10 @@ workflow SNV_ANNOTATION {
 
     AUTOMAP (
         ch_vcf.map { meta, vcf, tbi -> [meta, vcf] },
-        genome_ref
+        ucsc_genome
     )
 
-    //AUTOMAP.out.roh_automap_file.view()
+    AUTOMAP.out.roh_automap_file.view()
 
     TABIX_TABIX(
         FORMAT2INFO.out.vcf_to_annotate
