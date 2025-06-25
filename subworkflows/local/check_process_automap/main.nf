@@ -26,7 +26,7 @@ workflow CHECK_PROCESS_AUTOMAP {
         }
 
     // Create log file
-    VALIDATE_AUTOMAP (
+    CREATE_AUTOMAP_LOG (
         status_channel.collect()
     )
 
@@ -35,5 +35,5 @@ workflow CHECK_PROCESS_AUTOMAP {
 
     emit:
     automap = successful_samples
-    log_file = VALIDATE_AUTOMAP.out.log_file
+    log_file = CREATE_AUTOMAP_LOG.out.log_file
 }
