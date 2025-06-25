@@ -2,7 +2,7 @@ include { FORMAT2INFO                                                }      from
 include { AUTOMAP                                                }      from '../../../modules/local/automap/main'
 include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
 include { ENSEMBLVEP_VEP                                                }      from '../../../modules/nf-core/ensemblvep/vep/main'
-//include { POSTVEP } from '../../../modules/local/postvep/main'
+include { POSTVEP } from '../../../modules/local/postvep/main'
 
 workflow SNV_ANNOTATION {
 
@@ -46,8 +46,6 @@ workflow SNV_ANNOTATION {
         ucsc_genome
     )
 
-    AUTOMAP.out.roh_automap_file.view()
-
     TABIX_TABIX(
         FORMAT2INFO.out.vcf_to_annotate
     )
@@ -76,7 +74,7 @@ workflow SNV_ANNOTATION {
             [file1],
             restFiles
         ]
-    }.view()
+    }
     
     ENSEMBLVEP_VEP (
         ch_vep,
@@ -89,18 +87,18 @@ workflow SNV_ANNOTATION {
     )
     ch_versions = ch_versions.mix(ENSEMBLVEP_VEP.out.versions.first())
 
-    // POSTVEP (
-    //     ENSEMBLVEP_VEP.out.tab.join(AUTOMAP.out.roh_automap_file),
-    //     maf, 
-    //     genome
-    // )
+    POSTVEP (
+        ENSEMBLVEP_VEP.out.tab.join(AUTOMAP.out.roh_automap_file),
+        maf, 
+        ucsc_genome
+    )
 
     
-    vcf = ENSEMBLVEP_VEP.out.tab
-    vcf.view()
+    tsv = POSTVEP.out.pvm_tsv
+    tsv.view()
 
     emit:
-    vcf // channel: [ val(meta), path(vcf), path(tbi)]
+    tsv // channel: [ val(meta), path(vcf), path(tbi)]
     versions = ch_versions                     // channel: [ versions.yml ]
 
 }
