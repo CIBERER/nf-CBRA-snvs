@@ -29,8 +29,9 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai   = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] } : Channel.empty()
 ch_snps = params.known_snps            ? Channel.fromPath(params.known_snps)            : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
-ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first()
-
+//ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first() 
+// lo había puesto así porque solo era para poner el id al nombre final del vcf (si no estaba, ponia el nombre del fasta), pero ahora lo he cambiado porque también lo vamos a usar para el VEP
+ch_assembly = Channel.value(params.assembly)
 
 //deep variant parameters
 ch_gzi = Channel.of([[],[]])
@@ -63,6 +64,8 @@ include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
 include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
 include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
+include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -193,6 +196,33 @@ workflow SNVS {
         ch_fai,
         ch_intervals,
         ch_assembly
+    )
+
+    ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file("NO_FILE")) }
+    ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true) : Channel.value(file('NO_EXTRA_FILE'))
+
+    // Conditionally add files using mix
+    if (params.plugins_dir) {
+        ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
+    }
+
+    ch_extra_files.view()
+    ch_custom_extra_files.view()
+    ch_cache_path = params.cache_path ? Channel.fromPath(params.cache_path, checkIfExists: true) : Channel.empty()
+
+    //ch_custom_extra_files.view()
+    //ch_extra_files.view()
+
+    SNV_ANNOTATION (
+        VCF_MERGE_VARIANTCALLERS.out.vcf,
+        ch_fasta,
+        ch_assembly,
+        params.species,
+        params.cache_version,
+        ch_cache_path,
+        ch_custom_extra_files,
+        ch_extra_files,
+        params.maf
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
