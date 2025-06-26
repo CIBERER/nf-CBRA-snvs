@@ -10,6 +10,22 @@ nextflow_workflow {
 
 
     setup {
+        
+        run("ENSEMBLVEP_DOWNLOAD") {
+            script "../../../../modules/nf-core/ensemblvep/download/main.nf"
+
+            process {
+                """
+                input[0] = Channel.of([
+                    [id:"homo_sapiens_hg38"],
+                    "GRCh38",
+                    "homo_sapiens_refseq",
+                    "111"
+                ])
+                """
+            }
+        }
+
         run("TABIX_BGZIP") {
             script "../../../../modules/nf-core/tabix/bgzip/main.nf"
 
@@ -23,8 +39,7 @@ nextflow_workflow {
         }
     } 
 
-
-    test("annotation - vcf") {
+    test("annotation download cache - vcf") {
 
         when {
             workflow {
@@ -38,7 +53,7 @@ nextflow_workflow {
                 input[2] = Channel.value('GRCh38')
                 input[3] = "homo_sapiens"
                 input[4] = "112"
-                input[5] = file("/mnt/genetica5/vep_2024")
+                input[5] = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }
                 input[6] = Channel.of([ id: 'test' ], [])
                 input[7] = []
                 input[8] = 0.01
@@ -53,4 +68,5 @@ nextflow_workflow {
             )
         }
     }
+
 }
