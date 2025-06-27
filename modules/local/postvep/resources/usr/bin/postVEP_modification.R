@@ -23,9 +23,12 @@ option_list = list(
               help="\t\tAutomap output file (optional)", metavar="character"),
   
   make_option(c("-f", "--maf"), type="double", default=0.1,
-               help="\t\tMinimum allele frequency to filter", metavar="character")
+               help="\t\tMinimum allele frequency to filter", metavar="character"),
 
- )
+  make_option(c("-w", "--glowgenes"), type="character", default=NULL,
+            help="\t\tGLOWgenes output file to annotate and sort the results", metavar="character")
+
+)
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
@@ -34,7 +37,7 @@ input = opt$input
 output = opt$output
 automap_path = opt$automap
 maf = opt$maf
-
+glowgenes_path = opt$glowgenes
 
 ################
 # Data loading # 
@@ -56,6 +59,7 @@ if (length(start_line) > 0) {
 }
 
 #head(vep)
+# Filtering variants by MAF
 
 print("Number of variants before filtering by MAF")
 print(nrow(vep))
@@ -64,6 +68,25 @@ vep <- vep[is.na(vep$MAX_AF) | (!is.na(vep$MAX_AF) & vep$MAX_AF < as.numeric(maf
 
 print("Number of variants after filtering by MAF")
 print(nrow(vep))
+
+
+# GLOWgenes
+if (!is.null(glowgenes_path)){
+  
+  glowgenes = read.delim(glowgenes_path, header = F, stringsAsFactors = F, quote = "", check.names=F)
+  colnames(glowgenes) = c("SYMBOL", "score", "GLOWgenes")
+  
+  # if (!is.null(genefilter_path)){
+  #   genefilter$score = NA
+  #   genefilter$GLOWgenes = 0
+  #   colnames(genefilter) = c("SYMBOL", "score", "GLOWgenes")
+  # 
+  #   glowgenes = rbind(genefilter, glowgenes)
+  # }
+  
+  vep = merge(vep, glowgenes[c("SYMBOL", "GLOWgenes")], by.x = "SYMBOL", by.y = "SYMBOL", all.x = T)
+}
+
 
 df_out  = data.frame(row.names = 1:nrow(vep), stringsAsFactors = F)
 

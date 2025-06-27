@@ -8,23 +8,23 @@ nextflow_workflow {
     tag "modules"
     tag "modules/local/postvep"
 
-    test("postvep - vcf ") {
+    test("postvep with GLOWgenes github - vcf ") {
 
-        
-        when {
-            workflow {
-                
-                """
-                input[0] = Channel.of([
-                    [ id:'test'], // meta map
-                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
-                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.HomRegions.tsv?download=1", checkIfExists: true)
-                ])
-                input[1] = 0.01
-                input[2] = "hg38"
-                """
-            }
+            
+    when {
+        workflow {
+            """
+            input[0] = Channel.of([
+                [ id:'test'], // meta map
+                file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
+                file("https://zenodo.org/records/15738776/files/NA12878-HG001.HomRegions.tsv?download=1", checkIfExists: true)
+            ])
+            input[1] = 0.01
+            input[2] = "hg38"
+            input[3] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/precomputed_panelAPP/GLOWgenes_prioritization_Acute_rhabdomyolysis_GA.txt", checkIfExists: true)  
+            """
         }
+    }
 
         then {
             assertAll(
@@ -34,7 +34,7 @@ nextflow_workflow {
         }
     }
 
-    test("postvep with no AUTOMAP - vcf ") {
+    test("postvep with with no GLOWgenes and no AUTOMAP - vcf ") {
 
         
         when {
@@ -48,6 +48,7 @@ nextflow_workflow {
                 ])
                 input[1] = 0.01
                 input[2] = "hg38"
+                input[3] = []           
                 """
             }
         }
@@ -59,4 +60,5 @@ nextflow_workflow {
             )
         }
     }
+
 }
