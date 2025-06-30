@@ -11,6 +11,7 @@ process POSTVEP {
     val maf
     val assembly
     path glowgenes_panel
+    path glowgenes_sgds
 
     output:
     tuple val(meta), path("*.SNV.INDEL.annotated.tsv"), emit: pvm_tsv
@@ -23,6 +24,7 @@ process POSTVEP {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def automap = roh_automap ? "--automap ${roh_automap}" : ''
     def glowgenes = glowgenes_panel ? "--glowgenes ${glowgenes_panel}" : ''
+    def sgds = glowgenes_sgds ? "--SGDS ${glowgenes_sgds}" : ''
 
     """
 
@@ -31,7 +33,9 @@ process POSTVEP {
     --output ${prefix}.${assembly}.SNV.INDEL.annotated.tsv \\
     --maf ${maf} \\
     ${automap} \\
-    ${glowgenes} 
+    ${glowgenes} \\
+    ${sgds} \\
+    ${args}
 
     
     cat <<-END_VERSIONS > versions.yml

@@ -16,6 +16,8 @@ workflow SNV_ANNOTATION {
     ch_custom_extra_files            // channel (optional)  : [ val(meta), path(custom_extra_files) ]
     ch_extra_files                   // channel (optional)  : [ path(extra_files) ]  
     maf
+    ch_glowgenes_panel
+    ch_glowgenes_sgds
 
     main:
 
@@ -106,7 +108,9 @@ workflow SNV_ANNOTATION {
     POSTVEP (
         complete_ch,
         maf, 
-        ucsc_genome
+        ucsc_genome,
+        ch_glowgenes_panel,
+        ch_glowgenes_sgds
     )
 
     

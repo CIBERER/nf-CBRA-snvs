@@ -1,5 +1,5 @@
 {
-    "postvep - vcf ": {
+    "postvep with GLOWgenes github - vcf ": {
         "content": [
             {
                 "0": [
@@ -7,7 +7,7 @@
                         {
                             "id": "test"
                         },
-                        "test.hg38.SNV.INDEL.annotated.tsv:md5,c244add25d4b81c33a3cc417f5752e48"
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,d72a739e8cafffd048398aeb5b23a30b"
                     ]
                 ],
                 "pvm_tsv": [
@@ -15,7 +15,7 @@
                         {
                             "id": "test"
                         },
-                        "test.hg38.SNV.INDEL.annotated.tsv:md5,c244add25d4b81c33a3cc417f5752e48"
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,d72a739e8cafffd048398aeb5b23a30b"
                     ]
                 ]
             }
@@ -24,9 +24,9 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-06-25T14:06:07.255737431"
+        "timestamp": "2025-06-30T08:40:24.857457213"
     },
-    "postvep with no AUTOMAP - vcf ": {
+    "postvep with with no GLOWgenes and no AUTOMAP - vcf ": {
         "content": [
             {
                 "0": [
@@ -51,6 +51,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-06-25T14:06:29.432338863"
+        "timestamp": "2025-06-30T08:40:48.04002724"
     }
 }

@@ -21,7 +21,8 @@ nextflow_workflow {
             ])
             input[1] = 0.01
             input[2] = "hg38"
-            input[3] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/precomputed_panelAPP/GLOWgenes_prioritization_Acute_rhabdomyolysis_GA.txt", checkIfExists: true)  
+            input[3] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/precomputed_panelAPP/GLOWgenes_prioritization_Acute_rhabdomyolysis_GA.txt", checkIfExists: true) 
+            input[4] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/SGDS.csv", checkIfExists: true)  
             """
         }
     }
@@ -48,7 +49,8 @@ nextflow_workflow {
                 ])
                 input[1] = 0.01
                 input[2] = "hg38"
-                input[3] = []           
+                input[3] = [] 
+                input[4] = []           
                 """
             }
         }

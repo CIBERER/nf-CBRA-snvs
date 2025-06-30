@@ -26,7 +26,10 @@ option_list = list(
                help="\t\tMinimum allele frequency to filter", metavar="character"),
 
   make_option(c("-w", "--glowgenes"), type="character", default=NULL,
-            help="\t\tGLOWgenes output file to annotate and sort the results", metavar="character")
+            help="\t\tGLOWgenes output file to annotate and sort the results", metavar="character"),
+  
+  make_option(c("-s", "--SGDS"), type="character", default=NULL,
+            help="\t\tGLOWgenes Score of Gene-Disease Specificity", metavar="character")
 
 )
 
@@ -38,6 +41,7 @@ output = opt$output
 automap_path = opt$automap
 maf = opt$maf
 glowgenes_path = opt$glowgenes
+SGDS_path = opt$SGDS
 
 ################
 # Data loading # 
@@ -74,8 +78,16 @@ print(nrow(vep))
 if (!is.null(glowgenes_path)){
   
   glowgenes = read.delim(glowgenes_path, header = F, stringsAsFactors = F, quote = "", check.names=F)
-  colnames(glowgenes) = c("SYMBOL", "score", "GLOWgenes")
-  
+  colnames(glowgenes) = c("SYMBOL", "GLOWgenes")
+
+  # SGDS_path <- "https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/SGDS.csv"
+  # local_file <- tempfile(fileext = ".csv")
+  # download.file(SGDS_path, local_file, method = "wget")
+  # SGDS <- read.delim(local_file, sep = ",", header = TRUE, stringsAsFactors = FALSE, quote = "", check.names = FALSE)
+  SGDS <- read.delim(SGDS_path, sep = ",", header = TRUE, stringsAsFactors = FALSE, quote = "", check.names = FALSE)
+  colnames(SGDS) = c("SYMBOL", "SGDS", "GLOWgenes_best_ranking", "GLOWgenes_median_ranking")
+  glowgenes = merge(glowgenes, SGDS, by.x = "SYMBOL", by.y = "SYMBOL", all.x = TRUE)
+
   # if (!is.null(genefilter_path)){
   #   genefilter$score = NA
   #   genefilter$GLOWgenes = 0
@@ -84,7 +96,7 @@ if (!is.null(glowgenes_path)){
   #   glowgenes = rbind(genefilter, glowgenes)
   # }
   
-  vep = merge(vep, glowgenes[c("SYMBOL", "GLOWgenes")], by.x = "SYMBOL", by.y = "SYMBOL", all.x = T)
+  vep = merge(vep, glowgenes[c("SYMBOL", "GLOWgenes", "SGDS", "GLOWgenes_best_ranking", "GLOWgenes_median_ranking")], by.x = "SYMBOL", by.y = "SYMBOL", all.x = T)
 }
 
 
@@ -201,7 +213,13 @@ df_out$Original_pos = vep$SAMPLE_Original_pos
 df_out$variant_id = vep$SAMPLE_variant_id
 
 
-df_out = df_out[order(df_out$CHROM, df_out$POS),]
+
+## Sort the output
+if (!is.null(glowgenes_path)){
+  df_out = df_out[order(df_out$GLOWgenes, df_out$POS),]
+} else {
+  df_out = df_out[order(df_out$CHROM, df_out$POS),]
+}
 
 
 #==============#
