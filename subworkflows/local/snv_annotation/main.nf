@@ -22,8 +22,6 @@ workflow SNV_ANNOTATION {
     main:
 
     ch_versions = Channel.empty()
-    //ch_vcf.view()
-    //ch_extra_files.view()
 
     ucsc_genome = genome.map { genome_val ->
         switch(genome_val) {
@@ -52,22 +50,12 @@ workflow SNV_ANNOTATION {
     ch_versions = ch_versions.mix(TABIX_TABIX.out.versions.first())
 
 
-    // ###################
-    // ESTOY INTENTANDO QUE FUNCIONE DESCARGANDO EL CACHE, PERO VA A TARDAR MUCHO, ASÍ QUE PROBAR A PONERLE EL PATH THE VEP.CACHE - '/mnt/genetica5/vep_2024/ 
-    // ASSEMBLY hg38
-    // genome = 'GRCh38'
-    // specie = "homo_sapiens" 
-
-    //cache.view()
-
-    //ch_custom_extra_files.view()
-    //ch_custom_extra_files_and_info = ch_custom_extra_files.join(FORMAT2INFO.out.vcf_to_annotate).join(FORMAT2INFO.out.fields).join(TABIX_TABIX.out.tbi)//.view()
     ch_custom_extra_files_and_info = FORMAT2INFO.out.vcf_to_annotate.join(FORMAT2INFO.out.fields).join(TABIX_TABIX.out.tbi).join(ch_custom_extra_files).
         map { tuple ->
         def meta = tuple[0]
         def files = tuple[1..-1].flatten()
         [meta] + files
-    }//.view()
+    }
 
     //ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }//.view()
     ch_vep = ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }.join(ch_custom_extra_files_and_info).map { items ->
@@ -79,7 +67,7 @@ workflow SNV_ANNOTATION {
             [file1],
             restFiles
         ]
-    }//.view()
+    }
     
     ENSEMBLVEP_VEP (
         ch_vep,
@@ -92,8 +80,6 @@ workflow SNV_ANNOTATION {
     )
     ch_versions = ch_versions.mix(ENSEMBLVEP_VEP.out.versions.first())
     
-    ENSEMBLVEP_VEP.out.tab.view()
-
     // Create a complete channel with all metadata from VEP output
     complete_ch = ENSEMBLVEP_VEP.out.tab
         .join(AUTOMAP.out.roh_automap_file, remainder: true)
@@ -103,7 +89,6 @@ workflow SNV_ANNOTATION {
             [meta, vep_file, automap_file]
         }
     
-    //complete_ch.view()
 
     POSTVEP (
         complete_ch,
@@ -115,10 +100,9 @@ workflow SNV_ANNOTATION {
 
     
     tsv = POSTVEP.out.pvm_tsv
-    tsv.view()
 
     emit:
-    tsv // channel: [ val(meta), path(vcf), path(tbi)]
+    tsv                                         // channel: [ val(meta), path(tsv)]
     versions = ch_versions                     // channel: [ versions.yml ]
 
 }

@@ -206,6 +206,9 @@ workflow SNVS {
         ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
     }
 
+    ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true) : Channel.empty()
+    ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true) : Channel.empty()
+
     ch_extra_files.view()
     ch_custom_extra_files.view()
     ch_cache_path = params.cache_path ? Channel.fromPath(params.cache_path, checkIfExists: true) : Channel.empty()
@@ -222,7 +225,9 @@ workflow SNVS {
         ch_cache_path,
         ch_custom_extra_files,
         ch_extra_files,
-        params.maf
+        params.maf,
+        ch_glowgenes_panel,
+        ch_glowgenes_sgds
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
