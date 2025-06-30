@@ -89,10 +89,10 @@ workflow SNV_ANNOTATION {
             [meta, vep_file, automap_file]
         }
     
-    complete_ch.view()
-    ch_glowgenes_panel.view()
-    ch_glowgenes_sgds.view()
-    
+    //complete_ch.view()
+    //ch_glowgenes_panel.view()
+    //ch_glowgenes_sgds.view()
+
     POSTVEP (
         complete_ch,
         maf, 

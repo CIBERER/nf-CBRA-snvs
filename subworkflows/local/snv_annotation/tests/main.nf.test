@@ -20,7 +20,7 @@ nextflow_workflow {
                     [id:"homo_sapiens_hg38"],
                     "GRCh38",
                     "homo_sapiens_refseq",
-                    "111"
+                    "112"
                 ])
                 """
             }
@@ -39,37 +39,37 @@ nextflow_workflow {
         }
     } 
 
-    // test("annotation download cache - vcf") {
+    test("annotation download cache - vcf") {
 
-    //     when {
-    //         workflow {
-    //             """
-    //             input[0] = Channel.of([
-    //                 [ id:'test'], // meta map
-    //                 file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz?download=1", checkIfExists: true),
-    //                 file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz.tbi?download=1.tbi", checkIfExists: true)
-    //             ])
-    //             input[1] = TABIX_BGZIP.out.output
-    //             input[2] = Channel.value('GRCh38')
-    //             input[3] = "homo_sapiens"
-    //             input[4] = "112"
-    //             input[5] = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }
-    //             input[6] = Channel.of([ id: 'test' ], [])
-    //             input[7] = []
-    //             input[8] = 0.01
-    //             input[9] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/precomputed_panelAPP/GLOWgenes_prioritization_Acute_rhabdomyolysis_GA.txt", checkIfExists: true) 
-    //             input[10] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/SGDS.csv", checkIfExists: true) 
-    //             """
-    //         }
-    //     }
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id:'test'], // meta map
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz?download=1", checkIfExists: true),
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz.tbi?download=1.tbi", checkIfExists: true)
+                ])
+                input[1] = TABIX_BGZIP.out.output
+                input[2] = Channel.value('GRCh38')
+                input[3] = "homo_sapiens"
+                input[4] = "112"
+                input[5] = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }
+                input[6] = Channel.of([ id: 'test' ], [])
+                input[7] = []
+                input[8] = 0.01
+                input[9] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/precomputed_panelAPP/GLOWgenes_prioritization_Acute_rhabdomyolysis_GA.txt", checkIfExists: true) 
+                input[10] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/SGDS.csv", checkIfExists: true) 
+                """
+            }
+        }
 
-    //     then {
-    //         assertAll(
-    //             { assert workflow.success},
-    //             { assert snapshot(workflow.out).match()}
-    //         )
-    //     }
-    // }
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
 
 
     test("annotation local cache - vcf") {

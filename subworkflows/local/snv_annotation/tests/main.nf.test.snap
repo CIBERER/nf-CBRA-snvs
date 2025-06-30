@@ -34,6 +34,43 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-06-30T09:02:41.464346253"
+        "timestamp": "2025-06-30T14:59:47.262641509"
+    },
+    "annotation download cache - vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,d72a739e8cafffd048398aeb5b23a30b"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,1a72c9e85c065be779a12a8fe91732d8",
+                    "versions.yml:md5,867ea1c56daa4de47bdd9cd23bb942d9",
+                    "versions.yml:md5,ef4a7940a9596752ce3a0a284652ecfa"
+                ],
+                "tsv": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,d72a739e8cafffd048398aeb5b23a30b"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,1a72c9e85c065be779a12a8fe91732d8",
+                    "versions.yml:md5,867ea1c56daa4de47bdd9cd23bb942d9",
+                    "versions.yml:md5,ef4a7940a9596752ce3a0a284652ecfa"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-06-30T14:39:43.73479949"
     }
 }
