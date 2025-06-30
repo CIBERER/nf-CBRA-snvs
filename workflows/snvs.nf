@@ -84,6 +84,7 @@ include { BWA_INDEX } from '../modules/nf-core/bwa/index/main'
 include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/createsequencedictionary/main'
 include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
+include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,15 +207,22 @@ workflow SNVS {
         ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
     }
 
-    ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true) : Channel.empty()
-    ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true) : Channel.empty()
+    ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true) : Channel.value([])
+    ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true) : Channel.value([])
 
-    ch_extra_files.view()
-    ch_custom_extra_files.view()
-    ch_cache_path = params.cache_path ? Channel.fromPath(params.cache_path, checkIfExists: true) : Channel.empty()
-
-    //ch_custom_extra_files.view()
-    //ch_extra_files.view()
+    if (params.cache_path) { ch_cache_path = Channel.fromPath(params.cache_path, checkIfExists: true) } else { 
+        // Define your meta_vep
+        def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
+        if (params.refseq_cache) {
+            ch_vep_download = Channel.of([meta_vep, params.assembly, "${params.species}_refseq", params.cache_version])
+        } else {
+            ch_vep_download = Channel.of([meta_vep, params.assembly, params.species, params.cache_version])
+        }
+        ENSEMBLVEP_DOWNLOAD (
+            ch_vep_download
+            )
+        ch_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }
+    }
 
     SNV_ANNOTATION (
         VCF_MERGE_VARIANTCALLERS.out.vcf,
