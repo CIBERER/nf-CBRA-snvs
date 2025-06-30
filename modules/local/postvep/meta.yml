@@ -1,17 +1,20 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "automap"
+name: "postvep"
 ## TODO nf-core: Add a description of the module and list keywords
-description: Find regions of homozygosity (ROHs) from sequencing data of human samples.
+description: Run postVEP_modification.R, a script that takes VEP tab delimited output, filter variants by MAF, modify the format of the output and add GLOWgenes and other optional annotations.
 keywords:
-  - homozygosity
   - genomics
+  - VEP
+  - variant annotation
+  - GLOWgenes
+  - MAF
+  - variant filtering
+
 tools:
-  - "automap":
-      ## TODO nf-core: Add a description and other details for the software below
-      description: "Automap is a tool to find regions of homozygosity (ROHs) from sequencing data of human samples. Version AutoMap v1.3"
-      homepage: "https://github.com/mquinodo/AutoMap"
-      documentation: "https://github.com/mquinodo/AutoMap"
+  - "postvep":
+      description: "postVEP_modification.R is a script that processes VEP output, filters variants by minor allele frequency (MAF), modifies the format of the output, and adds GLOWgenes and other optional annotations."
+
 
 input:
   - meta:
@@ -20,49 +23,51 @@ input:
         Groovy Map containing sample information
         e.g. `[ id:'sample1', single_end:false ]`
 
-  - vcf:
+  - vep_tsv:
       type: file
-      description: vcf file resulting from merging vcf files of individual variant callers. 
-      pattern: "*.{vcf.gz}"
+      description: VEP tab output file. 
+      pattern: "*.{tab.gz}"
 
-  - tbi: 
+  - roh_automap: 
       type: file
-      description: vcf index
-      pattern: "*.{vcf.gz.tbi}"
+      description: tsv file with ROH regions.
+      pattern: "*.{tsv}"
 
-  - automap_assembly: 
-      type: value
-      description: used assembly (hg38, hg19)
-      pattern: hg38 or hg19
+  - maf: 
+      type: val
+      description: filter variants by minor allele frequency (MAF) threshold.
 
-## TODO nf-core: Add a description of all of the variables used as output
+  - assembly: 
+      type: val
+      description: assembly version of the reference genome used in VEP annotation.
+      pattern: "hg38 | hg19 | GRCh37 | GRCh38"
+
+  - glowgenes_panel: 
+      type: file
+      description: GLOWgenes gene ranking file. It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv
+      pattern: "*.{txt}"
+  
+  - glowgenes_sgds: 
+      type: file
+      description: Score of Gene-Disease Associations (SGDs) file. Available at https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv
+      pattern: "*.{tsv}"
+
 output:
-  #Only when we have meta
-  - roh_automap:
+  - pvm_tsv:
     - meta:
         type: map
         description: |
           Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
-    - roh_automap_tsv: 
+    - annotated_tsv: 
         type: file
         description: |
-          Path to the HomRegion file in tsv format. 
-    - roh_automap_pdf: 
-        type: file
-        description: |
-          Path to the HomRegion file in pdf format. 
-  
-  - versions:
-      type: file
-      description: File containing software versions
-      pattern: "versions.yml"
+          Final annotated tsv file. 
+
 
 authors:
-  - "@rafafariasvarona"
   - "@yolandabq"
   - "@guriaregojo"
 maintainers:
-  - "@rafafariasvarona"
   - "@yolandabq"
   - "@guriaregojo"
