@@ -35,7 +35,35 @@ nextflow_workflow {
         }
     }
 
-    test("postvep with with no GLOWgenes and no AUTOMAP - vcf ") {
+    test("postvep with NO GLOWgenes, not GLOWScore and no AUTOMAP - vcf ") {
+
+        
+        when {
+            workflow {
+                
+                """
+                input[0] = Channel.of([
+                    [ id:'test'], // meta map
+                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
+                    []
+                ])
+                input[1] = 0.01
+                input[2] = "hg38"
+                input[3] = []
+                input[4] = []           
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+    test("postvep with no GLOWgenes, GLOWScore and no AUTOMAP - vcf ") {
 
         
         when {
@@ -50,6 +78,34 @@ nextflow_workflow {
                 input[1] = 0.01
                 input[2] = "hg38"
                 input[3] = [] 
+                input[4] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/SGDS.csv", checkIfExists: true)        
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+    test("postvep with GLOWgenes, not GLOWScore and no AUTOMAP - vcf ") {
+
+        
+        when {
+            workflow {
+                
+                """
+                input[0] = Channel.of([
+                    [ id:'test'], // meta map
+                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
+                    []
+                ])
+                input[1] = 0.01
+                input[2] = "hg38"
+                input[3] = file("https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/precomputed_panelAPP/GLOWgenes_prioritization_Acute_rhabdomyolysis_GA.txt", checkIfExists: true) 
                 input[4] = []           
                 """
             }
@@ -62,5 +118,8 @@ nextflow_workflow {
             )
         }
     }
+
+
+ 
 
 }

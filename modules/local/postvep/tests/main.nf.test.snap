@@ -7,7 +7,7 @@
                         {
                             "id": "test"
                         },
-                        "test.hg38.SNV.INDEL.annotated.tsv:md5,d72a739e8cafffd048398aeb5b23a30b"
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,4944b0d79e97b5b31303ab7b4c55c38e"
                     ]
                 ],
                 "pvm_tsv": [
@@ -15,7 +15,7 @@
                         {
                             "id": "test"
                         },
-                        "test.hg38.SNV.INDEL.annotated.tsv:md5,d72a739e8cafffd048398aeb5b23a30b"
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,4944b0d79e97b5b31303ab7b4c55c38e"
                     ]
                 ]
             }
@@ -24,9 +24,36 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-06-30T08:40:24.857457213"
+        "timestamp": "2025-07-03T09:53:21.125167952"
     },
-    "postvep with with no GLOWgenes and no AUTOMAP - vcf ": {
+    "postvep with no GLOWgenes, GLOWScore and no AUTOMAP - vcf ": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,59c33e98e5e155c1d6207612a9353bd8"
+                    ]
+                ],
+                "pvm_tsv": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,59c33e98e5e155c1d6207612a9353bd8"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-07-03T09:54:07.2930898"
+    },
+    "postvep with NO GLOWgenes, not GLOWScore and no AUTOMAP - vcf ": {
         "content": [
             {
                 "0": [
@@ -51,6 +78,33 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-06-30T08:40:48.04002724"
+        "timestamp": "2025-07-03T09:53:43.538292802"
+    },
+    "postvep with GLOWgenes, not GLOWScore and no AUTOMAP - vcf ": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,b16447e707c222e0e4460e7d7cbff6fa"
+                    ]
+                ],
+                "pvm_tsv": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,b16447e707c222e0e4460e7d7cbff6fa"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-07-03T09:54:30.555574669"
     }
 }

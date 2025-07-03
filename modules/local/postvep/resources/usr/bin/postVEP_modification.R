@@ -83,20 +83,16 @@ if (!is.null(glowgenes_path)){
   # SGDS_path <- "https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/SGDS.csv"
   # local_file <- tempfile(fileext = ".csv")
   # download.file(SGDS_path, local_file, method = "wget")
+
+  vep = merge(vep, glowgenes[c("SYMBOL", "GLOWgenes")], by= "SYMBOL", all.x = T)
+}
+
+if (!is.null(SGDS_path)) {
   # SGDS <- read.delim(local_file, sep = ",", header = TRUE, stringsAsFactors = FALSE, quote = "", check.names = FALSE)
   SGDS <- read.delim(SGDS_path, sep = ",", header = TRUE, stringsAsFactors = FALSE, quote = "", check.names = FALSE)
   colnames(SGDS) = c("SYMBOL", "SGDS", "GLOWgenes_best_ranking", "GLOWgenes_median_ranking")
-  glowgenes = merge(glowgenes, SGDS, by.x = "SYMBOL", by.y = "SYMBOL", all.x = TRUE)
+  vep = merge(vep, SGDS, by = "SYMBOL", all.x = TRUE)
 
-  # if (!is.null(genefilter_path)){
-  #   genefilter$score = NA
-  #   genefilter$GLOWgenes = 0
-  #   colnames(genefilter) = c("SYMBOL", "score", "GLOWgenes")
-  # 
-  #   glowgenes = rbind(genefilter, glowgenes)
-  # }
-  
-  vep = merge(vep, glowgenes[c("SYMBOL", "GLOWgenes", "SGDS", "GLOWgenes_best_ranking", "GLOWgenes_median_ranking")], by.x = "SYMBOL", by.y = "SYMBOL", all.x = T)
 }
 
 
