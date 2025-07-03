@@ -214,9 +214,9 @@ workflow SNVS {
         // Define your meta_vep
         def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
         if (params.refseq_cache) {
-            ch_vep_download = Channel.of([meta_vep, params.assembly, "${params.species}_refseq", params.cache_version])
+            ch_vep_download = Channel.of([meta_vep, params.assembly, "${params.species}_refseq", params.vep_cache_version])
         } else {
-            ch_vep_download = Channel.of([meta_vep, params.assembly, params.species, params.cache_version])
+            ch_vep_download = Channel.of([meta_vep, params.assembly, params.species, params.vep_cache_version])
         }
         ENSEMBLVEP_DOWNLOAD (
             ch_vep_download
@@ -229,7 +229,7 @@ workflow SNVS {
         ch_fasta,
         ch_assembly,
         params.species,
-        params.cache_version,
+        params.vep_cache_version,
         ch_cache_path,
         ch_custom_extra_files,
         ch_extra_files,

@@ -11,10 +11,10 @@ workflow SNV_ANNOTATION {
     ch_fasta      // channel (mandatory): [ val(meta), path(fasta) ]
     genome       // channel (mandatory): [ val(genome) ]
     species     // channel (mandatory): [ val(species) ]
-    cache_version                      // channel (mandatory): [ val(cache_version) ]
-    ch_cache_path                            // channel (mandatory): [ path(cache_path) ]
-    ch_custom_extra_files            // channel (optional)  : [ val(meta), path(custom_extra_files) ]
-    ch_extra_files                   // channel (optional)  : [ path(extra_files) ]  
+    vep_cache_version                      // channel (mandatory): [ val(vep_cache_version) ]
+    ch_vep_cache_path                            // channel (mandatory): [ path(cache_path) ]
+    ch_vep_custom_extra_files            // channel (optional)  : [ val(meta), path(custom_extra_files) ]
+    ch_vep_extra_files                   // channel (optional)  : [ path(extra_files) ]  
     maf
     ch_glowgenes_panel
     ch_glowgenes_sgds
@@ -50,7 +50,7 @@ workflow SNV_ANNOTATION {
     ch_versions = ch_versions.mix(TABIX_TABIX.out.versions.first())
 
 
-    ch_custom_extra_files_and_info = FORMAT2INFO.out.vcf_to_annotate.join(FORMAT2INFO.out.fields).join(TABIX_TABIX.out.tbi).join(ch_custom_extra_files).
+    ch_vep_custom_extra_files_and_info = FORMAT2INFO.out.vcf_to_annotate.join(FORMAT2INFO.out.fields).join(TABIX_TABIX.out.tbi).join(ch_vep_custom_extra_files).
         map { tuple ->
         def meta = tuple[0]
         def files = tuple[1..-1].flatten()
@@ -58,7 +58,7 @@ workflow SNV_ANNOTATION {
     }
 
     //ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }//.view()
-    ch_vep = ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }.join(ch_custom_extra_files_and_info).map { items ->
+    ch_vep = ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }.join(ch_vep_custom_extra_files_and_info).map { items ->
         def meta = items[0]
         def file1 = items[1]
         def restFiles = items[2..-1]  // All files from index 2 to the end
@@ -73,10 +73,10 @@ workflow SNV_ANNOTATION {
         ch_vep,
         genome,
         species,
-        cache_version,
-        ch_cache_path,
+        vep_cache_version,
+        ch_vep_cache_path,
         ch_fasta,
-        ch_extra_files
+        ch_vep_extra_files
     )
     ch_versions = ch_versions.mix(ENSEMBLVEP_VEP.out.versions.first())
     
