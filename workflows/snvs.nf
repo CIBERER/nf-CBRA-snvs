@@ -210,7 +210,7 @@ workflow SNVS {
     ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true) : Channel.value([])
     ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true) : Channel.value([])
 
-    if (params.cache_path) { ch_cache_path = Channel.fromPath(params.cache_path, checkIfExists: true) } else { 
+    if (params.vep_cache_path) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true) } else { 
         // Define your meta_vep
         def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
         if (params.refseq_cache) {
@@ -221,7 +221,7 @@ workflow SNVS {
         ENSEMBLVEP_DOWNLOAD (
             ch_vep_download
             )
-        ch_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }
+        ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }
     }
 
     SNV_ANNOTATION (
@@ -230,7 +230,7 @@ workflow SNVS {
         ch_assembly,
         params.species,
         params.vep_cache_version,
-        ch_cache_path,
+        ch_vep_cache_path,
         ch_custom_extra_files,
         ch_extra_files,
         params.maf,
