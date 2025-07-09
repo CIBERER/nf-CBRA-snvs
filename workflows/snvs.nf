@@ -199,8 +199,8 @@ workflow SNVS {
         ch_assembly
     )
 
-    ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file("NO_FILE")) }
-    ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true) : Channel.value(file('NO_EXTRA_FILE'))
+    ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
+    ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true) : Channel.value([])
 
     // Conditionally add files using mix
     if (params.plugins_dir) {
