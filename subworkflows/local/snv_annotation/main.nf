@@ -15,9 +15,9 @@ workflow SNV_ANNOTATION {
     ch_vep_cache_path                            // channel (mandatory): [ path(cache_path) ]
     ch_vep_custom_extra_files            // channel (optional)  : [ val(meta), path(custom_extra_files) ]
     ch_vep_extra_files                   // channel (optional)  : [ path(extra_files) ]  
-    maf
-    ch_glowgenes_panel
-    ch_glowgenes_sgds
+    maf                 // channel (optional)  : [ val(maf) ]
+    ch_glowgenes_panel              // channel (optional)  : [ path(glowgenes_panel) ]
+    ch_glowgenes_sgds           // channel (optional)  : [ path(glowgenes_sgds) ]
 
     main:
 
@@ -57,7 +57,6 @@ workflow SNV_ANNOTATION {
         [meta] + files
     }
 
-    //ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }//.view()
     ch_vep = ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }.join(ch_vep_custom_extra_files_and_info).map { items ->
         def meta = items[0]
         def file1 = items[1]
@@ -89,9 +88,6 @@ workflow SNV_ANNOTATION {
             [meta, vep_file, automap_file]
         }
     
-    //complete_ch.view()
-    //ch_glowgenes_panel.view()
-    //ch_glowgenes_sgds.view()
 
     POSTVEP (
         complete_ch,
