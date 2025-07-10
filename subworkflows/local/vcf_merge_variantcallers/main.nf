@@ -21,16 +21,15 @@ workflow VCF_MERGE_VARIANTCALLERS {
 
     ch_versions = Channel.empty()
 
-   ch_vcfs.map { item ->
-        def meta = item[0]
-        def files = item[1..-1].collect { file(it) }
-        def vcfs = files.findAll { it.name.endsWith('.vcf.gz') }
-        def tbis = files.findAll { it.name.endsWith('.vcf.gz.tbi') }
-        [meta, vcfs, tbis]
-    }
-    .set { ch_for_bcftoolsmerge }
+    ch_vcfs.map { item ->
+            def meta = item[0]
+            def files = item[1..-1].collect { file(it) }
+            def vcfs = files.findAll { it.name.endsWith('.vcf.gz') }
+            def tbis = files.findAll { it.name.endsWith('.vcf.gz.tbi') }
+            [meta, vcfs, tbis]
+        }
+        .set { ch_for_bcftoolsmerge }
 
-    ch_for_bcftoolsmerge.view()
 
     BCFTOOLS_MERGE (
         ch_for_bcftoolsmerge,
@@ -66,7 +65,7 @@ workflow VCF_MERGE_VARIANTCALLERS {
         CREATE_SAMPLE_INFO.out.final_vcf
     )
 
-    vcf = CREATE_SAMPLE_INFO.out.final_vcf.join(TABIX_TABIX_FINAL_VCF.out.tbi).view()
+    vcf = CREATE_SAMPLE_INFO.out.final_vcf.join(TABIX_TABIX_FINAL_VCF.out.tbi)
 
     emit:
     vcf                                        // channel: [ [val(meta)], path(vcf), path(tbi)]
