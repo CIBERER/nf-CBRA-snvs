@@ -65,13 +65,13 @@ if (length(start_line) > 0) {
 #head(vep)
 # Filtering variants by MAF
 
-print("Number of variants before filtering by MAF")
-print(nrow(vep))
+# print("Number of variants before filtering by MAF")
+# print(nrow(vep))
 
-vep <- vep[is.na(vep$MAX_AF) | (!is.na(vep$MAX_AF) & vep$MAX_AF < as.numeric(maf)), ]
+# vep <- vep[is.na(vep$MAX_AF) | (!is.na(vep$MAX_AF) & vep$MAX_AF < as.numeric(maf)), ]
 
-print("Number of variants after filtering by MAF")
-print(nrow(vep))
+# print("Number of variants after filtering by MAF")
+# print(nrow(vep))
 
 
 # GLOWgenes

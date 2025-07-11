@@ -7,7 +7,7 @@
                         {
                             "id": "test"
                         },
-                        "test.hg38.SNV.INDEL.annotated.tsv:md5,4944b0d79e97b5b31303ab7b4c55c38e"
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,a88dcbe8052d488ea5fab7d9cb54dbb0"
                     ]
                 ],
                 "1": [
@@ -20,7 +20,7 @@
                         {
                             "id": "test"
                         },
-                        "test.hg38.SNV.INDEL.annotated.tsv:md5,4944b0d79e97b5b31303ab7b4c55c38e"
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,a88dcbe8052d488ea5fab7d9cb54dbb0"
                     ]
                 ],
                 "versions": [
@@ -34,7 +34,7 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-07-03T14:00:55.613751099"
+        "timestamp": "2025-07-10T08:31:43.231219602"
     },
     "annotation download cache - vcf": {
         "content": [
@@ -44,7 +44,7 @@
                         {
                             "id": "test"
                         },
-                        "test.hg38.SNV.INDEL.annotated.tsv:md5,4944b0d79e97b5b31303ab7b4c55c38e"
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,107f0543e4a449349b933b3449144ae2"
                     ]
                 ],
                 "1": [
@@ -57,7 +57,7 @@
                         {
                             "id": "test"
                         },
-                        "test.hg38.SNV.INDEL.annotated.tsv:md5,4944b0d79e97b5b31303ab7b4c55c38e"
+                        "test.hg38.SNV.INDEL.annotated.tsv:md5,107f0543e4a449349b933b3449144ae2"
                     ]
                 ],
                 "versions": [
@@ -71,6 +71,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.04.4"
         },
-        "timestamp": "2025-07-03T13:22:52.303051875"
+        "timestamp": "2025-07-10T07:57:37.669007795"
     }
 }

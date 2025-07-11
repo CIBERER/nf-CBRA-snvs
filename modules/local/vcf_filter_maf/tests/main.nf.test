@@ -1,0 +1,57 @@
+nextflow_workflow {
+
+    name "Test Module vcf_filter_maf"
+    script "../main.nf"
+    workflow "VCF_FILTER_MAF"
+
+    tag "modules"
+    tag "modules/local/vcf_filter_maf"
+
+    test("filter vep output by MAF 1 - tab ") {
+
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id:'test'], // meta map
+                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true)
+                ])
+                input[1] = Channel.value(1.01)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+
+    test("filter vep output by MAF 0.001 - tab ") {
+
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id:'test'], // meta map
+                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true)
+                ])
+                input[1] = Channel.value(0.001)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+}

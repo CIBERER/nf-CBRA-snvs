@@ -2,6 +2,7 @@ include { FORMAT2INFO                                                }      from
 include { AUTOMAP                                                }      from '../../../modules/local/automap/main'
 include { TABIX_TABIX } from '../../../modules/nf-core/tabix/tabix/main'
 include { ENSEMBLVEP_VEP                                                }      from '../../../modules/nf-core/ensemblvep/vep/main'
+include { VCF_FILTER_MAF } from '../../../modules/local/vcf_filter_maf/main'
 include { POSTVEP } from '../../../modules/local/postvep/main'
 
 workflow SNV_ANNOTATION {
@@ -15,9 +16,9 @@ workflow SNV_ANNOTATION {
     ch_vep_cache_path                            // channel (mandatory): [ path(cache_path) ]
     ch_vep_custom_extra_files            // channel (optional)  : [ val(meta), path(custom_extra_files) ]
     ch_vep_extra_files                   // channel (optional)  : [ path(extra_files) ]  
-    maf                 // channel (optional)  : [ val(maf) ]
-    ch_glowgenes_panel              // channel (optional)  : [ path(glowgenes_panel) ]
-    ch_glowgenes_sgds           // channel (optional)  : [ path(glowgenes_sgds) ]
+    maf
+    ch_glowgenes_panel
+    ch_glowgenes_sgds
 
     main:
 
@@ -57,6 +58,7 @@ workflow SNV_ANNOTATION {
         [meta] + files
     }
 
+    //ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }//.view()
     ch_vep = ch_vcf.map { meta, vcf, tbi -> [meta , vcf] }.join(ch_vep_custom_extra_files_and_info).map { items ->
         def meta = items[0]
         def file1 = items[1]
@@ -78,9 +80,14 @@ workflow SNV_ANNOTATION {
         ch_vep_extra_files
     )
     ch_versions = ch_versions.mix(ENSEMBLVEP_VEP.out.versions.first())
+
+    VCF_FILTER_MAF (
+        ENSEMBLVEP_VEP.out.tab,
+        maf
+    )
     
     // Create a complete channel with all metadata from VEP output
-    complete_ch = ENSEMBLVEP_VEP.out.tab
+    complete_ch = VCF_FILTER_MAF.out.maf_filtered_tab
         .join(AUTOMAP.out.roh_automap_file, remainder: true)
         .map { meta, vep_file, automap_file ->
             // Replace null automap_file with empty list
@@ -88,6 +95,9 @@ workflow SNV_ANNOTATION {
             [meta, vep_file, automap_file]
         }
     
+    //complete_ch.view()
+    //ch_glowgenes_panel.view()
+    //ch_glowgenes_sgds.view()
 
     POSTVEP (
         complete_ch,

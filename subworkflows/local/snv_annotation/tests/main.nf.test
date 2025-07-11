@@ -20,7 +20,7 @@ nextflow_workflow {
                     [id:"homo_sapiens_hg38"],
                     "GRCh38",
                     "homo_sapiens_refseq",
-                    "112"
+                    "113"
                 ])
                 """
             }
@@ -52,7 +52,7 @@ nextflow_workflow {
                 input[1] = TABIX_BGZIP.out.output
                 input[2] = Channel.value('GRCh38')
                 input[3] = "homo_sapiens"
-                input[4] = "112"
+                input[4] = "113"
                 input[5] = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }
                 input[6] = Channel.of([ id: 'test' ], [])
                 input[7] = []

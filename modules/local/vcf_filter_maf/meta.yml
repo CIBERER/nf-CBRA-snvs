@@ -1,0 +1,49 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "vcf_filter_maf"
+
+description: Takes vep tab output and filters variants based on MAF (Minor Allele Frequency) by column MAX_AF. 
+keywords:
+  - annotation
+  - vep
+  - filter
+  - maf
+tools:
+  - "vcf_filter_maf":
+      description: "Takes a tab file output from vep and filters variants based on MAF (Minor Allele Frequency) by column MAX_AF."
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    
+    - vep_tab:
+        type: file
+        description: tab file output from vep containing the variants to filter.  
+        pattern: "*vcf.gz"
+  
+  - maf: 
+        type: val
+        description: Minor Allele Frequency (MAF) threshold to filter variants by.
+
+
+output:
+
+  - maf_filtered_tab:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - tab:
+        type: file
+        description: Final tab file containing filtered vep annotated variants based on MAF.
+        pattern: "*.maf.filtered.tab"
+  
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"
