@@ -1,0 +1,59 @@
+{
+    "gatk_trio_vcf - three samples": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "sample1_father"
+                        },
+                        "sample1_father.g.vcf.gz:md5,f1bc0267bb1fb755feee7de658c750cc"
+                    ],
+                    [
+                        {
+                            "id": "sample2_mother"
+                        },
+                        "sample2_mother.g.vcf.gz:md5,a975d24024e193d2889c40932f79875f"
+                    ],
+                    [
+                        {
+                            "id": "sample3_child"
+                        },
+                        "sample3_child.g.vcf.gz:md5,68b2faa373bb30c67ea3cf5a069a2336"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,3206879867c823204ab00fcbbed32714"
+                ],
+                "gvcf": [
+                    [
+                        {
+                            "id": "sample1_father"
+                        },
+                        "sample1_father.g.vcf.gz:md5,f1bc0267bb1fb755feee7de658c750cc"
+                    ],
+                    [
+                        {
+                            "id": "sample2_mother"
+                        },
+                        "sample2_mother.g.vcf.gz:md5,a975d24024e193d2889c40932f79875f"
+                    ],
+                    [
+                        {
+                            "id": "sample3_child"
+                        },
+                        "sample3_child.g.vcf.gz:md5,68b2faa373bb30c67ea3cf5a069a2336"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,3206879867c823204ab00fcbbed32714"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.6"
+        },
+        "timestamp": "2025-07-15T14:30:42.376581715"
+    }
+}
