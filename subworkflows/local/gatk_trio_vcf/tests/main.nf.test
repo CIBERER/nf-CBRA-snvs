@@ -139,8 +139,9 @@ nextflow_workflow {
                 ]).collect()
 
                 // intervals_for_genomicsdbimport
-                input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.interval_list', checkIfExists: true)
-                
+                input[7] = Channel.fromPath(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.interval_list', checkIfExists: true).collect()
+                input[8] = "true"
+
                 """
             }
         }
