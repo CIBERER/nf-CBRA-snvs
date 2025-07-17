@@ -230,7 +230,7 @@ workflow SNVS {
         ENSEMBLVEP_DOWNLOAD (
             ch_vep_download
             )
-        ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }
+        ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }.collect()
     }
 
     ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
