@@ -142,6 +142,11 @@ nextflow_workflow {
                 input[7] = Channel.fromPath(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.interval_list', checkIfExists: true).collect()
                 input[8] = "true"
 
+                // Intervals channel - empty intervals for all samples
+                input[9] = MAPPING.out.bam.map { meta, bam, bai -> 
+                    tuple(meta, file("/mnt/tblab/yolanda/GT-Bioinfo/trio/test_family.ped"))
+                }
+
                 """
             }
         }

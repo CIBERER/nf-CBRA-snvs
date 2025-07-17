@@ -13,10 +13,12 @@ include { GATK4_SELECTVARIANTS  as  GATK4_SELECTVARIANTS_MIX             }      
 include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_SNV       }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
 include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_INDEL     }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
 include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_MIX       }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
-
+include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR       }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
 
 include { GATK4_GENOMICSDBIMPORT } from '../../../modules/nf-core/gatk4/genomicsdbimport/main'
 include { GATK4_GENOTYPEGVCFS } from '../../../modules/nf-core/gatk4/genotypegvcfs/main'
+include { GATK4_CALCULATEGENOTYPEPOSTERIORS } from '../../../modules/local/gatk4/calculategenotypeposteriors/main'
+
 include { GATK4_VARIANTRECALIBRATOR as VARIANTRECALIBRATOR_INDEL} from '../../../modules/nf-core/gatk4/variantrecalibrator/main'
 include { GATK4_VARIANTRECALIBRATOR as VARIANTRECALIBRATOR_SNP} from '../../../modules/nf-core/gatk4/variantrecalibrator/main'
 
@@ -36,6 +38,7 @@ workflow GATK_TRIO_VCF {
     ch_dbsnp_tbi  // channel (mandatory) : [ val(meta3), path(vcf) ]
     ch_intervals_genomicsdbimport
     no_intervals // channel (mandatory) : [ boolean ]
+    ch_ped
 
     main:
 
@@ -62,13 +65,19 @@ workflow GATK_TRIO_VCF {
         .map { list_of_tuples ->
             def vcfs = []
             def tbis = []
+            def sample_metas = []
 
             list_of_tuples.each { meta, vcf, tbi ->
                 vcfs.add(vcf)
                 tbis.add(tbi)
+                sample_metas.add(meta)
             }
             
-            def joint_meta = [id: 'joint_variant_calling']
+            def joint_meta = [
+                id: 'joint_variant_calling',
+                samples: sample_metas.collect { it.id },
+                sample_count: sample_metas.size(),
+            ]
             tuple(joint_meta, vcfs, tbis)
         }//.view()
 
@@ -83,6 +92,14 @@ workflow GATK_TRIO_VCF {
     // Convert all sample vcfs into a genomicsdb workspace using genomicsdbimport
     GATK4_GENOMICSDBIMPORT(joint_gvcf_ch, false, false, false)
     //GATK4_GENOMICSDBIMPORT.out.genomicsdb.view()
+
+    if (no_intervals) {
+        // If no intervals are provided, we can use the whole genome
+        genotype_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.map{ meta, genomicsdb -> [ meta, genomicsdb, [], [], [] ] }
+    } else {
+        // Use the provided intervals
+        genotype_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.combine(ch_intervals.map { meta, bed -> bed }.first()).map{ meta, genomicsdb, intervals -> [ meta, genomicsdb, [], intervals, [] ] }
+    }
 
     genotype_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.map{ meta, genomicsdb -> [ meta, genomicsdb, [], [], [] ] }
 
@@ -172,16 +189,54 @@ workflow GATK_TRIO_VCF {
     )
     ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first())
     
-    SPLITMULTIALLELIC (
-        BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi),
-        ch_fasta,
-        "gatk_trio"
-    )
+    // SPLITMULTIALLELIC (
+    //     BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi),
+    //     ch_fasta,
+    //     ""
+    // )
 
     // TODO: add a module for CalculateGenotypePosteriors
     // TODO: add a module for ANNOTATEVARIANTS
+
+
+    ch_ped_genotypeposterior = ch_ped
+        .toList()
+        .map { list_of_tuples ->
+            def peds = []
+            def sample_metas = []
+
+            list_of_tuples.each { meta, ped ->
+                peds.add(ped)
+                sample_metas.add(meta)
+            }
+            
+            def joint_meta = [
+                id: 'joint_variant_calling',
+                samples: sample_metas.collect { it.id },
+                sample_count: sample_metas.size(),
+            ]
+            tuple(joint_meta, peds.first())
+        }.view() 
+
+
+    if (no_intervals) {
+        // If no intervals are provided, we can use the whole genome
+        ch_input_genotypeposterior = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi).join(ch_ped_genotypeposterior).map { meta, vcf, ped -> [meta, vcf, [], ped]}
+    } else {
+        // Use the provided intervals
+        ch_input_genotypeposterior = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi).join(ch_ped_genotypeposterior).combine(ch_intervals.map { meta, bed -> bed }.first())
+        map { meta, vcf, ped, interval -> [meta, vcf, interval, ped]}
+    }
+
+    //ch_input_genotypeposterior.view()
+
+    GATK4_CALCULATEGENOTYPEPOSTERIORS (
+        ch_input_genotypeposterior
+    )
+
+
  
-    vcf = SPLITMULTIALLELIC.out.biallelic_renamed_vcf
+    vcf = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi).view()
 
     emit:
     vcf // channel: [ val(meta), path(vcf), path(tbi)]
