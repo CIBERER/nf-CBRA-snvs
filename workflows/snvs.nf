@@ -135,7 +135,7 @@ workflow SNVS {
     }
 
     if (params.reference_str) { 
-        ch_ref_str = Channel.fromPath(params.reference_str).first()
+        ch_ref_str = Channel.fromPath(params.reference_str).collect()
     } else { 
         GATK4_COMPOSESTRTABLEFILE (
             ch_fasta.map {meta, fasta -> [fasta] },
@@ -170,8 +170,8 @@ workflow SNVS {
         ch_fasta,
         ch_fai,
         ch_refdict,
-        Channel.fromList([tuple([ id: 'dbsnp'],[])]).first(),
-        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).first()
+        Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
+        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
     )
     
     DEEP_VARIANT_VCF (
@@ -190,8 +190,8 @@ workflow SNVS {
         ch_refdict,
         GATK4_COMPOSESTRTABLEFILE.out.str_table,
         ch_intervals,
-        Channel.fromList([tuple([ id: 'dbsnp'],[])]).first(),
-        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).first()
+        Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
+        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
     )
 
     ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : Channel.empty()
