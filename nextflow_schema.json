@@ -73,13 +73,18 @@
           "mimetype": "text/plain"
         },
         "index": {
-          "type": "string"
+          "type": "string",
+          "description": "BWA genome index files.",
+          "help_text": "Directory containing BWA index *.{amb,ann,bwt,pac,sa}"
         },
         "refdict": {
-          "type": "string"
+          "type": "string",
+          "description": "GATK sequence dictionary."
         },
         "reference_str": {
-          "type": "string"
+          "type": "string",
+          "description": "The StrTabFile zip folder of the reference FASTA file.",
+          "pattern": "^\\S+\\.zip$"
         },
         "ch_par_bed": {
           "type": "string",
@@ -328,14 +333,14 @@
     "intervals": {
       "type": "string",
       "description": "Capture intervals.",
-      "help_text": "Path to BED file with intervals.",
+      "help_text": "Bed file with the genomic regions included in the library",
       "pattern": "^\\S+\\.bed$",
       "format": "file-path",
       "mimetype": "pext/plain"
     },
     "capture_type": {
       "type": "string",
-      "enum": ["wgs", "wes", "pacbio", "ont_r104", "hybrid_pacbio_illumina"],
+      "enum": ["wgs", "wes"],
       "help_text": "This parameter takes values in {'wgs','wes','pacbio','ont_r104','hybrid_pacbio_illumina'}",
       "description": "Model type for DeepVariant.",
       "default": "wes"
@@ -351,24 +356,27 @@
     "run_deepvariant": {
       "type": "boolean",
       "description": "Launch DeepVariant on this run.",
-      "help_text": "Boolean value: {'true','false'}. Default is false."
+      "help_text": "Boolean value: {'true','false'}. Default is false.",
+      "default": true
     },
     "run_gatk": {
       "type": "boolean",
       "description": "Launch GATK on thin run.",
-      "help_text": "Boolean value: {'true','false'}. Default is false."
+      "help_text": "Boolean value: {'true','false'}. Default is false.",
+      "default": true
     },
     "assembly": {
       "type": "string",
       "description": "Human genome version.",
       "help_text": "Human genome assembly, must be one of {'hg19','hg38'}.",
-      "enum": ["hg19", "hg38"],
-      "default": "hg38"
+      "enum": ["GRCh37", "GRCh38"],
+      "default": "GRCh38"
     },
     "run_dragen": {
       "type": "boolean",
       "description": "Launch DRAGEN on this run.",
-      "help_text": "Boolean value: {'true','false'}. Default is false."
+      "help_text": "Boolean value: {'true','false'}. Default is false.",
+      "default": true
     }
   },
   "required": ["run_deepvariant", "run_gatk", "assembly", "run_dragen"]
