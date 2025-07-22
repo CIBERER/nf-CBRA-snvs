@@ -234,7 +234,7 @@ workflow GATK_TRIO_VCF {
         ch_input_genotypeposterior
     )
 
-
+ // TODO: add variantfiltration. 
  
     vcf = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi).view()
 
