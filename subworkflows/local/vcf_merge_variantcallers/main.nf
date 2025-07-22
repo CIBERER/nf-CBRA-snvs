@@ -21,14 +21,14 @@ workflow VCF_MERGE_VARIANTCALLERS {
 
     ch_versions = Channel.empty()
 
-   ch_vcfs.map { item ->
-        def meta = item[0]
-        def files = item[1..-1].collect { file(it) }
-        def vcfs = files.findAll { it.name.endsWith('.vcf.gz') }
-        def tbis = files.findAll { it.name.endsWith('.vcf.gz.tbi') }
-        [meta, vcfs, tbis]
-    }
-    .set { ch_for_bcftoolsmerge }
+    ch_vcfs.map { item ->
+            def meta = item[0]
+            def files = item[1..-1].collect { file(it) }
+            def vcfs = files.findAll { it.name.endsWith('.vcf.gz') }
+            def tbis = files.findAll { it.name.endsWith('.vcf.gz.tbi') }
+            [meta, vcfs, tbis]
+        }
+        .set { ch_for_bcftoolsmerge }
 
     BCFTOOLS_MERGE (
         ch_for_bcftoolsmerge,

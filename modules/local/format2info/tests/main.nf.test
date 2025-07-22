@@ -20,8 +20,8 @@ nextflow_process {
                 
                 input[0] = [
                     [ id:'test', single_end:false ], // meta map
-                    file("/mnt/tblab/GURYBQ/test.vcf.gz", checkIfExists: true),
-                    file("/mnt/tblab/GURYBQ/test.vcf.gz.tbi", checkIfExists: true)
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz?download=1", checkIfExists: true),
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz.tbi?download=1.tbi", checkIfExists: true)
                 ]
                 """
             }

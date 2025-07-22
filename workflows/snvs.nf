@@ -25,16 +25,19 @@ WorkflowSnvs.initialise(params, log)
 
 // Check mandatory parameters
 
-ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] } : Channel.empty() 
-ch_fai   = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] } : Channel.empty()
-ch_snps = params.known_snps            ? Channel.fromPath(params.known_snps)            : Channel.value([])
-ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi) : Channel.empty()
-ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first()
+ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty() 
+ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
+ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
+ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
 
+
+//ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first() 
+// lo había puesto así porque solo era para poner el id al nombre final del vcf (si no estaba, ponia el nombre del fasta), pero ahora lo he cambiado porque también lo vamos a usar para el VEP
+ch_assembly = Channel.value(params.assembly)
 
 //deep variant parameters
-ch_gzi = Channel.of([[],[]])
-ch_par_bed = params.ch_par_bed ? Channel.fromPath(params.ch_par_bed, checkIfExists: true).map { file -> [ [:], file ] } : Channel.of([[:], []])
+ch_gzi = Channel.of([[],[]]).first()
+ch_par_bed = params.ch_par_bed ? Channel.fromPath(params.ch_par_bed, checkIfExists: true).map { file -> [ [:], file ] }.collect() : Channel.of([[:], []]).first()
 
 
 /*
@@ -63,6 +66,8 @@ include { GATK_VCF } from '../subworkflows/local/gatk_vcf'
 include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
 include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
+include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,6 +86,7 @@ include { BWA_INDEX } from '../modules/nf-core/bwa/index/main'
 include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/createsequencedictionary/main'
 include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
+include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,31 +120,37 @@ workflow SNVS {
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
      
-    if (params.index) { ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] } } else { 
-    BWA_INDEX (
-        ch_fasta
-        )
-    ch_index = BWA_INDEX.out.index
-    }
-    
-    if (params.refdict) { ch_refdict = Channel.fromPath(params.refdict).map{ it -> [ [id:it.baseName], it ] } } else { 
-    PICARD_CREATESEQUENCEDICTIONARY (
-        ch_fasta
-        )
-    ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+    if (params.index) { 
+        ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] }.collect()
+    } else { 
+        BWA_INDEX (ch_fasta)
+        ch_index = BWA_INDEX.out.index
     }
 
-    
-    if (params.reference_str) { ch_ref_str = Channel.fromPath(params.reference_str) } else { 
-    GATK4_COMPOSESTRTABLEFILE (
-        ch_fasta.map {meta, fasta -> [fasta] },
-        ch_fai.map {meta, fai -> [fai]  },
-        ch_refdict.map {meta, dict -> [dict] }
-        )
-    ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+    if (params.refdict) { 
+        ch_refdict = Channel.fromPath(params.refdict).map{ it -> [ [id:it.baseName], it ] }.collect()
+    } else { 
+        PICARD_CREATESEQUENCEDICTIONARY (ch_fasta)
+        ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
     }
 
-    ch_intervals = params.intervals ? INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
+    if (params.reference_str) { 
+        ch_ref_str = Channel.fromPath(params.reference_str).collect()
+    } else { 
+        GATK4_COMPOSESTRTABLEFILE (
+            ch_fasta.map {meta, fasta -> [fasta] },
+            ch_fai.map {meta, fai -> [fai]  },
+            ch_refdict.map {meta, dict -> [dict] }
+        )
+        ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+    }
+
+    // In your main workflow, ensure intervals are created for all samples
+    ch_intervals = params.intervals ? 
+        INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : 
+        INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
+
+
 
     MAPPING (
         INPUT_CHECK.out.reads,
@@ -150,6 +162,7 @@ workflow SNVS {
         ch_snps,
         ch_snps_tbi
     )
+    
 
     GATK_VCF (
         MAPPING.out.bam,
@@ -157,8 +170,8 @@ workflow SNVS {
         ch_fasta,
         ch_fai,
         ch_refdict,
-        Channel.fromList([tuple([ id: 'dbsnp'],[])]),
-        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
+        Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
+        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
     )
     
     DEEP_VARIANT_VCF (
@@ -177,8 +190,8 @@ workflow SNVS {
         ch_refdict,
         GATK4_COMPOSESTRTABLEFILE.out.str_table,
         ch_intervals,
-        Channel.fromList([tuple([ id: 'dbsnp'],[])]),
-        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])])
+        Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
+        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
     )
 
     ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : Channel.empty()
@@ -193,6 +206,47 @@ workflow SNVS {
         ch_fai,
         ch_intervals,
         ch_assembly
+    )
+
+    ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
+    ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
+
+    // Conditionally add files using mix
+    if (params.plugins_dir) {
+        ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
+    }
+
+    ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
+    ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
+
+    if (params.vep_cache_path) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true).collect() } else { 
+        // Define your meta_vep
+        def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
+        if (params.refseq_cache) {
+            ch_vep_download = Channel.of([meta_vep, params.assembly, "${params.species}_refseq", params.vep_cache_version])
+        } else {
+            ch_vep_download = Channel.of([meta_vep, params.assembly, params.species, params.vep_cache_version])
+        }
+        ENSEMBLVEP_DOWNLOAD (
+            ch_vep_download
+            )
+        ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }.collect()
+    }
+
+    ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
+
+    SNV_ANNOTATION (
+        VCF_MERGE_VARIANTCALLERS.out.vcf,
+        ch_fasta,
+        ch_assembly,
+        params.species,
+        ch_vep_cache_version,
+        ch_vep_cache_path,
+        ch_custom_extra_files,
+        ch_extra_files,
+        params.maf,
+        ch_glowgenes_panel,
+        ch_glowgenes_sgds
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
