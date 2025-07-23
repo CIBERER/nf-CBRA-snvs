@@ -5,7 +5,7 @@
 This pipeline is developed using Nextflow, a workflow management system that enables an easy execution across various computing environments. It uses Docker or Singularity containers, simplifying setup and ensuring reproducibility of results. The pipeline assigns a container to each process, which simplifies the management and updating of software dependencies. When possible, processes are sourced from nf-core/modules, promoting reusability across all nf-core pipelines and contributing to the broader Nextflow community.
 
 <p align="center">
-    <img title="nf-CBRA-snvs Workflow" src="docs/images/workflow.png" width=60%>
+    <img title="nf-CBRA-snvs Workflow" src="docs/images/workflow.png" width=80%>
 </p>
 
 # Pipeline summary
