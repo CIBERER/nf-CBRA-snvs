@@ -28,7 +28,7 @@ The pipeline can perform the following steps:
     - **Bcftools Filter** to keep PASS variants on chr1-22, X, Y.
     - **Split Multialletic**.
   - DeepVariants (`run_deepvariant = true`). This subworkflow includes:
-    - **DeepVariant makeexamples**: Converts the input alignment file to a tfrecord format suitable for the deep learning model
+    - **DeepVariant makeexamples**: Converts the input alignment file to a tfrecord format suitable for the deep learning model.
     - **DeepVariant callvariants**: Call variants based on input tfrecords. The output is also in tfrecord format, and needs postprocessing to convert it to vcf.
     - **DeepVariant postprocessvariants**: Convert variant calls from callvariants to VCF, and also create GVCF files based on genomic information from makeexamples. More information [here](https://github.com/nf-core/modules/tree/master/modules/nf-core/deepvariant).
     - **Bcftools Filter** to keep PASS variants on chr1-22, X, Y.
