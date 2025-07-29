@@ -353,6 +353,36 @@
       "description": "Path to TBI with DB of known variants.",
       "help_text": "TBI for VCF containing DB of known variants."
     },
+    "glowgenomes_panel": {
+      "type": "string",
+      "description": "GLOWgenes gene ranking file.",
+      "help_text": "It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv"
+    },
+    "glowgenes_sgds": {
+      "type": "string",
+      "description": "GLOWgenes Score of Gene-Disease Associations (SGDs) file.",
+      "help_text": "Available at https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity)."
+    },
+    "vep_cache_version": {
+      "type": "number",
+      "description": "Version of the cache to annotate with.",
+      "default": 113
+    },
+    "refseq_cache": {
+      "type": "boolean",
+      "description": "Boolean value to indicate whether you want to use the RefSeq cache.",
+      "default": true
+    },
+    "species": {
+      "type": "string",
+      "description": "Species to annotate with.",
+      "default": "homo_sapiens"
+    },
+    "maf": {
+      "type": "number",
+      "description": "Minor Allele Frequency (MAF) threshold to filter variants.",
+      "default": 0.01
+    },
     "run_deepvariant": {
       "type": "boolean",
       "description": "Launch DeepVariant on this run.",
@@ -379,5 +409,13 @@
       "default": true
     }
   },
-  "required": ["run_deepvariant", "run_gatk", "assembly", "run_dragen"]
+  "required": [
+    "vep_cache_version",
+    "species",
+    "maf",
+    "run_deepvariant",
+    "run_gatk",
+    "assembly",
+    "run_dragen"
+  ]
 }
