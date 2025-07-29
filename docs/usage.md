@@ -1,10 +1,8 @@
 # GdTBioinfo-nf/snvs: Usage
 
-> _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
-
 ## Introduction
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+**nf-CBRA-snvs** (nf-core - CIBERER Bioinformatics for Rare diseases Analysis - Small Nucleotide Variant) is a workflow optimized for the analysis of rare diseases, designed to detect SNVs and INDELs in targeted sequencing data (CES/WES) as well as whole genome sequencing (WGS).
 
 ## Samplesheet input
 
@@ -55,7 +53,7 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run GdTBioinfo-nf/snvs --input ./samplesheet.csv --outdir ./results --genome GRCh37 -profile docker
+nextflow run nf-CBRA-snvs/main.nf --input ./samplesheet.csv --outdir ./results -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -80,7 +78,7 @@ Do not use `-c <file>` to specify parameters as this will result in errors. Cust
 The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run GdTBioinfo-nf/snvs -profile docker -params-file params.yaml
+nextflow run nf-CBRA-snvs/main.nf -profile docker -params-file params.yaml
 ```
 
 with `params.yaml` containing:
@@ -99,7 +97,7 @@ You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-c
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull GdTBioinfo-nf/snvs
+nextflow pull nf-CBRA-snvs/main.nf
 ```
 
 ### Reproducibility

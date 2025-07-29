@@ -40,3 +40,35 @@ The pipeline can perform the following steps:
   - Effect of the variants with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) using the flag `--everything`, which includes the following options: `--sift b, --polyphen b, --ccds, --hgvs, --symbol, --numbers, --domains, --regulatory, --canonical, --protein, --biotype, --af, --af_1kg, --af_esp, --af_gnomade, --af_gnomadg, --max_af, --pubmed, --uniprot, --mane, --tsl, --appris, --variant_class, --gene_phenotype, --mirna`
   - Postvep format VEP tab demilited output and filter variants by minor allele frequency (`--maf`).
   - You can enhance the annotation by incorporating gene rankings from [GLOWgenes](https://www.translationalbioinformaticslab.es/tblab-home-page/tools/glowgenes), a network-based algorithm developed to prioritize novel candidate genes associated with rare diseases. Precomputed rankings based on PanelApp gene panels are available [here](https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv). To include a specific GLOWgenes ranking, use the option `--glowgenes_panel (path to the panel.txt)`, for example: `--glowgenes_panel https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/precomputed_panelAPP/GLOWgenes_prioritization_Neurological_ciliopathies_GA.txt`. Additionally, you can include the Gene-Disease Specificity Score (SGDS) using: `--glowgenes_sgds https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/SGDS.csv`. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity).
+
+
+# Usage
+
+First, prepare a samplesheet with your input data:
+
+```
+sample,fastq_1,fastq_2
+SAMPLE_PAIRED_END,/path/to/fastq/files/AEG588A1_S1_L002_R1_001.fastq.gz,/path/to/fastq/files/AEG588A1_S1_L002_R2_001.fastq.gz
+```
+
+Each row represents a pair of paired end fastq files. 
+
+You can run the pipeline using: 
+
+```
+nextflow run nf-cbra-snvs/main.nf \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR>
+```
+
+For more details and further functionality, please refer to the [usage](docs/usage.md) documentation.
+
+
+# Pipeline output
+
+For details about the output files and reports, please refer to the [output](docs/output.md) documentation.
+
+# Credits
+
+
