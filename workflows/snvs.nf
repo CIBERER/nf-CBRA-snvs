@@ -120,21 +120,21 @@ workflow SNVS {
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
      
-    if (params.index) { 
+    if (params.containsKey('index')) { 
         ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] }.collect()
     } else { 
         BWA_INDEX (ch_fasta)
         ch_index = BWA_INDEX.out.index
     }
 
-    if (params.refdict) { 
+    if (params.containsKey('refdict')) { 
         ch_refdict = Channel.fromPath(params.refdict).map{ it -> [ [id:it.baseName], it ] }.collect()
     } else { 
         PICARD_CREATESEQUENCEDICTIONARY (ch_fasta)
         ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
     }
 
-    if (params.reference_str) { 
+    if (params.containsKey('reference_str')) { 
         ch_ref_str = Channel.fromPath(params.reference_str).collect()
     } else { 
         GATK4_COMPOSESTRTABLEFILE (
@@ -208,18 +208,18 @@ workflow SNVS {
         ch_assembly
     )
 
-    ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
-    ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
+    ch_custom_extra_files = params.containsKey('custom_extra_files') ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
+    ch_extra_files = params.containsKey('extra_files') ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
 
     // Conditionally add files using mix
-    if (params.plugins_dir) {
+    if (params.containsKey('plugins_dir')) {
         ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
     }
 
     ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
     ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
 
-    if (params.vep_cache_path) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true).collect() } else { 
+    if (params.containsKey('vep_cache_path')) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true).collect() } else { 
         // Define your meta_vep
         def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
         if (params.refseq_cache) {
