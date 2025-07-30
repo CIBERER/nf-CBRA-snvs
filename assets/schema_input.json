@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://github.com/CIBERER/nf-CBRA-snvs/master/assets/schema_input.json",
-    "title": "nf-CBRA-snvs pipeline - params.input schema",
+    "title": "CIBERER/nf-CBRA-snvs pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {
