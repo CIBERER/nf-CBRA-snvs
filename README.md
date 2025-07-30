@@ -71,12 +71,19 @@ For details about the output files and reports, please refer to the [output](doc
 
 # Credits
 
-nf-CBRA-snvs was developed within the framework of a call for intramural cooperative and complementary actions (ACCI) funded by CIBERER (Biomedical Research Network Centre for Rare Diseases). The project was led by Carlos Ruiz Arenas (Cima Universidad de Navarra), together with Pablo Minguez (Instituto de Investigación Sanitaria Fundación Jiménez Díaz, IIS-FJD) and Daniel Lopez (Computational Medicine Platform, Andalusian Public Foundation Progress and Health). 
+nf-CBRA-snvs was developed within the framework of a call for intramural cooperative and complementary actions (ACCI) funded by CIBERER (Biomedical Research Network Centre for Rare Diseases).
 
-The main contributions were made by [Yolanda Benítez Quesada](https://github.com/yolandabq), [Graciela Uría Regojo](https://github.com/guriaregojo) and [Pablo Minguez](https://github.com/pminguez) from the [Bioinformatics Unit](https://github.com/TBLabFJD) at IIS-FJD, [Carlos Ruiz Arenas](https://github.com/yocra3) and [Pedro Garrido Rodríguez](https://github.com/pedro-garridor) from Hospital Universitario Morales Meseguer, Murcia.  
+**Main Developer**
+- [Yolanda Benítez Quesada](https://github.com/yolandabq)
 
-Additional contributors were [Rafa Farias Varona](https://github.com/RafaFariasVarona), a master's thesis student in the [Bioinformatics Unit](https://github.com/TBLabFJD) of the IIS-FJD. 
+**Coordinator**
+- [Carlos Ruiz Arenas](https://github.com/yocra3)
 
-The entire ACCI team also played a crucial role in supporting the development of the pipeline, especially [Daniel Lopez](https://github.com/dlopez-bioinfo) and [Marta Sevilla](https://github.com/martasevilla).  
+**Other contributors**
+- [Graciela Uría Regojo](https://github.com/guriaregojo)
+- [Pedro Garrido Rodríguez](https://github.com/pedro-garridor)
+- [Rafa Farias Varona](https://github.com/RafaFariasVarona)
+- [Pablo Minguez](https://github.com/pminguez)
+- [Daniel Lopez](https://github.com/dlopez-bioinfo)
 
 
