@@ -353,7 +353,7 @@
       "description": "Path to TBI with DB of known variants.",
       "help_text": "TBI for VCF containing DB of known variants."
     },
-    "glowgenomes_panel": {
+    "glowgenes_panel": {
       "type": "string",
       "description": "GLOWgenes gene ranking file.",
       "help_text": "It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv"
