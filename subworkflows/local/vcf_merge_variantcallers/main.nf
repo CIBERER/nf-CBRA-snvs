@@ -30,7 +30,6 @@ workflow VCF_MERGE_VARIANTCALLERS {
         }
         .set { ch_for_bcftoolsmerge }
 
-
     BCFTOOLS_MERGE (
         ch_for_bcftoolsmerge,
         ch_fasta,
