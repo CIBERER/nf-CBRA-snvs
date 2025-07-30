@@ -356,12 +356,14 @@
     "glowgenes_panel": {
       "type": "string",
       "description": "GLOWgenes gene ranking file.",
-      "help_text": "It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv"
+      "help_text": "It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv",
+      "format": "file-path"
     },
     "glowgenes_sgds": {
       "type": "string",
       "description": "GLOWgenes Score of Gene-Disease Associations (SGDs) file.",
-      "help_text": "Available at https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity)."
+      "help_text": "Available at https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity).",
+      "format": "file-path"
     },
     "vep_cache_version": {
       "type": "integer",
@@ -407,6 +409,25 @@
       "description": "Launch DRAGEN on this run.",
       "help_text": "Boolean value: {'true','false'}. Default is false.",
       "default": true
+    },
+    "custom_extra_files": {
+      "type": "string",
+      "format": "path"
+    },
+    "extra_files": {
+      "type": "string",
+      "format": "path"
+    },
+    "plugins_dir": {
+      "type": "string",
+      "format": "directory-path",
+      "description": "VEP plugins directory"
+    },
+    "vep_cache_path": {
+      "type": "string",
+      "format": "path",
+      "description": "VEP cache path",
+      "help_text": "If not indicated, will download it automatically."
     }
   },
   "required": [
