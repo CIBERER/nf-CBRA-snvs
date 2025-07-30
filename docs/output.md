@@ -1,4 +1,4 @@
-# GdTBioinfo-nf/snvs: Output
+# nf-CBRA-snvs: Output
 
 ## Introduction
 
