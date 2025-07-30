@@ -120,21 +120,21 @@ workflow SNVS {
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
      
-    if (params.containsKey('index')) { 
+    if (params.index) { 
         ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] }.collect()
     } else { 
         BWA_INDEX (ch_fasta)
         ch_index = BWA_INDEX.out.index
     }
 
-    if (params.containsKey('refdict')) { 
+    if (params.refdict) { 
         ch_refdict = Channel.fromPath(params.refdict).map{ it -> [ [id:it.baseName], it ] }.collect()
     } else { 
         PICARD_CREATESEQUENCEDICTIONARY (ch_fasta)
         ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
     }
 
-    if (params.containsKey('reference_str')) { 
+    if (params.reference_str) { 
         ch_ref_str = Channel.fromPath(params.reference_str).collect()
     } else { 
         GATK4_COMPOSESTRTABLEFILE (
