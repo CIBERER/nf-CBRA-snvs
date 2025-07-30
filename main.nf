@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    GdTBioinfo-nf/snvs
+    nf-CBRA-snvs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/GdTBioinfo-nf/snvs
+    Github : https://github.com/CIBERER/nf-CBRA-snvs
 ----------------------------------------------------------------------------------------
 */
 
@@ -57,7 +57,7 @@ WorkflowMain.initialise(workflow, params, log, args)
 include { SNVS } from './workflows/snvs'
 
 //
-// WORKFLOW: Run main GdTBioinfo-nf/snvs analysis pipeline
+// WORKFLOW: Run main nf-CBRA-snvs analysis pipeline
 //
 workflow GDTBIOINFONF_SNVS {
     SNVS ()

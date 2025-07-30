@@ -1,6 +1,6 @@
 {
-    "name": "GdTBioinfo-nf/snvs",
-    "homePage": "https://github.com/GdTBioinfo-nf/snvs",
+    "name": "nf-CBRA-snvs",
+    "homePage": "https://github.com/CIBERER/nf-CBRA-snvs",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {
