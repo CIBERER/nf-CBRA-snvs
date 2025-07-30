@@ -11,6 +11,13 @@ The directories listed below will be created in the results directory after the 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [FastQC](#fastqc) - Raw read QC
+- [Mapping](#Mapping) - Map reads to reference (BAW-MEM) and process bam file (`GATK MarkDuplicates`, `GATK BaseRecalibrator` and `GATK ApplyBQSR`)
+- [Variant Calling](#Variant-Calling) - Detect variants with 3 tools:
+  - [GATK4 Haplotypecaller](#GATK4-Haplotypecaller)
+  - [Dragen](#Dragen)
+  - [DeepVariant](#DeepVariant)
+- [Merge and Integration](#Merge-and-Integration) - Merge and integrate the variants from the vcfs obtained with the different tools
+- [Annotation](#Annotation) - Annotate the variants with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) and add regions of homozygosity (ROHs) with [AUTOMAP](https://github.com/mquinodo/AutoMap) and other custom information. 
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -36,6 +43,17 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 :::note
 The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
 :::
+
+### Mapping
+
+### Variant Calling
+
+### Merge and Integration
+
+### Annotation
+
+
+
 
 ### MultiQC
 
