@@ -46,14 +46,60 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 ### Mapping
 
+<details markdown="1">
+<summary>Output files</summary>
+
+- `alignment/`
+  - `*.bam`: bam file.
+  - `*.bam.bai`: bam index file.
+
+</details>
+
+[BWA-MEM](https://github.com/lh3/bwa) map reads to reference genome. Resulting bam file is processed following [GATK Best Practices](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912-Data-pre-processing-for-variant-discovery) with `GATK MarkDuplicates`, `GATK BaseRecalibrator` and `GATK ApplyBQSR`
+
 ### Variant Calling
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `individual_callers_snvs/`
+  - `*.gatk.PASS.vcf.gz`: vcf file obtained with gatk4 haplotypecaller.
+  - `*.gatk.PASS.vcf.gz.tbi`: vcf index file obtained with gatk4 haplotypecaller.
+  - `*.dragen.PASS.vcf.gz`: vcf file obtained with dragen.
+  - `*.dragen.PASS.vcf.gz.tbi`: vcf index file obtained with dragen.
+  - `*.deepvariant.PASS.vcf.gz`: vcf file obtained with deepvariant.
+  - `*.deepvariant.PASS.vcf.gz.tbi`: vcf index file obtained with deepvariant.
+
+</details>
+
+See [variant calling](docs/variant_calling.md) section for more information. 
 
 ### Merge and Integration
 
+<details markdown="1">
+<summary>Output files</summary>
+
+- `snvs/`
+  - `*.final.vcf.gz`: final vcf file after merging and integrating all individual vcf files. 
+  - `*.final.vcf.gz.tbi`: vcf index file. 
+
+</details>
+
+Vcf files are merged with [bcftools merge](https://samtools.github.io/bcftools/bcftools.html#merge). GT, DP and AD of detected variants with each variant caller are obtained with [BCFTOOLS_QUERY_STATS](modules/local/bcftools_query_stats/main.nf) module, calculating mean DP, mean AD and variant allele depth (VAF), and information about the variant callers that detect each variant is extracted in [GET_VCF_CALLERS_INFO](modules/local/get_vcf_callers_info/main.nf) module. A consensus genotype for each variant is established based on the most numerical genotype with the module [CONSENSUS_GENOTYPE](modules/local/consensus_genotype/main.nf). All this information is integrated in the step [CREATE_SAMPLE_INFO](modules/local/create_sample_info/main.nf), obtaing the final vcf file. 
+
 ### Annotation
 
+<details markdown="1">
+<summary>Output files</summary>
 
+- `snvs/`
+  - `*.SNV.INDEL.annotated.tsv`: final tsv file with annotated variants. 
 
+</details>
+
+The variants are annotated with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) using the flag `--everything`, which includes the following options: `--sift b, --polyphen b, --ccds, --hgvs, --symbol, --numbers, --domains, --regulatory, --canonical, --protein, --biotype, --af, --af_1kg, --af_esp, --af_gnomade, --af_gnomadg, --max_af, --pubmed, --uniprot, --mane, --tsl, --appris, --variant_class, --gene_phenotype, --mirna`. See [this page](https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html) for more information. `--custom` flag is used to include INFO field of the vcf file in the final annotated tsv file. 
+
+[POSTVEP](modules/local/postvep/main.nf) step takes the VEP tab demilited output, filter variants by minor allele frequency (`--maf`) and add other custom annotations, as regions of homozigosity (ROHs) detected with [AUTOMAP](https://github.com/mquinodo/AutoMap) and [GLOWgenes](https://www.translationalbioinformaticslab.es/tblab-home-page/tools/glowgenes), a network-based algorithm developed to prioritize novel candidate genes associated with rare diseases.
 
 ### MultiQC
 
