@@ -49,7 +49,7 @@ After filtering PASS variants, [bcftools norm](https://samtools.github.io/bcftoo
 
 ## [DeepVariant subworkflow](subworkflows/local/deep_variant_vcf/main.nf)
 
-This sub-workflow detects variants with [DeepVariant](https://github.com/google/deepvariant). It conteins three steps: 
+This sub-workflow detects variants with [DeepVariant](https://github.com/google/deepvariant). It consists of three steps.: 
 
 * makeexamples: Converts the input alignment file to a tfrecord format suitable for the deep learning model
 * callvariants: Call variants based on input tfrecords. The output is also in tfrecord format, and needs postprocessing to convert it to vcf.
