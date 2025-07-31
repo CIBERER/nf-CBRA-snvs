@@ -33,13 +33,14 @@ After filtering PASS variants, [bcftools norm](https://samtools.github.io/bcftoo
 
 This sub-workflow detects variants with GATK Haplotypecaller with `--dragen-mode`. The parameters for the DRAGstr model for the input sample are estimated with [GATK4 CalibrateDragstrModel](https://gatk.broadinstitute.org/hc/en-us/articles/21905129631259-CalibrateDragstrModel). Hard Filtering is based on QUAL score in the [modules.config file](https://github.com/CIBERER/GdTBioinfo-nf-snvs/blob/3ecd0886380c507d467ce2da78ce4a5868829c05/conf/modules.config#L69C1-L111C6) 
 
-´´´
+
+```
 gatk VariantFiltration \
-      -V output_file.vcf \
-      --filter-expression "QUAL < 10.4139" \
-      --filter-name "DRAGENHardQUAL" \
-      -O output_filtered.vcf
-´´´
+    -V output_file.vcf \
+    --filter-expression "QUAL < 10.4139" \
+    --filter-name "DRAGENHardQUAL" \
+    -O output_filtered.vcf
+```
 
 More information about running germline single sample short variant discovery in DRAGEN mode [here](https://gatk.broadinstitute.org/hc/en-us/articles/4407897446939--How-to-Run-germline-single-sample-short-variant-discovery-in-DRAGEN-mode).
 
@@ -54,7 +55,7 @@ This sub-workflow detects variants with [DeepVariant](https://github.com/google/
 * callvariants: Call variants based on input tfrecords. The output is also in tfrecord format, and needs postprocessing to convert it to vcf.
 * postprocessvariants: Convert variant calls from callvariants to VCF. 
 
-See [DeepVariant subworkflow](https://github.com/nf-core/modules/tree/master/modules/nf-core/deepvariant) if you cant more information. 
+See [DeepVariant subworkflow](https://github.com/nf-core/modules/tree/master/modules/nf-core/deepvariant) if you want more information. 
 
 After filtering PASS variants, [bcftools norm](https://samtools.github.io/bcftools/bcftools.html#norm) is used to split multiallelic variants. 
 
