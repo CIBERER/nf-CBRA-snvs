@@ -99,7 +99,7 @@ Vcf files are merged with [bcftools merge](https://samtools.github.io/bcftools/b
 
 The variants are annotated with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) using the flag `--everything`, which includes the following options: `--sift b, --polyphen b, --ccds, --hgvs, --symbol, --numbers, --domains, --regulatory, --canonical, --protein, --biotype, --af, --af_1kg, --af_esp, --af_gnomade, --af_gnomadg, --max_af, --pubmed, --uniprot, --mane, --tsl, --appris, --variant_class, --gene_phenotype, --mirna`. See [this page](https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html) for more information. `--custom` flag is used to include INFO field of the vcf file in the final annotated tsv file. 
 
-[POSTVEP](modules/local/postvep/main.nf) step takes the VEP tab demilited output, filter variants by minor allele frequency (`--maf`) and add other custom annotations, as regions of homozigosity (ROHs) detected with [AUTOMAP](https://github.com/mquinodo/AutoMap) and [GLOWgenes](https://www.translationalbioinformaticslab.es/tblab-home-page/tools/glowgenes), a network-based algorithm developed to prioritize novel candidate genes associated with rare diseases.
+[POSTVEP](modules/local/postvep/main.nf) step takes the VEP tab delimited output, filter variants by minor allele frequency (`--maf`) and add other custom annotations, as regions of homozygosity (ROHs) detected with [AUTOMAP](https://github.com/mquinodo/AutoMap) and [GLOWgenes](https://www.translationalbioinformaticslab.es/tblab-home-page/tools/glowgenes), a network-based algorithm developed to prioritize novel candidate genes associated with rare diseases.
 
 ### MultiQC
 
