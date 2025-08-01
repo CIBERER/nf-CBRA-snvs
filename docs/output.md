@@ -55,7 +55,7 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 </details>
 
-[BWA-MEM](https://github.com/lh3/bwa) map reads to reference genome. Resulting bam file is processed following [GATK Best Practices](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912-Data-pre-processing-for-variant-discovery) with `GATK MarkDuplicates`, `GATK BaseRecalibrator` and `GATK ApplyBQSR`
+[BWA-MEM](https://github.com/lh3/bwa) maps reads to reference genome. Resulting bam file is processed following [GATK Best Practices](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912-Data-pre-processing-for-variant-discovery) with `GATK MarkDuplicates`, `GATK BaseRecalibrator` and `GATK ApplyBQSR`
 
 ### Variant Calling
 
