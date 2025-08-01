@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/GdTBioinfo-nf/snvs/master/nextflow_schema.json",
-  "title": "GdTBioinfo-nf/snvs pipeline parameters",
+  "$id": "https://raw.githubusercontent.com/CIBERER/nf-CBRA-snvs/master/nextflow_schema.json",
+  "title": "CIBERER/nf-CBRA-snvs pipeline parameters",
   "description": "A pipeline for variant calling and annotation of snvs.",
   "type": "object",
   "$defs": {

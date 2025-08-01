@@ -1,10 +1,10 @@
 Run Name: $runName
 
 <% if (success){
-    out << "## GdTBioinfo-nf/snvs execution completed successfully! ##"
+    out << "## CIBERER/nf-CBRA-snvs execution completed successfully! ##"
 } else {
     out << """####################################################
-## GdTBioinfo-nf/snvs execution completed unsuccessfully! ##
+## CIBERER/nf-CBRA-snvs execution completed unsuccessfully! ##
 ####################################################
 The exit status of the task that caused the workflow execution to fail was: $exitStatus.
 The full error message was:
@@ -27,5 +27,5 @@ Pipeline Configuration:
 <% out << summary.collect{ k,v -> " - $k: $v" }.join("\n") %>
 
 --
-GdTBioinfo-nf/snvs
-https://github.com/GdTBioinfo-nf/snvs
+CIBERER/nf-CBRA-snvs
+https://github.com/CIBERER/nf-CBRA-snvs
