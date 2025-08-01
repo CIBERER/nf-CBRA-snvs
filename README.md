@@ -86,4 +86,3 @@ nf-CBRA-snvs was developed within the framework of a call for intramural coopera
 - [Pablo Minguez](https://github.com/pminguez)
 - [Daniel Lopez](https://github.com/dlopez-bioinfo)
 
-
