@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/CIBERER/nf-CBRA-snvs/snvs/master/nextflow_schema.json",
+  "$id": "https://raw.githubusercontent.com/CIBERER/nf-CBRA-snvs/master/nextflow_schema.json",
   "title": "CIBERER/nf-CBRA-snvs pipeline parameters",
   "description": "A pipeline for variant calling and annotation of snvs.",
   "type": "object",
