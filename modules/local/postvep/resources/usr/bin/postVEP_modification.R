@@ -80,19 +80,15 @@ if (!is.null(glowgenes_path)){
   glowgenes = read.delim(glowgenes_path, header = F, stringsAsFactors = F, quote = "", check.names=F)
   colnames(glowgenes) = c("SYMBOL", "GLOWgenes")
 
-  # SGDS_path <- "https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/master/SGDS.csv"
-  # local_file <- tempfile(fileext = ".csv")
-  # download.file(SGDS_path, local_file, method = "wget")
-
   vep = merge(vep, glowgenes[c("SYMBOL", "GLOWgenes")], by= "SYMBOL", all.x = T)
 }
 
 if (!is.null(SGDS_path)) {
-  # SGDS <- read.delim(local_file, sep = ",", header = TRUE, stringsAsFactors = FALSE, quote = "", check.names = FALSE)
+
   SGDS <- read.delim(SGDS_path, sep = ",", header = TRUE, stringsAsFactors = FALSE, quote = "", check.names = FALSE)
   colnames(SGDS) = c("SYMBOL", "SGDS", "GLOWgenes_best_ranking", "GLOWgenes_median_ranking")
   vep = merge(vep, SGDS, by = "SYMBOL", all.x = TRUE)
-
+  
 }
 
 
@@ -150,8 +146,6 @@ for (sample in samples){
   # Sacar del output de autopmap
   tryCatch(
     {
-      # automap = read.delim(paste0(automap_path,"/", sample, "/", sample, ".HomRegions.tsv"), header = F, comment.char = "#", stringsAsFactors = F)
-      #automap = read.delim(paste0(automap_path, "/", sample, ".HomRegions.tsv"), header = F, comment.char = "#", stringsAsFactors = F)
       automap = read.delim(automap_path, header = F, comment.char = "#", stringsAsFactors = F)
       df_out[,paste0(sample,"_ROH")] = "False"
       for (i in 1:nrow(automap)) {
