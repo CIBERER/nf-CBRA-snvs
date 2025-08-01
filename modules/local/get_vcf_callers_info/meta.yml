@@ -1,0 +1,59 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "get_vcf_callers_info"
+
+description: Accepts a GT_file containing the GT field from various variant callers and determines which programs detected each variant.
+keywords:
+  - annotation
+  - vcf
+  - format
+tools:
+  - "get_vcf_callers_info":
+      description: "GET_VCF_CALLERS_INFO accepts a GT_file obtained with BCFTOOLS_MERGE containing the GT field from various variant callers and determines which programs detected each variant."
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  
+  - gt_file:
+      type: file
+      description: txt file containing GT field for each program caller separated by tabs.
+      pattern: "*_GT.txt"
+
+output:
+
+  - sf_file:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - SF_file:
+        type: file
+        description: txt file containing a string with the name of the program that detected the variant separated by "_" 
+        pattern: "*_SF.txt"
+
+  - column_files:
+    - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1', single_end:false ]`
+    - column_files:
+        type: file
+        description: individual txt file for each program. It contains the name of the program if it detected the variant and an empty line if it didn't. 
+        pattern: "*.txt"
+  
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"

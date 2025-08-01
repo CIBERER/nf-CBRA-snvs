@@ -1,0 +1,68 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "automap"
+## TODO nf-core: Add a description of the module and list keywords
+description: Find regions of homozygosity (ROHs) from sequencing data of human samples.
+keywords:
+  - homozygosity
+  - genomics
+tools:
+  - "automap":
+      ## TODO nf-core: Add a description and other details for the software below
+      description: "Automap is a tool to find regions of homozygosity (ROHs) from sequencing data of human samples. Version AutoMap v1.3"
+      homepage: "https://github.com/mquinodo/AutoMap"
+      documentation: "https://github.com/mquinodo/AutoMap"
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+
+  - vcf:
+      type: file
+      description: vcf file resulting from merging vcf files of individual variant callers. 
+      pattern: "*.{vcf.gz}"
+
+  - tbi: 
+      type: file
+      description: vcf index
+      pattern: "*.{vcf.gz.tbi}"
+
+  - automap_assembly: 
+      type: value
+      description: used assembly (hg38, hg19)
+      pattern: hg38 or hg19
+
+## TODO nf-core: Add a description of all of the variables used as output
+output:
+  #Only when we have meta
+  - roh_automap:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - roh_automap_tsv: 
+        type: file
+        description: |
+          Path to the HomRegion file in tsv format. 
+    - roh_automap_pdf: 
+        type: file
+        description: |
+          Path to the HomRegion file in pdf format. 
+  
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@rafafariasvarona"
+  - "@yolandabq"
+  - "@guriaregojo"
+maintainers:
+  - "@rafafariasvarona"
+  - "@yolandabq"
+  - "@guriaregojo"

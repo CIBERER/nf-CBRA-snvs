@@ -1,0 +1,51 @@
+{
+    "consensus_genotype - gt_file ": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_consensus_GT.txt:md5,cb97fbabc44fdcd264133aa00ca06c97"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_discordances.txt:md5,e341ed49af2d21d764eda0f46a63293a"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,12f63a12e6f670cd4d627ff4d9f704de"
+                ],
+                "consensus_gt": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_consensus_GT.txt:md5,cb97fbabc44fdcd264133aa00ca06c97"
+                    ]
+                ],
+                "discordances": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample_discordances.txt:md5,e341ed49af2d21d764eda0f46a63293a"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,12f63a12e6f670cd4d627ff4d9f704de"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2025-05-05T10:02:25.400025608"
+    }
+}
