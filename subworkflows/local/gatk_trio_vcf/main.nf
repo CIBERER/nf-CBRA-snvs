@@ -96,7 +96,11 @@ workflow GATK_TRIO_VCF {
     if (no_intervals) {
         // If no intervals are provided, we can use the whole genome
         genotype_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.map{ meta, genomicsdb -> [ meta, genomicsdb, [], [], [] ] }
-    } else {
+    } else {emit
+
+take
+
+ve
         // Use the provided intervals
         genotype_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.combine(ch_intervals.map { meta, bed -> bed }.first()).map{ meta, genomicsdb, intervals -> [ meta, genomicsdb, [], intervals, [] ] }
     }
