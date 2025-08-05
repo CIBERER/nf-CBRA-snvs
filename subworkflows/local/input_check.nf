@@ -21,9 +21,14 @@ workflow INPUT_CHECK {
 // Function to get list of [ meta, [ fastq_1, fastq_2 ] ]
 def create_fastq_channel(ArrayList row) {
     // gather meta
-    meta            = row.get(0)
+    def meta = row.get(0)
+    // Remove family field if it's empty
+    if (meta.family == [] || meta.family == null || meta.family == "") {
+        meta.remove('family')
+    }
+
     // meta.single_end depending on optional fastq_2 field
-    meta.single_end = row.get(2)?.trim() ? true : false
+    meta.single_end = row.get(2)?.trim() ? false : true
 
     // add path(s) of the fastq file(s) to the meta map
     def fastq_meta = []
