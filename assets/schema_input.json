@@ -7,6 +7,12 @@
     "items": {
         "type": "object",
         "properties": {
+            "family": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Family name can be provided and cannot contain spaces",
+                "meta": ["family"]
+            },
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
