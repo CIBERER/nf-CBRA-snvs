@@ -56,8 +56,37 @@ workflow GATK_TRIO_VCF {
         ch_dbsnp_tbi
     )
     ch_versions = ch_versions.mix(GATK4_HAPLOTYPECALLER.out.versions.first())
- 
-    vcf = GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi).view()
+
+    // Collect all VCFs and TBIs from all samples
+    // First, prepare your joint VCF data
+    joint_vcf_data = GATK4_HAPLOTYPECALLER.out.vcf
+        .join(GATK4_HAPLOTYPECALLER.out.tbi, by: 0)//.view()
+        .map { meta, vcf, tbi ->
+        // Extract family from meta and create new tuple with family as key
+        def family = meta.family
+        tuple(family, meta, vcf, tbi)
+        }
+        .groupTuple(by: 0)
+        .map { family, metas, vcfs, tbis ->
+        // Create joint metadata for the family
+        def joint_meta = [
+            id: family,
+            samples: metas.collect { it.id },
+            sample_count: metas.size()
+        ]
+        tuple(joint_meta, vcfs, tbis)
+    }//.view()
+
+    // Then combine with intervals
+    joint_gvcf_ch = joint_vcf_data
+        .combine(ch_intervals_genomicsdbimport)
+        .map { joint_meta, vcfs, tbis, intervals ->
+            tuple(joint_meta, vcfs, tbis, intervals, [], [])
+    }.view()
+
+    GATK4_GENOMICSDBIMPORT(joint_gvcf_ch, false, false, false)
+    GATK4_GENOMICSDBIMPORT.out.genomicsdb.view()
+    vcf = GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi)//.view()
 
     emit:
     vcf // channel: [ val(meta), path(vcf), path(tbi)]
