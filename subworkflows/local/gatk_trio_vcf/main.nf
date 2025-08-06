@@ -105,7 +105,7 @@ workflow GATK_TRIO_VCF {
         ch_dbsnp_tbi
     )
     
-    GATK4_GENOTYPEGVCFS.out.vcf.join(GATK4_GENOTYPEGVCFS.out.tbi).view { "GATK4_GENOTYPEGVCFS.out.vcf: $it" }
+    GATK4_GENOTYPEGVCFS.out.vcf.join(GATK4_GENOTYPEGVCFS.out.tbi)//.view { "GATK4_GENOTYPEGVCFS.out.vcf: $it" }
 
     if (no_intervals) {
         // If no intervals are provided, we can use the whole genome
@@ -119,7 +119,7 @@ workflow GATK_TRIO_VCF {
         .combine(ch_intervals.map { meta, bed -> bed }.first())
     }
 
-    ch_for_selectvariants.view()
+    //ch_for_selectvariants.view()
 
     // TODO: create subworkflows for HardFiltering
 
@@ -178,26 +178,34 @@ workflow GATK_TRIO_VCF {
     )
     ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first())
 
-    BCFTOOLS_FILTER.out.vcf.view()
+    //BCFTOOLS_FILTER.out.vcf.view()
 
     // TODO: add a module for CalculateGenotypePosteriors
     // TODO: add a module for ANNOTATEVARIANTS
-
+    
+    ch_family_vcf_ped  = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi)
+            .map{metaIR, vcf, tbi -> [metaIR.subMap(["id"]), metaIR, vcf, tbi]}
+            .join(ch_ped,by: 0)
+            .map{metaR, metaIR, vcf, tbi, ped -> [metaIR, vcf, tbi, ped]}
+            .view()
+            //.map{metaR, metaIR, file, ref -> [metaIR, file, ref]}
 
     if (no_intervals) {
         // If no intervals are provided, we can use the whole genome
-        ch_input_genotypeposteriors = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi).join(ch_ped).map { meta, vcf, ped -> [meta, vcf, [], ped]}
+        ch_input_genotypeposteriors = ch_family_vcf_ped.map { meta, vcf, tbi, ped -> [meta, vcf, tbi, [], ped]}
     } else {
         // Use the provided intervals
-        ch_input_genotypeposteriors = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi).join(ch_ped).combine(ch_intervals.map { meta, bed -> bed }.first())
-        .map { meta, vcf, ped, interval -> [meta, vcf, interval, ped]}
+        ch_input_genotypeposteriors = ch_family_vcf_ped.combine(ch_intervals.map { meta, bed -> bed }.first())
+        .map { meta, vcf, tbi, ped, interval -> [meta, vcf, tbi, interval, ped]}
     }
+
+    ch_input_genotypeposteriors.view()
 
     GATK4_CALCULATEGENOTYPEPOSTERIORS(
         ch_input_genotypeposteriors
     )
 
-
+    GATK4_CALCULATEGENOTYPEPOSTERIORS.out.vcf.view()
 
 
     vcf = GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi)//.view()

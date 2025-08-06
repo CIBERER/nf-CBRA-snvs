@@ -166,6 +166,7 @@ workflow SNVS {
     ///////////// TODO: Esto después quitarlo, es solo para probar que funciona el GATK4 de TRIOS ////////////////
     ch_intervals_genomicsdbimport = Channel.fromPath(params.genomicsdbimport).collect()
     no_intervals = params.intervals ? false : true
+    ch_ped = INPUT_CHECK.out.ped.unique()
 
     if (params.trio_analysis) {
         GATK_TRIO_VCF (
@@ -178,7 +179,7 @@ workflow SNVS {
             Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect(),
             ch_intervals_genomicsdbimport, // ch_intervals_genomicsdbimport
             no_intervals, // no_intervals
-            Channel.empty() // ch_ped            
+            ch_ped // ch_ped            
         )
 
     } else { ///////////// start OF GATK dragen etc IF BLOCK ////////////////
