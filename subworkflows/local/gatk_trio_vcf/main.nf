@@ -180,12 +180,12 @@ workflow GATK_TRIO_VCF {
 
     //BCFTOOLS_FILTER.out.vcf.view()
 
-    // TODO: add a module for CalculateGenotypePosteriors
-    // TODO: add a module for ANNOTATEVARIANTS
-    
+
+
+    ch_ped.view()
     ch_family_vcf_ped  = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi)
             .map{metaIR, vcf, tbi -> [metaIR.subMap(["id"]), metaIR, vcf, tbi]}
-            .join(ch_ped,by: 0)
+            .join(ch_ped,failOnDuplicate: true)
             .map{metaR, metaIR, vcf, tbi, ped -> [metaIR, vcf, tbi, ped]}
             .view()
             //.map{metaR, metaIR, file, ref -> [metaIR, file, ref]}
@@ -207,7 +207,9 @@ workflow GATK_TRIO_VCF {
 
     GATK4_CALCULATEGENOTYPEPOSTERIORS.out.vcf.view()
 
+    // TODO: add a module for ANNOTATEVARIANTS
 
+    
     vcf = GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi)//.view()
 
     emit:

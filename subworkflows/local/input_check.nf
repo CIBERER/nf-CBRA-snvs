@@ -51,7 +51,8 @@ def create_fastq_channel(ArrayList row) {
     return fastq_meta
 }
 
-// Function to get list of [ meta, [ fastq_1, fastq_2 ] ]
+// Function to get list of [ meta, [ ped ] ]
+//TODO: intentar que no haya que meter el ped en todos los familiares
 def create_ped_channel(ArrayList row) {
     // gather meta
     def meta = row.get(0)
