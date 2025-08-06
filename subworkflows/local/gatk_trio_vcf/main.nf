@@ -37,7 +37,7 @@ workflow GATK_TRIO_VCF {
     ch_dbsnp  // channel (mandatory) : [ val(meta3), path(vcf) ]
     ch_dbsnp_tbi  // channel (mandatory) : [ val(meta3), path(vcf) ]
     ch_intervals_genomicsdbimport
-    no_intervals // channel (mandatory) : [ boolean ]
+    //no_intervals // channel (mandatory) : [ boolean ]
     ch_ped
 
     main:
@@ -45,7 +45,7 @@ workflow GATK_TRIO_VCF {
     ch_versions = Channel.empty()
     
     ch_dragstr_model = ch_bam.map {meta, bam, bai -> tuple(meta, [])}
-
+    no_intervals = params.intervals ? false : true
 
     GATK4_HAPLOTYPECALLER (
         ch_bam.join(ch_intervals).join(ch_dragstr_model),
@@ -85,7 +85,7 @@ workflow GATK_TRIO_VCF {
     }//.view()
 
     GATK4_GENOMICSDBIMPORT(joint_gvcf_ch, false, false, false)
-
+no_intervals
     if (no_intervals) {
         // If no intervals are provided, we can use the whole genome
         genotype_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.map{ meta, genomicsdb -> [ meta, genomicsdb, [], [], [] ] }//.view { "NO BED: $it" }
@@ -209,7 +209,7 @@ workflow GATK_TRIO_VCF {
 
     // TODO: add a module for ANNOTATEVARIANTS
 
-    
+
     vcf = GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi)//.view()
 
     emit:
