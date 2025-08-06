@@ -82,10 +82,115 @@ workflow GATK_TRIO_VCF {
         .combine(ch_intervals_genomicsdbimport)
         .map { joint_meta, vcfs, tbis, intervals ->
             tuple(joint_meta, vcfs, tbis, intervals, [], [])
-    }.view()
+    }//.view()
 
     GATK4_GENOMICSDBIMPORT(joint_gvcf_ch, false, false, false)
-    GATK4_GENOMICSDBIMPORT.out.genomicsdb.view()
+
+    if (no_intervals) {
+        // If no intervals are provided, we can use the whole genome
+        genotype_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.map{ meta, genomicsdb -> [ meta, genomicsdb, [], [], [] ] }//.view { "NO BED: $it" }
+    } else {
+        // Use the provided intervals
+        genotype_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.combine(ch_intervals.map { meta, bed -> bed }.first()).map{ meta, genomicsdb, intervals -> [ meta, genomicsdb, [], intervals, [] ] }//.view { "WITH BED: $it" }
+    }
+    
+    //genotype_input.view()
+
+    GATK4_GENOTYPEGVCFS (
+        genotype_input,
+        ch_fasta,
+        ch_fai,
+        ch_refdict,
+        ch_dbsnp,
+        ch_dbsnp_tbi
+    )
+    
+    GATK4_GENOTYPEGVCFS.out.vcf.join(GATK4_GENOTYPEGVCFS.out.tbi).view { "GATK4_GENOTYPEGVCFS.out.vcf: $it" }
+
+    if (no_intervals) {
+        // If no intervals are provided, we can use the whole genome
+        ch_for_selectvariants = GATK4_GENOTYPEGVCFS.out.vcf
+        .join(GATK4_GENOTYPEGVCFS.out.tbi).map { meta, vcf, tbi -> [meta, vcf, tbi, []]
+        }
+    } else {
+        // Use the provided intervals
+        ch_for_selectvariants = GATK4_GENOTYPEGVCFS.out.vcf
+        .join(GATK4_GENOTYPEGVCFS.out.tbi)
+        .combine(ch_intervals.map { meta, bed -> bed }.first())
+    }
+
+    ch_for_selectvariants.view()
+
+    // TODO: create subworkflows for HardFiltering
+
+    GATK4_SELECTVARIANTS_SNP (
+        ch_for_selectvariants
+    )
+    ch_versions = ch_versions.mix(GATK4_SELECTVARIANTS_SNP.out.versions.first())
+
+    GATK4_SELECTVARIANTS_INDEL(
+        ch_for_selectvariants
+    )
+    ch_versions = ch_versions.mix(GATK4_SELECTVARIANTS_INDEL.out.versions.first())
+
+    GATK4_SELECTVARIANTS_MIX(
+        ch_for_selectvariants
+    )
+    ch_versions = ch_versions.mix(GATK4_SELECTVARIANTS_MIX.out.versions.first())
+
+    GATK4_VARIANTFILTRATION_SNV(
+        GATK4_SELECTVARIANTS_SNP.out.vcf.join(GATK4_SELECTVARIANTS_SNP.out.tbi),
+        ch_fasta,
+        ch_fai,
+        ch_refdict,
+    ) 
+    ch_versions = ch_versions.mix(GATK4_VARIANTFILTRATION_SNV.out.versions.first())
+
+    GATK4_VARIANTFILTRATION_INDEL(
+        GATK4_SELECTVARIANTS_INDEL.out.vcf.join(GATK4_SELECTVARIANTS_INDEL.out.tbi),
+        ch_fasta,
+        ch_fai,
+        ch_refdict,
+    )
+    ch_versions = ch_versions.mix(GATK4_VARIANTFILTRATION_INDEL.out.versions.first())
+
+    GATK4_VARIANTFILTRATION_MIX(
+        GATK4_SELECTVARIANTS_MIX.out.vcf.join(GATK4_SELECTVARIANTS_MIX.out.tbi),
+        ch_fasta,
+        ch_fai,
+        ch_refdict,
+    )
+    ch_versions = ch_versions.mix(GATK4_VARIANTFILTRATION_MIX.out.versions.first())
+
+    BCFTOOLS_SORT(
+        GATK4_VARIANTFILTRATION_SNV.out.vcf.concat( GATK4_VARIANTFILTRATION_INDEL.out.vcf, GATK4_VARIANTFILTRATION_MIX.out.vcf )
+    )
+    ch_versions = ch_versions.mix(BCFTOOLS_SORT.out.versions.first())
+
+    GATK4_MERGEVCFS(
+        BCFTOOLS_SORT.out.vcf.groupTuple(),
+        ch_refdict
+    )
+    ch_versions = ch_versions.mix(GATK4_MERGEVCFS.out.versions.first())
+
+    BCFTOOLS_FILTER(
+        GATK4_MERGEVCFS.out.vcf.join(GATK4_MERGEVCFS.out.tbi)
+    )
+    ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first())
+
+    BCFTOOLS_FILTER.out.vcf.view()
+
+    // TODO: add a module for CalculateGenotypePosteriors
+    // TODO: add a module for ANNOTATEVARIANTS
+
+    GATK4_CALCULATEGENOTYPEPOSTERIORS(
+        BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi),
+        ch_ped
+    )
+
+
+
+
     vcf = GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi)//.view()
 
     emit:
