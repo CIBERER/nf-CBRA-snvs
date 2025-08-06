@@ -18,6 +18,8 @@ include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR
 include { GATK4_GENOMICSDBIMPORT } from '../../../modules/nf-core/gatk4/genomicsdbimport/main'
 include { GATK4_GENOTYPEGVCFS } from '../../../modules/nf-core/gatk4/genotypegvcfs/main'
 include { GATK4_CALCULATEGENOTYPEPOSTERIORS } from '../../../modules/local/gatk4/calculategenotypeposteriors/main'
+include { GATK4_VARIANTANNOTATOR } from '../../../modules/local/gatk4/variantannotator/main'
+
 
 include { GATK4_VARIANTRECALIBRATOR as VARIANTRECALIBRATOR_INDEL} from '../../../modules/nf-core/gatk4/variantrecalibrator/main'
 include { GATK4_VARIANTRECALIBRATOR as VARIANTRECALIBRATOR_SNP} from '../../../modules/nf-core/gatk4/variantrecalibrator/main'
@@ -182,7 +184,7 @@ no_intervals
 
 
 
-    ch_ped.view()
+    
     ch_family_vcf_ped  = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi)
             .map{metaIR, vcf, tbi -> [metaIR.subMap(["id"]), metaIR, vcf, tbi]}
             .join(ch_ped,failOnDuplicate: true)
@@ -205,12 +207,33 @@ no_intervals
         ch_input_genotypeposteriors
     )
 
+    ch_family_vcf_post_ped  = GATK4_CALCULATEGENOTYPEPOSTERIORS.out.vcf.join(GATK4_CALCULATEGENOTYPEPOSTERIORS.out.tbi)
+            .map{metaIR, vcf, tbi -> [metaIR.subMap(["id"]), metaIR, vcf, tbi]}
+            .join(ch_ped,failOnDuplicate: true)
+            .map{metaR, metaIR, vcf, tbi, ped -> [metaIR, vcf, tbi, ped]}
+            .view()
+            //.map{metaR, metaIR, file, ref -> [metaIR, file, ref]}
+
+    if (no_intervals) {
+        // If no intervals are provided, we can use the whole genome
+        ch_input_variantannotator = ch_family_vcf_post_ped.map { meta, vcf, tbi, ped -> [meta, vcf, tbi, [], ped]}
+    } else {
+        // Use the provided intervals
+        ch_input_variantannotator = ch_family_vcf_post_ped.combine(ch_intervals.map { meta, bed -> bed }.first())
+        .map { meta, vcf, tbi, ped, interval -> [meta, vcf, tbi, interval, ped]}
+    }
+
+    GATK4_VARIANTANNOTATOR(
+        ch_input_variantannotator
+    )
+    
     GATK4_CALCULATEGENOTYPEPOSTERIORS.out.vcf.view()
+    GATK4_VARIANTANNOTATOR.out.vcf.view()
 
     // TODO: add a module for ANNOTATEVARIANTS
 
 
-    vcf = GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi)//.view()
+    vcf = GATK4_VARIANTANNOTATOR.out.vcf.join(GATK4_VARIANTANNOTATOR.out.tbi)//.view()
 
     emit:
     vcf // channel: [ val(meta), path(vcf), path(tbi)]
