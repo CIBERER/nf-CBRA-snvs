@@ -183,9 +183,18 @@ workflow GATK_TRIO_VCF {
     // TODO: add a module for CalculateGenotypePosteriors
     // TODO: add a module for ANNOTATEVARIANTS
 
+
+    if (no_intervals) {
+        // If no intervals are provided, we can use the whole genome
+        ch_input_genotypeposteriors = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi).join(ch_ped).map { meta, vcf, ped -> [meta, vcf, [], ped]}
+    } else {
+        // Use the provided intervals
+        ch_input_genotypeposteriors = BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi).join(ch_ped).combine(ch_intervals.map { meta, bed -> bed }.first())
+        .map { meta, vcf, ped, interval -> [meta, vcf, interval, ped]}
+    }
+
     GATK4_CALCULATEGENOTYPEPOSTERIORS(
-        BCFTOOLS_FILTER.out.vcf.join(BCFTOOLS_FILTER.out.tbi),
-        ch_ped
+        ch_input_genotypeposteriors
     )
 
 
