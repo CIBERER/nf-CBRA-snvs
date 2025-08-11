@@ -54,26 +54,26 @@ nextflow_workflow {
                 // Create channel with three samples
                 input[0] = Channel.of(
                     [
-                        [ id : 'sample1_father' ],
+                        [ id : 'sample1_father', family: 'test_family' ],
                         [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
                     ],
                     [
-                        [ id : 'sample2_mother' ],
+                        [ id : 'sample2_mother', family: 'test_family' ],
                         [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
                     ],
                     [
-                        [ id : 'sample3_child' ],
+                        [ id : 'sample3_child', family: 'test_family' ],
                         [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
                     ]
                 )
                 
                 input[1] = Channel.of(
-                    tuple([ id: 'sample1_father'], []),
-                    tuple([ id: 'sample2_mother'], []),
-                    tuple([ id: 'sample3_child'], [])
+                    tuple([ id: 'sample1_father', family: 'test_family'], []),
+                    tuple([ id: 'sample2_mother', family: 'test_family'], []),
+                    tuple([ id: 'sample3_child', family: 'test_family'], [])
                 )
                 
                 input[2] = BWA_INDEX.out.index
@@ -140,12 +140,11 @@ nextflow_workflow {
 
                 // intervals_for_genomicsdbimport
                 input[7] = Channel.fromPath(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.interval_list', checkIfExists: true).collect()
-                input[8] = "true"
-
-                // Intervals channel - empty intervals for all samples
-                input[9] = MAPPING.out.bam.map { meta, bam, bai -> 
-                    tuple(meta, file("/mnt/tblab/yolanda/GT-Bioinfo/trio/test_family.ped"))
-                }
+                
+                input[8] = Channel.fromList([
+                    tuple([  id: 'test_family'],
+                    file('/mnt/tblab/yolanda/GT-Bioinfo/trio/test_family.ped', checkIfExists: true))
+                ])
 
                 """
             }
