@@ -164,7 +164,7 @@ workflow SNVS {
     )
     
     ///////////// TODO: Esto después quitarlo, es solo para probar que funciona el GATK4 de TRIOS ////////////////
-    ch_intervals_genomicsdbimport = Channel.fromPath(params.genomicsdbimport).collect()
+    ch_intervals_genomicsdbimport = Channel.fromPath(params.genomicsdbimport_interval).collect()
     //no_intervals = params.intervals ? false : true
     ch_ped = INPUT_CHECK.out.ped.unique()
 
@@ -183,6 +183,8 @@ workflow SNVS {
             //no_intervals, // no_intervals
             ch_ped // ch_ped            
         )
+
+        vcf_file = GATK_TRIO_VCF.out.vcf
 
     } else { ///////////// start OF GATK dragen etc IF BLOCK ////////////////
 
@@ -230,9 +232,11 @@ workflow SNVS {
         ch_assembly
     )
 
+    vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
 
+    } //////// END OF GATK_TRIO_VCF IF BLOCK ////////
 
-    ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
+    ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
     ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
 
     // Conditionally add files using mix
@@ -260,7 +264,7 @@ workflow SNVS {
     ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
 
     SNV_ANNOTATION (
-        VCF_MERGE_VARIANTCALLERS.out.vcf,
+        vcf_file,
         ch_fasta,
         ch_assembly,
         params.species,
@@ -273,7 +277,7 @@ workflow SNVS {
         ch_glowgenes_sgds
     )
 
-    } //////// END OF GATK_TRIO_VCF IF BLOCK ////////
+
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
