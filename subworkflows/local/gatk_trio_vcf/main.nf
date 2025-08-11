@@ -3,7 +3,6 @@ include { BCFTOOLS_SORT                                                  }      
 include { GATK4_MERGEVCFS                                                }      from '../../../modules/nf-core/gatk4/mergevcfs/main'
 include { TABIX_TABIX                                                    }      from '../../../modules/nf-core/tabix/tabix/main'
 include { BCFTOOLS_FILTER                                                }      from '../../../modules/nf-core/bcftools/filter/main'
-include { SPLITMULTIALLELIC                                                }      from '../../../modules/local/splitmultiallelic/main'
 include { GATK4_SELECTVARIANTS  as  GATK4_SELECTVARIANTS_SNP             }      from '../../../modules/nf-core/gatk4/selectvariants/main'
 include { GATK4_SELECTVARIANTS  as  GATK4_SELECTVARIANTS_INDEL           }      from '../../../modules/nf-core/gatk4/selectvariants/main'
 include { GATK4_SELECTVARIANTS  as  GATK4_SELECTVARIANTS_MIX             }      from '../../../modules/nf-core/gatk4/selectvariants/main'
@@ -11,12 +10,10 @@ include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_SNV       }      
 include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_INDEL     }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
 include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_MIX       }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
 include { GATK4_VARIANTFILTRATION  as  GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR       }      from '../../../modules/nf-core/gatk4/variantfiltration/main'
-include { GATK4_GENOMICSDBIMPORT } from '../../../modules/nf-core/gatk4/genomicsdbimport/main'
-include { GATK4_GENOTYPEGVCFS } from '../../../modules/nf-core/gatk4/genotypegvcfs/main'
-include { GATK4_CALCULATEGENOTYPEPOSTERIORS } from '../../../modules/local/gatk4/calculategenotypeposteriors/main'
-include { GATK4_VARIANTANNOTATOR } from '../../../modules/local/gatk4/variantannotator/main'
-include { GATK4_VARIANTRECALIBRATOR as VARIANTRECALIBRATOR_INDEL} from '../../../modules/nf-core/gatk4/variantrecalibrator/main'
-include { GATK4_VARIANTRECALIBRATOR as VARIANTRECALIBRATOR_SNP} from '../../../modules/nf-core/gatk4/variantrecalibrator/main'
+include { GATK4_GENOMICSDBIMPORT }                                              from '../../../modules/nf-core/gatk4/genomicsdbimport/main'
+include { GATK4_GENOTYPEGVCFS }                                                 from '../../../modules/nf-core/gatk4/genotypegvcfs/main'
+include { GATK4_CALCULATEGENOTYPEPOSTERIORS }                                   from '../../../modules/local/gatk4/calculategenotypeposteriors/main'
+include { GATK4_VARIANTANNOTATOR }                                              from '../../../modules/local/gatk4/variantannotator/main'
 
 workflow GATK_TRIO_VCF {
 
