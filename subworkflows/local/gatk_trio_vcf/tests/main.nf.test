@@ -1,0 +1,160 @@
+nextflow_workflow {
+
+    name "Test Subworkflow GATK_TRIO_VCF"
+    script "../main.nf"
+    workflow "GATK_TRIO_VCF"
+
+    tag "subworkflows"
+    tag "subworkflows/gatk_vcf"
+    tag "subworkflows/mapping"
+    tag "bwa"
+    tag "bwa/mem"
+    tag "gatk4"
+    tag "gatk4/fastqtosam"
+    tag "gatk4/mergebamalignment"
+    tag "gatk4/fastqtosam"
+    tag "gatk4/baserecalibrator"
+    tag "gatk4/applybqr"
+    tag "gatk4spark"
+    tag "gatk4spark/markduplicates"    
+    tag "picard"
+    tag "picard/sortsam"
+
+    setup {
+
+        run("BWA_INDEX") {
+            script "../../../../modules/nf-core/bwa/index/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+        
+        run("PICARD_CREATESEQUENCEDICTIONARY") {
+            script "../../../../modules/nf-core/picard/createsequencedictionary/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+        
+        // Run mapping for all three samples at once
+        run("MAPPING") {
+            script "../../../../subworkflows/local/mapping/main.nf"
+            process {
+                """
+                // Create channel with three samples
+                input[0] = Channel.of(
+                    [
+                        [ id : 'sample1_father', family: 'test_family' ],
+                        [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
+                    ],
+                    [
+                        [ id : 'sample2_mother', family: 'test_family' ],
+                        [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
+                    ],
+                    [
+                        [ id : 'sample3_child', family: 'test_family' ],
+                        [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
+                    ]
+                )
+                
+                input[1] = Channel.of(
+                    tuple([ id: 'sample1_father', family: 'test_family'], []),
+                    tuple([ id: 'sample2_mother', family: 'test_family'], []),
+                    tuple([ id: 'sample3_child', family: 'test_family'], [])
+                )
+                
+                input[2] = BWA_INDEX.out.index
+                
+                input[3] = Channel.fromList([
+                    tuple([ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                ]).collect()
+                
+                input[4] = Channel.fromList([
+                    tuple([ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                ]).collect()
+                
+                input[5] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+                
+                input[6] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz', checkIfExists: true)
+                
+                input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz.tbi', checkIfExists: true)
+                """
+            }
+        }
+    }
+
+    test("gatk_trio_vcf - three samples") {
+
+        when {
+            workflow {
+                """
+                // Use the BAM output from mapping (should contain all three samples)
+                input[0] = MAPPING.out.bam
+                
+                // Intervals channel - empty intervals for all samples
+                input[1] = MAPPING.out.bam.map { meta, bam, bai -> 
+                    tuple(meta, [])
+                }
+                
+                // Reference genome
+                input[2] = Channel.fromList([
+                    tuple([ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                ]).collect()
+                
+                // Reference genome index
+                input[3] = Channel.fromList([
+                    tuple([ id: 'genome'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                ]).collect()
+                
+                // Reference dictionary
+                input[4] = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+                
+                // dbSNP VCF
+                input[5] = Channel.fromList([
+                    tuple([ id: 'test_dbsnp'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz', checkIfExists: true))
+                ]).collect()
+                
+                // dbSNP TBI
+                input[6] = Channel.fromList([
+                    tuple([ id: 'test_dbsnp'],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz.tbi', checkIfExists: true))
+                ]).collect()
+
+                // intervals_for_genomicsdbimport
+                input[7] = Channel.fromPath(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.interval_list', checkIfExists: true).collect()
+                
+                input[8] = Channel.fromList([
+                    tuple([  id: 'test_family'],
+                    file('/mnt/tblab/yolanda/GT-Bioinfo/trio/test_family.ped', checkIfExists: true))
+                ])
+
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+}

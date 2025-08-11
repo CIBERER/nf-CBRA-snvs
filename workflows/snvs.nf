@@ -67,7 +67,7 @@ include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
 include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
-
+include { GATK_TRIO_VCF } from '../subworkflows/local/gatk_trio_vcf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,7 +111,7 @@ workflow SNVS {
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
     // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
     // ! There is currently no tooling to help you write a sample sheet schema
-
+    //INPUT_CHECK.out.reads.view()
     // 
     // MODULE: Run FastQC
     //
@@ -163,6 +163,30 @@ workflow SNVS {
         ch_snps_tbi
     )
     
+    ///////////// TODO: Esto después quitarlo, es solo para probar que funciona el GATK4 de TRIOS ////////////////
+    ch_intervals_genomicsdbimport = Channel.fromPath(params.genomicsdbimport_interval).collect()
+    //no_intervals = params.intervals ? false : true
+    ch_ped = INPUT_CHECK.out.ped.unique()
+
+    if (params.trio_analysis) {
+        GATK_TRIO_VCF (
+            MAPPING.out.bam,
+            ch_intervals,
+            ch_fasta,
+            ch_fai,
+            ch_refdict,
+            ch_snps.map{ it -> [ [id:it.baseName], it ] }.collect(),
+            ch_snps_tbi.map{ it -> [ [id:it.baseName], it ] }.collect(),
+            //Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
+            //Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect(),
+            ch_intervals_genomicsdbimport, // ch_intervals_genomicsdbimport
+            //no_intervals, // no_intervals
+            ch_ped // ch_ped            
+        )
+
+        vcf_file = GATK_TRIO_VCF.out.vcf
+
+    } else { ///////////// start OF GATK dragen etc IF BLOCK ////////////////
 
     GATK_VCF (
         MAPPING.out.bam,
@@ -208,7 +232,11 @@ workflow SNVS {
         ch_assembly
     )
 
-    ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
+    vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
+
+    } //////// END OF GATK_TRIO_VCF IF BLOCK ////////
+
+    ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
     ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
 
     // Conditionally add files using mix
@@ -236,7 +264,7 @@ workflow SNVS {
     ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
 
     SNV_ANNOTATION (
-        VCF_MERGE_VARIANTCALLERS.out.vcf,
+        vcf_file,
         ch_fasta,
         ch_assembly,
         params.species,
@@ -248,6 +276,8 @@ workflow SNVS {
         ch_glowgenes_panel,
         ch_glowgenes_sgds
     )
+
+
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
