@@ -1,0 +1,79 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "gatk4_calculategenotypeposteiriors"
+
+description: "CalculateGenotypePosteriors takes a multisample vcf file and calculates genotype posterior probabilities given family and/or known population genotypes. The tool can use priors from the pedigree for a trio analysis."
+keywords:
+  - vcf
+  - trio
+  - genotype
+
+tools:
+  - "calculategenotypeposteiriors":
+      description: "CalculateGenotypePosteriors takes a multisample vcf file and a ped file with pedigree information and calculates genotype posterior probabilities. The output is a new vcf file with:
+      - Genotype posteriors added to the FORMAT fields ("PP")
+      - Genotypes and GQ assigned according to these posteriors
+      - Per-site genotype priors added to the INFO field ("PG")
+      - (Optional) Per-site, per-trio joint likelihoods (JL) and joint posteriors (JP) given as Phred-scaled probability of all genotypes in the trio being correct based on the PLs for JL and the PPs for JP"
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+
+  - vcf_file:
+      type: file
+      description: multisample vcf file
+      pattern: "*vcf.gz"
+
+  - tbi_file:
+      type: file
+      description: index file for the multisample vcf file
+      pattern: "*vcf.gz.tbi"
+  
+  - intervals:
+      type: file
+      description: Optional. A bed file with the the intervals over which to operate.
+      pattern: "*.bed"
+
+  - ped:
+      type: file
+      description: A pedigree file with family information.
+      pattern: "*.ped"
+
+output:
+
+  - vcf:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - vcf_file:
+        type: file
+        description: New VCF file with genotype posteriors information added. 
+        pattern: "*.vcf.gz"
+
+  - tbi:
+    - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1', single_end:false ]`
+    - tbi_file:
+        type: file
+        description: Index file for the new VCF file.
+        pattern: "*.vcf.gz.tbi"
+  
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"
