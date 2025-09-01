@@ -7,7 +7,7 @@
                         {
                             "id": "test"
                         },
-                        "test.vcf.gz:md5,566f4c40b059e3657c2d546189b33714"
+                        "test.trio_annotated.vcf.gz:md5,08f009b25218fc4963898eedc6aa9cc2"
                     ]
                 ],
                 "1": [
@@ -15,18 +15,18 @@
                         {
                             "id": "test"
                         },
-                        "test.vcf.gz.tbi:md5,f0045584432bafbb15aa0de232c1890c"
+                        "test.trio_annotated.vcf.gz.tbi:md5,153f3e5400e59734c6468be9f1f77b66"
                     ]
                 ],
                 "2": [
-                    "versions.yml:md5,8b428765690c05516290de723f660472"
+                    "versions.yml:md5,614f94b2f7e8f23d8c0264f5ee666282"
                 ],
                 "tbi": [
                     [
                         {
                             "id": "test"
                         },
-                        "test.vcf.gz.tbi:md5,f0045584432bafbb15aa0de232c1890c"
+                        "test.trio_annotated.vcf.gz.tbi:md5,153f3e5400e59734c6468be9f1f77b66"
                     ]
                 ],
                 "vcf": [
@@ -34,11 +34,11 @@
                         {
                             "id": "test"
                         },
-                        "test.vcf.gz:md5,566f4c40b059e3657c2d546189b33714"
+                        "test.trio_annotated.vcf.gz:md5,08f009b25218fc4963898eedc6aa9cc2"
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,8b428765690c05516290de723f660472"
+                    "versions.yml:md5,614f94b2f7e8f23d8c0264f5ee666282"
                 ]
             }
         ],
@@ -46,6 +46,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-09-01T11:12:47.012377306"
+        "timestamp": "2025-09-01T11:51:30.590901882"
     }
 }

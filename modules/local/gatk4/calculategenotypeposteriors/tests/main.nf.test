@@ -17,10 +17,10 @@ nextflow_process {
                 """
                 input[0] = [
                     [id:"test"],
-                    file('/mnt/tblab/yolanda/analysis_trios/merged.vcf.gz', checkIfExists: true),
-                    file('/mnt/tblab/yolanda/analysis_trios/merged.vcf.gz.tbi', checkIfExists: true),
+                    file('/mnt/tblab/yolanda/GT-Bioinfo/GIAB/results_trio/individual_callers_snvs/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz', checkIfExists: true),
+                    file('/mnt/tblab/yolanda/GT-Bioinfo/GIAB/results_trio/individual_callers_snvs/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz.tbi', checkIfExists: true),
                     [],
-                    file('/mnt/tblab/yolanda/analysis_trios/ped_file.ped', checkIfExists: true)
+                    file('/mnt/tblab/yolanda/GT-Bioinfo/GIAB/AshkenazimTrio.ped', checkIfExists: true)
                 ]
                 """
             }
