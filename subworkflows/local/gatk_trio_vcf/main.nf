@@ -181,7 +181,15 @@ workflow GATK_TRIO_VCF {
         ch_input_genotypeposteriors
     )
 
-    ch_family_vcf_post_ped  = GATK4_CALCULATEGENOTYPEPOSTERIORS.out.vcf.join(GATK4_CALCULATEGENOTYPEPOSTERIORS.out.tbi)
+
+    GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR (
+        GATK4_CALCULATEGENOTYPEPOSTERIORS.out.vcf.join(GATK4_CALCULATEGENOTYPEPOSTERIORS.out.tbi),
+        ch_fasta,
+        ch_fai,
+        ch_refdict,
+    )
+
+    ch_family_vcf_post_ped  = GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR.out.vcf.join(GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR.out.tbi)
             .map{metaIR, vcf, tbi -> [metaIR.subMap(["id"]), metaIR, vcf, tbi]}
             .join(ch_ped,failOnDuplicate: true)
             .map{metaR, metaIR, vcf, tbi, ped -> [metaIR, vcf, tbi, ped]}
