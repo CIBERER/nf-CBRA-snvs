@@ -2,14 +2,14 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "gatk4_calculategenotypeposteriors"
 
-description: "CalculateGenotypePosteriors takes a multisample vcf file and calculates genotype posterior probabilities given family and/or known population genotypes. The tool can use priors from the pedigree for a trio analysis."
+description: "This module takes a multisample vcf file and calculates genotype posterior probabilities given family and/or known population genotypes. The tool can use priors from the pedigree for a trio analysis."
 keywords:
   - vcf
   - trio
   - genotype
 
 tools:
-  - "calculategenotypeposteriors":
+  - "CalculateGenotypePosteriors":
       description: "CalculateGenotypePosteriors takes a multisample vcf file and a ped file with pedigree information and calculates genotype posterior probabilities. The output is a new vcf file with:
       - Genotype posteriors added to the FORMAT fields ("PP")
       - Genotypes and GQ assigned according to these posteriors
