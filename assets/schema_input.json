@@ -30,8 +30,21 @@
                         "maxLength": 0
                     }
                 ]
+            },
+            "bam": {
+                "type": "string",
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "bam file cannot contain spaces and must have extension '.bam' "
+            },
+            "bai": {
+                "type": "string",
+                "pattern": "^\\S+\\.bai$",
+                "errorMessage": "bai file cannot contain spaces and must have extension '.bai' "
             }
         },
-        "required": ["sample", "fastq_1"]
+        "dependentRequired": {
+            "bai": ["bam"]
+        },
+        "required": ["sample"]
     }
 }
