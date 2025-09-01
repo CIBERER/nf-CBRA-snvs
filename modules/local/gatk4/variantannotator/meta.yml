@@ -1,20 +1,17 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "gatk4_calculategenotypeposteriors"
+name: "gatk4_variantannotator"
 
-description: "CalculateGenotypePosteriors takes a multisample vcf file and calculates genotype posterior probabilities given family and/or known population genotypes. The tool can use priors from the pedigree for a trio analysis."
+description: "This module takes the VCF with the information from CalculateGenotypePosteriors and annotates possible de novo mutations in trios."
 keywords:
   - vcf
   - trio
   - genotype
+  - de novo
 
 tools:
-  - "calculategenotypeposteriors":
-      description: "CalculateGenotypePosteriors takes a multisample vcf file and a ped file with pedigree information and calculates genotype posterior probabilities. The output is a new vcf file with:
-      - Genotype posteriors added to the FORMAT fields ("PP")
-      - Genotypes and GQ assigned according to these posteriors
-      - Per-site genotype priors added to the INFO field ("PG")
-      - (Optional) Per-site, per-trio joint likelihoods (JL) and joint posteriors (JP) given as Phred-scaled probability of all genotypes in the trio being correct based on the PLs for JL and the PPs for JP"
+  - "VariantAnnotator":
+      description: "VariantAnnotator is a tool for adding annotations to VCF files. It tags possible de novo mutations using the posterior genotype probabilities."
 
 input:
   - meta:
@@ -25,12 +22,12 @@ input:
 
   - vcf_file:
       type: file
-      description: multisample vcf file
+      description: multisample vcf file with posterior genotype probabilities information.
       pattern: "*vcf.gz"
 
   - tbi_file:
       type: file
-      description: index file for the multisample vcf file
+      description: index file. 
       pattern: "*vcf.gz.tbi"
   
   - intervals:
@@ -53,7 +50,7 @@ output:
           e.g. `[ id:'sample1', single_end:false ]`
     - vcf_file:
         type: file
-        description: New VCF file with genotype posteriors information added. 
+        description: New VCF file with possible de novo mutations tagged. 
         pattern: "*.vcf.gz"
 
   - tbi:
