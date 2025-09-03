@@ -132,7 +132,7 @@ print("Sample information")
 
 samples = unique(gsub("_.*$", "", gsub("^SAMPLE_", "", colnames(vep)[grepl(".*_GT$", colnames(vep), perl = T)])))
 for (sample in samples){
-  for (field in c("GT", "VAF", "AD", "DP", "SF", "GD")){
+  for (field in c("GT", "VAF", "AD", "DP", "SF", "GD", "GQ", "FT")){
     tryCatch(
       {
         print(paste0(sample, "_", field))

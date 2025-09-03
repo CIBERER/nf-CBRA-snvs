@@ -164,7 +164,7 @@ workflow SNVS {
     )
     
     ///////////// TODO: Esto después quitarlo, es solo para probar que funciona el GATK4 de TRIOS ////////////////
-    ch_intervals_genomicsdbimport = Channel.fromPath(params.genomicsdbimport_interval).collect()
+    ch_intervals_genomicsdbimport = params.genomicsdbimport_interval ? Channel.fromPath(params.genomicsdbimport_interval).collect() : Channel.of([])
     //no_intervals = params.intervals ? false : true
     ch_ped = INPUT_CHECK.out.ped.unique()
 
@@ -237,12 +237,21 @@ workflow SNVS {
     } //////// END OF GATK_TRIO_VCF IF BLOCK ////////
 
     ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
-    ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
+    //ch_extra_files = params.extra_files ? Channel.of(file(params.extra_files, checkIfExists: true)).collect() : Channel.value([])
+    //ch_extra_files.view()
+    
+    ch_extra_files = params.extra_files ? 
+        Channel.fromPath(params.extra_files.split(',').collect { it.trim() }, checkIfExists: true)
+            .collect() : 
+        Channel.value([])
+    ch_extra_files.view()
 
     // Conditionally add files using mix
     if (params.plugins_dir) {
         ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
     }
+
+    ch_extra_files.view()
 
     ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
     ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
