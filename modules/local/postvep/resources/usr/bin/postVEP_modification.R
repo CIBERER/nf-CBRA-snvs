@@ -24,12 +24,33 @@ option_list = list(
   
   make_option(c("-f", "--maf"), type="double", default=0.1,
                help="\t\tMinimum allele frequency to filter", metavar="character"),
-
-  make_option(c("-w", "--glowgenes"), type="character", default=NULL,
-            help="\t\tGLOWgenes output file to annotate and sort the results", metavar="character"),
   
   make_option(c("-s", "--SGDS"), type="character", default=NULL,
-            help="\t\tGLOWgenes Score of Gene-Disease Specificity", metavar="character")
+            help="\t\tGLOWgenes Score of Gene-Disease Specificity", metavar="character"),
+
+  make_option(c("-d", "--dbNSFPgene"), type="character", default=NULL, 
+              help="\t\tdbNSFP_gene file", metavar="character"),
+  
+  make_option(c("-r", "--regiondict"), type="character", default=NULL,
+              help="\t\tRegion dictionary", metavar="character"),
+  
+  make_option(c("-m", "--omim"), type="character", default=NULL,
+              help="\t\tOMIM information", metavar="character"),
+  
+  make_option(c("-D", "--domino"), type="character", default=NULL, 
+              help="\t\tdomino file", metavar="character"),
+
+  make_option(c("-e", "--expression"), type="character", default=NULL, 
+            help="\t\ttissue expression file", metavar="character"),
+  
+  make_option(c("-g", "--genefilter"), type="character", default=NULL,
+              help="\t\tGene list to filter the resutls", metavar="character"),
+  
+  make_option(c("-w", "--glowgenes"), type="character", default=NULL,
+              help="\t\tGLOWgenes output file to annotate and srt the results", metavar="character"),
+
+  make_option(c("-p", "--panel_annotation_file"), type="character", default=NULL,
+              help="\t\tGene-Panel file to annotate", metavar="character")
 
 )
 
@@ -43,19 +64,27 @@ maf = opt$maf
 glowgenes_path = opt$glowgenes
 SGDS_path = opt$SGDS
 
+dbNSFPgenepath <- opt$dbNSFPgene
+dominopath <- opt$domino
+expression_path <- opt$expression
+dict_region_path <- opt$regiondict
+omim_path = opt$omim
+genefilter_path = opt$genefilter
+panels_path = opt$panel_annotation_file
+
 ################
 # Data loading # 
 ################
 
-# VEP
+##### VEP
 
 print("Read VEP file")
 
-# Find the line number of the line starting with "#Uploaded_variation"
+#### Find the line number of the line starting with "#Uploaded_variation"
 lines <- readLines(input)
 start_line <- grep("^#Uploaded_variation", lines)
 
-# Read the file starting from the detected line
+#### Read the file starting from the detected line
 if (length(start_line) > 0) {
   vep <- read.delim(input, skip = start_line - 1, header = TRUE, stringsAsFactors = F, quote = "", check.names=F, colClasses = "character")
 } else {
@@ -63,18 +92,22 @@ if (length(start_line) > 0) {
 }
 
 #head(vep)
-# Filtering variants by MAF
+#### Filtering variants by MAF
 
 print("Number of variants before filtering by MAF")
 print(nrow(vep))
 
-vep <- vep[is.na(vep$MAX_AF) | (!is.na(vep$MAX_AF) & vep$MAX_AF < as.numeric(maf)), ]
+#vep <- vep[is.na(vep$MAX_AF) | (!is.na(vep$MAX_AF) & vep$MAX_AF < as.numeric(maf)), ]
 
-print("Number of variants after filtering by MAF")
+vep$gnomADe_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADe_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
+vep$gnomADg_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADg_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
+
+vep = vep[is.na(vep$gnomADe_AF_grpmax) | as.numeric(vep$gnomADe_AF_grpmax) < as.numeric(maf) | vep$gnomADe_filt != "PASS",]
+print(nrow(vep))
+vep = vep[is.na(vep$gnomADg_AF_grpmax) | as.numeric(vep$gnomADg_AF_grpmax) < as.numeric(maf) | vep$gnomADg_filt != "PASS",]
 print(nrow(vep))
 
-
-# GLOWgenes
+#### include GLOWgenes and SGDS 
 if (!is.null(glowgenes_path)){
   
   glowgenes = read.delim(glowgenes_path, header = F, stringsAsFactors = F, quote = "", check.names=F)
@@ -89,6 +122,23 @@ if (!is.null(SGDS_path)) {
   colnames(SGDS) = c("SYMBOL", "SGDS", "GLOWgenes_best_ranking", "GLOWgenes_median_ranking")
   vep = merge(vep, SGDS, by = "SYMBOL", all.x = TRUE)
   
+}
+
+#### OMIM
+if (!is.null(omim_path)){
+  omim = read.delim(omim_path, header = F, stringsAsFactors = F, comment.char = "#", quote = "", check.names=F)
+  colnames(omim) = c("Chromosome", "Genomic_Position_Start", "Genomic Position End", "Cyto_Location", "Computed_Cyto_Location", "MIM_Number",
+    "Gene_Symbols", "Gene_Name",	"Approved_Gene_Symbol", "Entrez_Gene_ID", "Ensembl_Gene_ID", "Comments", "Phenotypes", "Mouse_Gene_Symbol-ID")
+  vep = merge(vep, omim, by.x = "SYMBOL", by.y = "Approved_Gene_Symbol", all.x = T)
+}
+
+#### Region dictionary
+if (!is.null(dict_region_path)){
+  dict_region = read.csv(dict_region_path, header = F, sep = ",", stringsAsFactors = F)
+  priority_list = c("SPLICING", "5UTR", "3UTR", "ncRNA", "regulatory", "UPSTREAM", "DOWNSTREAM", "EXONIC", "INTRONIC", "INTERGENIC", "-")
+  dict_region$V2[is.na(dict_region$V2)] = "-"
+  dict_region$V2 = factor(dict_region$V2, priority_list)
+  rownames(dict_region) = dict_region$V1
 }
 
 
@@ -117,6 +167,12 @@ df_out$CHROM = unlist(lapply(vep$Location, function(x) strsplit(x, ":")[[1]][1])
 df_out$POS = as.numeric(unlist(lapply(vep$`#Uploaded_variation`, function(x) rev(strsplit(x, "_")[[1]])[2])))
 df_out$REF = vep$USED_REF
 df_out$ALT = vep$Allele
+df_out$Location = vep$Location
+df_out$SYMBOL = vep$SYMBOL
+df_out$Gene_full_name = vep$Gene_full_name
+df_out$VARIANT_CLASS = vep$VARIANT_CLASS
+df_out$Panels_name = vep$panels
+
 
 #=====================#
 # Add all the columns #
