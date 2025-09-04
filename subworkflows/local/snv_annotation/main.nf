@@ -18,6 +18,7 @@ workflow SNV_ANNOTATION {
     maf                 // channel (optional)  : [ val(maf) ]
     ch_glowgenes_panel              // channel (optional)  : [ path(glowgenes_panel) ]
     ch_glowgenes_sgds           // channel (optional)  : [ path(glowgenes_sgds) ]
+    ch_extra_files_pvm          // channel (optional)  : [ path(extra_files_pvm) ]
 
     main:
 
@@ -94,7 +95,8 @@ workflow SNV_ANNOTATION {
         maf, 
         ucsc_genome,
         ch_glowgenes_panel,
-        ch_glowgenes_sgds
+        ch_glowgenes_sgds,
+        ch_extra_files_pvm
     )
 
     

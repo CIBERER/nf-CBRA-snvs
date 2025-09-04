@@ -244,14 +244,18 @@ workflow SNVS {
         Channel.fromPath(params.extra_files.split(',').collect { it.trim() }, checkIfExists: true)
             .collect() : 
         Channel.value([])
-    ch_extra_files.view()
 
     // Conditionally add files using mix
     if (params.plugins_dir) {
         ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
     }
 
-    ch_extra_files.view()
+    //ch_extra_files.view()
+
+    ch_extra_files_pvm = params.extra_files_pvm ? 
+        Channel.fromPath(params.extra_files_pvm.split(',').collect { it.trim() }, checkIfExists: true)
+            .collect() : 
+        Channel.value([])
 
     ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
     ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
@@ -283,7 +287,8 @@ workflow SNVS {
         ch_extra_files,
         params.maf,
         ch_glowgenes_panel,
-        ch_glowgenes_sgds
+        ch_glowgenes_sgds,
+        ch_extra_files_pvm
     )
 
 
