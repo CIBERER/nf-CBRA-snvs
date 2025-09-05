@@ -37,12 +37,25 @@
                     }
                 ]
             },
+            "bam": {
+                "type": "string",
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "bam file cannot contain spaces and must have extension '.bam' "
+            },
+            "bai": {
+                "type": "string",
+                "pattern": "^\\S+\\.bai$",
+                "errorMessage": "bai file cannot contain spaces and must have extension '.bai' "
+            },
             "ped": {
                 "type": "string",
                 "pattern": "^\\S+\\.ped$",
                 "errorMessage": "ped file for trio analysis must be provided and cannot contain spaces, must have extension '.ped'"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "dependentRequired": {
+            "bai": ["bam"]
+        },
+        "required": ["sample"]
     }
 }
