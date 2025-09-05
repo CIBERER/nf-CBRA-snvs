@@ -38,7 +38,7 @@ def create_fastq_channel(ArrayList row) {
     }
 
     // meta.single_end depending on optional fastq_2 field
-    meta.single_end = row.get(2)?.trim() ? false : true
+    meta.single_end = row.get(2) ? false : true
 
     // add path(s) of the fastq file(s) to the meta map
     def fastq_meta = []
@@ -73,11 +73,12 @@ def create_ped_channel(ArrayList row) {
     // }
 
     // meta.single_end depending on optional fastq_2 field
-    meta.single_end = row.get(2)?.trim() ? false : true
+    meta.single_end = row.get(2) ? false : true
 
     // add path(s) of the fastq file(s) to the meta map
     def ped_meta = []
 
+if (row.get(5)) {
     if (file(row.get(5)).exists()) {
         //check family field if it's empty
         if (meta.family == [] || meta.family == null || meta.family == "") {
@@ -90,6 +91,7 @@ def create_ped_channel(ArrayList row) {
     }
 
     return ped_meta
+    }
 }
 
 def create_bam_channel(ArrayList row) {
