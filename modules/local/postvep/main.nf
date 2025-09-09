@@ -29,7 +29,7 @@ process POSTVEP {
 
     """
 
-    postVEP_modification.R \\
+    postVEP_modification_tblab.R \\
     --input ${vep_tsv} \\
     --output ${prefix}.${assembly}.SNV.INDEL.annotated.tsv \\
     --maf ${maf} \\
