@@ -37,9 +37,6 @@ def create_fastq_channel(ArrayList row) {
         meta.remove('family')
     }
 
-    // meta.single_end depending on optional fastq_2 field
-    meta.single_end = row.get(2) ? false : true
-
     // add path(s) of the fastq file(s) to the meta map
     def fastq_meta = []
 
@@ -47,6 +44,10 @@ def create_fastq_channel(ArrayList row) {
         if (!file(row.get(1)).exists()) {
             exit 1, "ERROR: Please check input samplesheet -> Read 1 FastQ file does not exist!\n${row.get(1)}"
         }
+        
+        // meta.single_end depending on optional fastq_2 field
+        meta.single_end = row.get(2) ? false : true
+
         if (meta.single_end) {
             fastq_meta = [ meta, [ file(row.get(1)) ] ]
         } else {
@@ -56,9 +57,10 @@ def create_fastq_channel(ArrayList row) {
             fastq_meta = [ meta, [ file(row.get(1)), file(row.get(2)) ] ]
         }
     return fastq_meta
+    } else {
+        fastq_meta = [ meta, [] ]
     }
 
-    
 }
 
 // Function to get list of [ meta, [ ped ] ]
@@ -99,16 +101,22 @@ def create_bam_channel(ArrayList row) {
     def meta = row.get(0)
     def bam_bai_meta = []
 
+    if (meta.family == [] || meta.family == null || meta.family == "") {
+        meta.remove('family')
+    }
+
     if (row.get(3)) {
         if (file(row.get(3)).exists()) {
             if (file(row.get(4)).exists()) {
-                bam_bai_meta = [ [meta], file(row.get(3)), file(row.get(4)) ]
+                bam_bai_meta = [ meta, file(row.get(3)), file(row.get(4)) ]
             } else {
                 exit 1, "ERROR: Please check input samplesheet -> given bam file but not bai file"
             }
      }
     return bam_bai_meta
+    } else {
+        bam_bai_meta = [ meta, [] ]
+        return bam_bai_meta
     }
-    
 }
 
