@@ -176,7 +176,7 @@ workflow SNVS {
             bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
         }
 
-        bam_file.view()
+        //bam_file.view()
     
         if (params.trio_analysis) {
 
@@ -198,7 +198,7 @@ workflow SNVS {
                 ch_ped // ch_ped            
             )
 
-            vcf_file = GATK_TRIO_VCF.out.vcf
+            final_vcf_file = GATK_TRIO_VCF.out.vcf
 
         } else { 
             
@@ -255,67 +255,78 @@ workflow SNVS {
                 ch_assembly
             )
 
-            vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
+            final_vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
 
         } 
     
     }
     
 
-    ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
-    //ch_extra_files = params.extra_files ? Channel.of(file(params.extra_files, checkIfExists: true)).collect() : Channel.value([])
-    //ch_extra_files.view()
-    
-    ch_extra_files = params.extra_files ? 
-        Channel.fromPath(params.extra_files.split(',').collect { it.trim() }, checkIfExists: true)
-            .collect() : 
-        Channel.value([])
-
-    // Conditionally add files using mix
-    if (params.plugins_dir) {
-        ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
-    }
-
-    //ch_extra_files.view()
-
-    ch_extra_files_pvm = params.extra_files_pvm ? 
-        Channel.fromPath(params.extra_files_pvm.split(',').collect { it.trim() }, checkIfExists: true)
-            .collect() : 
-        Channel.value([])
-
-    ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
-    ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
-
-    if (params.vep_cache_path) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true).collect() } else { 
-        // Define your meta_vep
-        def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
-        if (params.refseq_cache) {
-            ch_vep_download = Channel.of([meta_vep, params.assembly, "${params.species}_refseq", params.vep_cache_version])
+    if (params.annotation) {
+        if (params.variant_calling) {
+            vcf_file = final_vcf_file
         } else {
-            ch_vep_download = Channel.of([meta_vep, params.assembly, params.species, params.vep_cache_version])
+            vcf_file = INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> check_vcf(meta, vcf, tbi) }
         }
-        ENSEMBLVEP_DOWNLOAD (
-            ch_vep_download
-            )
-        ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }.collect()
+
+        ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
+        //ch_extra_files = params.extra_files ? Channel.of(file(params.extra_files, checkIfExists: true)).collect() : Channel.value([])
+        //ch_extra_files.view()
+        
+        ch_extra_files = params.extra_files ? 
+            Channel.fromPath(params.extra_files.split(',').collect { it.trim() }, checkIfExists: true)
+                .collect() : 
+            Channel.value([])
+
+        // Conditionally add files using mix
+        if (params.plugins_dir) {
+            ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
+        }
+
+        //ch_extra_files.view()
+
+        ch_extra_files_pvm = params.extra_files_pvm ? 
+            Channel.fromPath(params.extra_files_pvm.split(',').collect { it.trim() }, checkIfExists: true)
+                .collect() : 
+            Channel.value([])
+
+        ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
+        ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
+
+        if (params.vep_cache_path) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true).collect() } else { 
+            // Define your meta_vep
+            def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
+            if (params.refseq_cache) {
+                ch_vep_download = Channel.of([meta_vep, params.assembly, "${params.species}_refseq", params.vep_cache_version])
+            } else {
+                ch_vep_download = Channel.of([meta_vep, params.assembly, params.species, params.vep_cache_version])
+            }
+            ENSEMBLVEP_DOWNLOAD (
+                ch_vep_download
+                )
+            ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }.collect()
+        }
+
+        ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
+
+        SNV_ANNOTATION (
+            vcf_file,
+            ch_fasta,
+            ch_assembly,
+            params.species,
+            ch_vep_cache_version,
+            ch_vep_cache_path,
+            ch_custom_extra_files,
+            ch_extra_files,
+            params.maf,
+            ch_glowgenes_panel,
+            ch_glowgenes_sgds,
+            ch_extra_files_pvm
+        )
+
     }
 
-    ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
 
-    SNV_ANNOTATION (
-        vcf_file,
-        ch_fasta,
-        ch_assembly,
-        params.species,
-        ch_vep_cache_version,
-        ch_vep_cache_path,
-        ch_custom_extra_files,
-        ch_extra_files,
-        params.maf,
-        ch_glowgenes_panel,
-        ch_glowgenes_sgds,
-        ch_extra_files_pvm
-    )
 
 
 
@@ -372,6 +383,13 @@ def check_bam (meta, bam, bai) {
     }
 }
 
+def check_vcf (meta, vcf, tbi) {
+    if (vcf.size() == 0) {
+        exit 1, "ERROR: Please check input samplesheet -> No vcf files provided for one or more samples!"
+    } else {
+        return [ meta, vcf, tbi ]
+    }
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
