@@ -47,6 +47,16 @@
                 "pattern": "^\\S+\\.bai$",
                 "errorMessage": "bai file cannot contain spaces and must have extension '.bai' "
             },
+            "vcf": {
+                "type": "string",
+                "pattern": "^\\S+\\.vcf\\.gz$",
+                "errorMessage": "vcf file cannot contain spaces and must have extension '.vcf' or '.vcf.gz' "
+            },
+            "tbi": {
+                "type": "string",
+                "pattern": "^\\S+\\.tbi$",
+                "errorMessage": "tbi file cannot contain spaces and must have extension '.tbi' "
+            },
             "ped": {
                 "type": "string",
                 "pattern": "^\\S+\\.ped$",

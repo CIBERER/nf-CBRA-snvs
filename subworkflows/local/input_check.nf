@@ -14,16 +14,21 @@ workflow INPUT_CHECK {
         .set { reads }
 
     Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))
-        .map { create_ped_channel(it) }
+        .map { create_ped_channel(it) }.view()
         .set { ped }
 
     Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))//.view()
-        .map { create_bam_channel(it) }.view()
+        .map { create_bam_channel(it) }//.view()
         .set { bams }
+
+    Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))//.view()
+        .map { create_vcf_channel(it) }//.view()
+        .set { vcfs }
 
     emit:
     reads                       // channel: [ val(meta), [ reads ] ]
     bams                        // channel: [ val(meta), [ bam, bai ] ]
+    vcfs                       // channel: [ val(meta), [ vcf, tbi ] ]
     ped                                       // channel: [ val(meta), path(ped) ]                          
     versions = Channel.empty() // SAMPLESHEET_CHECK.out.versions // channel: [ versions.yml ]
 }
@@ -80,15 +85,15 @@ def create_ped_channel(ArrayList row) {
     // add path(s) of the fastq file(s) to the meta map
     def ped_meta = []
 
-if (row.get(5)) {
-    if (file(row.get(5)).exists()) {
+if (row.get(7)) {
+    if (file(row.get(7)).exists()) {
         //check family field if it's empty
         if (meta.family == [] || meta.family == null || meta.family == "") {
             exit 1, "ERROR: Please check input samplesheet -> Family field cannot be empty for trio analysis!\n${row.get(0)}"
         } else {
             def meta_family = [:]
             meta_family.id = meta.family
-            ped_meta = [ meta_family,  file(row.get(5))  ]
+            ped_meta = [ meta_family,  file(row.get(7))  ]
         }
     }
 
@@ -120,3 +125,26 @@ def create_bam_channel(ArrayList row) {
     }
 }
 
+def create_vcf_channel(ArrayList row) {
+    // gather meta
+    def meta = row.get(0)
+    def vcf_tbi_meta = []
+
+    if (meta.family == [] || meta.family == null || meta.family == "") {
+        meta.remove('family')
+    }
+
+    if (row.get(5)) {
+        if (file(row.get(5)).exists()) {
+            if (file(row.get(6)).exists()) {
+                vcf_tbi_meta = [ meta, file(row.get(5)), file(row.get(6)) ]
+            } else {
+                exit 1, "ERROR: Please check input samplesheet -> given vcf file but not tbi file"
+            }
+     }
+    return vcf_tbi_meta
+    } else {
+        vcf_tbi_meta = [ meta, [] ]
+        return vcf_tbi_meta
+    }
+}
