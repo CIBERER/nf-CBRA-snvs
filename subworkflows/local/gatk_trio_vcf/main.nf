@@ -15,6 +15,10 @@ include { GATK4_GENOTYPEGVCFS }                                                 
 include { GATK4_CALCULATEGENOTYPEPOSTERIORS }                                   from '../../../modules/local/gatk4/calculategenotypeposteriors/main'
 include { GATK4_VARIANTANNOTATOR }                                              from '../../../modules/local/gatk4/variantannotator/main'
 
+include { SPLITMULTIALLELIC                                                }      from '../../../modules/local/splitmultiallelic/main'
+include { ADD_VAF_TRIO } from '../../../modules/local/add_vaf_trio/main'
+include { FILTER_PROBAND_REF } from '../../../modules/local/filter_proband_ref/main'
+
 workflow GATK_TRIO_VCF {
 
     take:
@@ -207,9 +211,29 @@ workflow GATK_TRIO_VCF {
     GATK4_VARIANTANNOTATOR(
         ch_input_variantannotator
     )
-    
 
-    vcf = GATK4_VARIANTANNOTATOR.out.vcf.join(GATK4_VARIANTANNOTATOR.out.tbi)
+    ch_filter_proband_ped  = GATK4_VARIANTANNOTATOR.out.vcf.join(GATK4_VARIANTANNOTATOR.out.tbi)
+        .map{metaIR, vcf, tbi -> [metaIR.subMap(["id"]), metaIR, vcf, tbi]}
+        .join(ch_ped,failOnDuplicate: true)
+        .map{metaR, metaIR, vcf, tbi, ped -> [metaIR, vcf, tbi, ped]}
+
+    FILTER_PROBAND_REF (
+        ch_filter_proband_ped
+    )
+    
+    SPLITMULTIALLELIC (
+        FILTER_PROBAND_REF.out.vcf,
+        ch_fasta,
+        "gatk_trio"
+    )
+    
+    ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
+
+    ADD_VAF_TRIO (
+        GATK4_VARIANTANNOTATOR.out.vcf.join(GATK4_VARIANTANNOTATOR.out.tbi)
+    )
+
+    vcf = ADD_VAF_TRIO.out.vcf
 
     emit:
     vcf // channel: [ val(meta), path(vcf), path(tbi)]
