@@ -42,7 +42,7 @@ process FILTER_PROBAND_REF {
     
     # Filter variants where the proband is not homozygous reference (0/0)
     # Using single quotes to avoid escaping issues
-    bcftools view -i 'GT['\${sample_index}']!="0/0"' ${vcf} -Oz -o ${prefix}.filtered.vcf.gz
+    bcftools view -i 'GT['\${sample_index}']!="0/0" && GT['\${sample_index}']!="./."' ${vcf} -Oz -o ${prefix}.filtered.vcf.gz
     
     # Index the filtered VCF
     bcftools index -t ${prefix}.filtered.vcf.gz
