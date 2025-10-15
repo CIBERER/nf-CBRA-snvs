@@ -52,7 +52,7 @@ def create_fastq_channel(ArrayList row) {
 }
 
 // Function to get list of [ meta, [ ped ] ]
-//TODO: intentar que no haya que meter el ped en todos los familiares
+// TODO: Try to avoid requiring the PED file to be included for all family members in the samplesheet.
 def create_ped_channel(ArrayList row) {
     // gather meta
     def meta = row.get(0)
