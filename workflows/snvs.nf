@@ -233,7 +233,8 @@ workflow SNVS {
 
     vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
 
-    } //////// END OF GATK_TRIO_VCF IF BLOCK ////////
+    // END OF GATK_TRIO_VCF IF BLOCK
+    }
 
     ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
     ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
