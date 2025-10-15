@@ -162,9 +162,7 @@ workflow SNVS {
         ch_snps_tbi
     )
     
-    ///////////// TODO: Esto después quitarlo, es solo para probar que funciona el GATK4 de TRIOS ////////////////
     ch_intervals_genomicsdbimport = Channel.fromPath(params.genomicsdbimport_interval).collect()
-    //no_intervals = params.intervals ? false : true
     ch_ped = INPUT_CHECK.out.ped.unique()
 
     if (params.trio_analysis) {
