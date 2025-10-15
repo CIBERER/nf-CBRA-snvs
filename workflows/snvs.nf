@@ -183,7 +183,7 @@ workflow SNVS {
 
         vcf_file = GATK_TRIO_VCF.out.vcf
 
-    } else { ///////////// start OF GATK dragen etc IF BLOCK ////////////////
+    } else { // start of GATK dragen etc IF block
 
     GATK_VCF (
         MAPPING.out.bam,
