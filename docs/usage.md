@@ -103,7 +103,7 @@ genome: 'GRCh37'
 
 You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
 
-For trio analysis, set `--trio_analysis true` and the interval_list file nedeed for `GATK4_GENOMICSDBIMPORT` module with `--genomicsdbimport_interval`. 
+For trio analysis, set `--trio_analysis true` and the interval_list file needed for `GATK4_GENOMICSDBIMPORT` module with `--genomicsdbimport_interval`. 
 
 ### Updating the pipeline
 
