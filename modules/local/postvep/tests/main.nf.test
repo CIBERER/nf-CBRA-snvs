@@ -16,8 +16,8 @@ nextflow_workflow {
             """
             input[0] = Channel.of([
                 [ id:'test'], // meta map
-                file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
-                file("https://zenodo.org/records/15738776/files/NA12878-HG001.HomRegions.tsv?download=1", checkIfExists: true)
+                file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz", checkIfExists: true),
+                file("https://zenodo.org/records/15738776/files/NA12878-HG001.HomRegions.tsv", checkIfExists: true)
             ])
             input[1] = 0.01
             input[2] = "hg38"
@@ -44,7 +44,7 @@ nextflow_workflow {
                 """
                 input[0] = Channel.of([
                     [ id:'test'], // meta map
-                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
+                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz", checkIfExists: true),
                     []
                 ])
                 input[1] = 0.01
@@ -72,7 +72,7 @@ nextflow_workflow {
                 """
                 input[0] = Channel.of([
                     [ id:'test'], // meta map
-                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
+                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz", checkIfExists: true),
                     []
                 ])
                 input[1] = 0.01
@@ -100,7 +100,7 @@ nextflow_workflow {
                 """
                 input[0] = Channel.of([
                     [ id:'test'], // meta map
-                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz?download=1", checkIfExists: true),
+                    file("https://zenodo.org/records/15738776/files/NA12878-HG001.vep.tab.gz", checkIfExists: true),
                     []
                 ])
                 input[1] = 0.01

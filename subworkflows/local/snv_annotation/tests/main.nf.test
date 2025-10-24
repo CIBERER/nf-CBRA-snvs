@@ -46,8 +46,8 @@ nextflow_workflow {
                 """
                 input[0] = Channel.of([
                     [ id:'test'], // meta map
-                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz?download=1", checkIfExists: true),
-                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz.tbi?download=1.tbi", checkIfExists: true)
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz", checkIfExists: true),
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz.tbi", checkIfExists: true)
                 ])
                 input[1] = TABIX_BGZIP.out.output
                 input[2] = Channel.value('GRCh38')
@@ -79,8 +79,8 @@ nextflow_workflow {
                 """
                 input[0] = Channel.of([
                     [ id:'test'], // meta map
-                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz?download=1", checkIfExists: true),
-                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz.tbi?download=1.tbi", checkIfExists: true)
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz", checkIfExists: true),
+                    file("https://zenodo.org/records/15730236/files/NA12878-HG001.hg38.final.chr1.chr22.vcf.gz.tbi", checkIfExists: true)
                 ])
                 input[1] = TABIX_BGZIP.out.output
                 input[2] = Channel.value('GRCh38')
