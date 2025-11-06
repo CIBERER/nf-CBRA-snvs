@@ -1,6 +1,6 @@
 # nf-CBRA-snvs: Documentation about the SNV/Indel annotation subworkflow
 
-## [snv_annotation subworkflow](https://github.com/CIBERER/GdTBioinfo-nf-snvs/blob/annot_subworkflow_postvep/subworkflows/local/snv_annotation/main.nf)
+## [snv_annotation subworkflow](https://github.com/CIBERER/nf-CBRA-snvs/blob/annot_subworkflow_postvep/subworkflows/local/snv_annotation/main.nf)
 
 This sub-workflow annotate variants from a vcf file with [Ensembl Variant Effect Predictor (Ensembl VEP)](https://www.ensembl.org/info/docs/tools/vep/index.html). 
 By default, VEP is run with the option "--everything", which is a shorcut flag to switch on all of the following:
