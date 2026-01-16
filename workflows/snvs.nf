@@ -29,6 +29,8 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
+ch_variant_catalog = params.variant_catalog ? Channel.fromPath(params.variant_catalog, checkIfExists: true).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([])
+ch_variant_catalog.view()
 
 
 //ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first() 
@@ -87,6 +89,8 @@ include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/crea
 include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
+// nuevo
+include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,7 +115,7 @@ workflow SNVS {
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
     // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
     // ! There is currently no tooling to help you write a sample sheet schema
-
+    INPUT_CHECK.out.reads.view()
     // 
     // MODULE: Run FastQC
     //
@@ -247,6 +251,15 @@ workflow SNVS {
         params.maf,
         ch_glowgenes_panel,
         ch_glowgenes_sgds
+    )
+// nuevo
+    
+    EXPANSIONHUNTER(
+        MAPPING.out.bam,
+        ch_fasta,
+        ch_fai,
+        ch_variant_catalog
+
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
