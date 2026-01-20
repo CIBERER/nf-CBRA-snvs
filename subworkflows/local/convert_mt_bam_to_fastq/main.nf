@@ -18,10 +18,9 @@ workflow CONVERT_MT_BAM_TO_FASTQ {
 
         // Outputs bam containing only MT
         GATK4_PRINTREADS_MT ( ch_bam_bai, ch_genome_fasta, ch_genome_fai, ch_genome_dict )
-
+        GATK4_PRINTREADS_MT.out.bam.view()
         // Removes alignment information
         GATK4_REVERTSAM_MT ( GATK4_PRINTREADS_MT.out.bam )
-
         // Outputs fastq files
         GATK4_SAMTOFASTQ_MT ( GATK4_REVERTSAM_MT.out.bam )
 

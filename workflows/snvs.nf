@@ -68,6 +68,7 @@ include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_varia
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
 
+include { CONVERT_MT_BAM_TO_FASTQ           } from '../subworkflows/local/convert_mt_bam_to_fastq'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -164,7 +165,7 @@ workflow SNVS {
     )
     
 
-    GATK_VCF (
+  /*  GATK_VCF (
         MAPPING.out.bam,
         ch_intervals,
         ch_fasta,
@@ -207,9 +208,13 @@ workflow SNVS {
         ch_intervals,
         ch_assembly
     )
+    */
 
     ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
     ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    ) 
 
     // Conditionally add files using mix
     if (params.plugins_dir) {
