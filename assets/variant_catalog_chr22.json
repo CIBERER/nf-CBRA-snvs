@@ -1,0 +1,8 @@
+[
+    {
+        "LocusId": "ATXN10",
+        "LocusStructure": "(ATTCT)*",
+        "ReferenceRegion": "chr22:4321-4550",
+        "VariantType": "Repeat"
+    }
+]
