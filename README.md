@@ -33,6 +33,8 @@ The pipeline can perform the following steps:
     - **DeepVariant postprocessvariants**: Convert variant calls from callvariants to VCF, and also create GVCF files based on genomic information from makeexamples. More information [here](https://github.com/nf-core/modules/tree/master/modules/nf-core/deepvariant).
     - **Bcftools Filter** to keep PASS variants on chr1-22, X, Y.
     - **Split Multialletic**.
+  
+- **Additional analysis:** Expansion Hunter (`--run_expansionhunter true`) for targeted genotyping of short tandem repeats (STRs) and flanking variants.
 
 - **Merge and integration** of the vcfs obtained with the different tools.
 - **Annotation** of the variants:
@@ -85,4 +87,5 @@ nf-CBRA-snvs was developed within the framework of a call for intramural coopera
 - [Rafa Farias Varona](https://github.com/RafaFariasVarona)
 - [Pablo Minguez](https://github.com/pminguez)
 - [Daniel Lopez](https://github.com/dlopez-bioinfo)
+- [Cristina Arias Sardá](https://github.com/CrisAriasSarda)
 

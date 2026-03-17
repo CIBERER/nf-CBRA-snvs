@@ -71,6 +71,11 @@
             "git_sha": "e1938f8ecb13b9b82ff488d4b35269c84aa965e8",
             "installed_by": ["modules"]
           },
+          "expansionhunter": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["modules"]
+          },
           "fastqc": {
             "branch": "master",
             "git_sha": "c9488585ce7bd35ccd2a30faa2371454c8112fb9",
