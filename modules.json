@@ -136,6 +136,11 @@
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["modules"]
           },
+          "manta/germline": {
+            "branch": "master",
+            "git_sha": "3485512d3930df1fcb66b5f92af639179bdfe4be",
+            "installed_by": ["modules"]
+          },
           "multiqc": {
             "branch": "master",
             "git_sha": "8ec825f465b9c17f9d83000022995b4f7de6fe93",

@@ -91,6 +91,8 @@ include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/mai
 
 include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
 
+include { MANTA_GERMLINE } from '../modules/nf-core/manta/germline/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
