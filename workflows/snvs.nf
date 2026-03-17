@@ -174,10 +174,7 @@ workflow SNVS {
             ch_refdict,
             ch_snps.map{ it -> [ [id:it.baseName], it ] }.collect(),
             ch_snps_tbi.map{ it -> [ [id:it.baseName], it ] }.collect(),
-            //Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
-            //Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect(),
             ch_intervals_genomicsdbimport, // ch_intervals_genomicsdbimport
-            //no_intervals, // no_intervals
             ch_ped // ch_ped            
         )
 
