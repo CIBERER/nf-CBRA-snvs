@@ -7,7 +7,7 @@ This document describes the parameters for different CIBERER group profiles. Eac
 
 ## tblab Profile
 
-This profile runs the pipeline with the annotation databases and resources used by the Translational Bioinformatics Lab (tblab) at the Fundación Jiménez Díaz (FJD) (date 06/11/2025). We have included a [template](https://github.com/CIBERER/nf-CBRA-snvs/blob/conf/CIBERER_templates/tblab_parameters.config) with the required annotation files used to run this profile.
+This profile runs the pipeline with the annotation databases and resources used by the Translational Bioinformatics Lab (tblab) at the Instituto de Investigación Sanitaria Fundación Jiménez Díaz (IIS-FJD) (date 06/11/2025). We have included a [template](https://github.com/CIBERER/nf-CBRA-snvs/blob/conf/CIBERER_templates/tblab_parameters.config) with the required annotation files used to run this profile.
 
 ### Required Parameters
 
