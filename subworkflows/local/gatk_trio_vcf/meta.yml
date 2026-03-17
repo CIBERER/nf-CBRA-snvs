@@ -28,7 +28,7 @@ input:
       description: |
         The input channel containing the bam and bai files
         Structure: [ val(meta), path(bam) , path(bai) ]
-      pattern: "*.{fastq/fastq.gz}"
+      pattern: "*.{bam}, *.{bai}"
   - ch_intervals:
       type: file
       description: |
