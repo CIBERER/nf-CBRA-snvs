@@ -66,7 +66,7 @@ For more details and further functionality, please refer to the [usage](docs/usa
 
 # Profiles
 
-We have defined different profiles to run the pipeline. These profiles executes the pipeline using the same methods and annotations than different CIBERER groups. For more information, please refer to the [CIBERER group profiles](docs/CIBERER_groups.md) documentation.
+We have defined different profiles to run the pipeline. These profiles execute the pipeline using the same methods and annotations as different CIBERER groups. For more information, please refer to the [CIBERER group profiles](docs/CIBERER_groups.md) documentation.
 
 # Pipeline output
 
