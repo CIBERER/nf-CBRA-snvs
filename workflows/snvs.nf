@@ -213,7 +213,7 @@ workflow SNVS {
         ch_intervals,
         Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
         Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
-    )
+    ) 
 
     ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : Channel.empty()
     ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : Channel.empty()
