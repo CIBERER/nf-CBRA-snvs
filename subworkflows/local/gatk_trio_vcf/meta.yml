@@ -75,7 +75,7 @@ input:
       type: file
       description: |
         Ped file
-        Structure: [ val(meta3),  path(tbi)  ]
+        Structure: [ val(meta3),  path(ped)  ]
        pattern: "*.ped"
 
 
