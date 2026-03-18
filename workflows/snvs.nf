@@ -29,7 +29,6 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
-ch_variant_catalog = params.variant_catalog ? Channel.fromPath(params.variant_catalog, checkIfExists: true).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([])
 
 
 //ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first() 
@@ -88,8 +87,6 @@ include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/crea
 include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
-
-include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -274,16 +271,6 @@ workflow SNVS {
         ch_glowgenes_panel,
         ch_glowgenes_sgds
     )
- 
-    // Run EXPANSIONHUNTER as an additional step
-    if (params.run_expansionhunter) {
-        EXPANSIONHUNTER(
-            MAPPING.out.bam,
-            ch_fasta,
-            ch_fai,
-            ch_variant_catalog
-        )
-    }
 
 
 
