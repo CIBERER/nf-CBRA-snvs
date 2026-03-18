@@ -230,7 +230,7 @@ workflow GATK_TRIO_VCF {
     ch_versions = ch_versions.mix(SPLITMULTIALLELIC.out.versions.first())
 
     ADD_VAF_TRIO (
-        GATK4_VARIANTANNOTATOR.out.vcf.join(GATK4_VARIANTANNOTATOR.out.tbi)
+        SPLITMULTIALLELIC.out.biallelic_renamed_vcf
     )
 
     vcf = ADD_VAF_TRIO.out.vcf
