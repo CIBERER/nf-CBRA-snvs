@@ -264,6 +264,19 @@ workflow SNVS {
         )
     }
 
+    // Run MANTA_GERMLINE as an additional step
+    if (params.run_manta_germline) {
+        ch_manta_input = MAPPING.out.bam.map { meta, bam, bai -> [meta, bam, bai, [], []] }
+        ch_manta_config = params.manta_config ? Channel.fromPath(params.manta_config, checkIfExists: true) : Channel.empty()
+        MANTA_GERMLINE(
+            ch_manta_input,
+            ch_fasta,
+            ch_fai,
+            ch_manta_config
+        )
+
+    } 
+
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )

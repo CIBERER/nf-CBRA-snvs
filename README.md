@@ -36,6 +36,8 @@ The pipeline can perform the following steps:
   
 - **Additional analysis:** Expansion Hunter (`--run_expansionhunter true`) for targeted genotyping of short tandem repeats (STRs) and flanking variants.
 
+- **Additional analysis:** Manta germline (`--run_manta_germline true`) for calling structural variants (SVs) and indels from mapped paired-end sequencing reads.
+
 - **Merge and integration** of the vcfs obtained with the different tools.
 - **Annotation** of the variants:
   - Regions of homozygosity (ROHs) with [AUTOMAP](https://github.com/mquinodo/AutoMap)
@@ -83,9 +85,10 @@ nf-CBRA-snvs was developed within the framework of a call for intramural coopera
 
 **Other contributors**
 - [Graciela Uría Regojo](https://github.com/guriaregojo)
+- [Cristina Arias Sardá](https://github.com/CrisAriasSarda)
 - [Pedro Garrido Rodríguez](https://github.com/pedro-garridor)
 - [Rafa Farias Varona](https://github.com/RafaFariasVarona)
 - [Pablo Minguez](https://github.com/pminguez)
 - [Daniel Lopez](https://github.com/dlopez-bioinfo)
-- [Cristina Arias Sardá](https://github.com/CrisAriasSarda)
+
 
