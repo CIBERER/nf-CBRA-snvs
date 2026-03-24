@@ -32,6 +32,13 @@ params.fasta = WorkflowMain.getGenomeAttribute(params, 'fasta')
 
 include { validateParameters } from 'plugin/nf-schema'
 
+// Define extra variables if using CIBERER groups profiles
+// if (workflow.profile.contains('tblab')) {
+//     def extra_files = params.extra_files()
+// }
+
+
+
 // Print help message if needed
 if (params.help) {
     def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
@@ -45,6 +52,8 @@ if (params.help) {
 if (params.validate_params) {
     validateParameters()
 }
+
+
 
 WorkflowMain.initialise(workflow, params, log, args)
 

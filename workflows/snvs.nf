@@ -209,7 +209,10 @@ workflow SNVS {
     )
 
     ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
-    ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
+    def extra_files_list = params.extra_files
+        ? params.extra_files.split(',').collect { it.trim() }.findAll { it && it != '.tbi' }
+        : []
+    ch_extra_files = extra_files_list ? Channel.fromPath(extra_files_list, checkIfExists: true).collect() : Channel.value([])
 
     // Conditionally add files using mix
     if (params.plugins_dir) {
