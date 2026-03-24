@@ -33,9 +33,9 @@ params.fasta = WorkflowMain.getGenomeAttribute(params, 'fasta')
 include { validateParameters } from 'plugin/nf-schema'
 
 // Define extra variables if using CIBERER groups profiles
-if (workflow.profile.contains('tblab')) {
-    def extra_files = params.extra_files()
-}
+// if (workflow.profile.contains('tblab')) {
+//     def extra_files = params.extra_files()
+// }
 
 
 
