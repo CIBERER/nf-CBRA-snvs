@@ -93,6 +93,38 @@ include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
 
 include { MANTA_GERMLINE } from '../modules/nf-core/manta/germline/main'
 
+include { MOSDEPTH } from '../modules/nf-core/mosdepth/main'
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT PROCESSES 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+//
+// Separate process to decompress .quantized.bed.gz files when running mosdepth using fast mode
+//
+    process DECOMPRESS_MOSDEPTH_QUANTIZED {
+        tag "$meta.id"
+        label 'process_single'
+
+        publishDir "${params.outdir}/mosdepth", mode: params.publish_dir_mode
+
+        input:
+        tuple val(meta), path(quantized_gz)
+
+        output:
+        tuple val(meta), path("*.quantized.bed"), emit: quantized_bed
+
+        script:
+        def prefix = task.ext.prefix ?: "${meta.id}"
+        """
+        zcat ${quantized_gz} > ${prefix}.quantized.bed
+        """
+    }
+
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -276,6 +308,34 @@ workflow SNVS {
         )
 
     } 
+
+    // Run MOSDEPTH as an additional step
+    if (params.run_mosdepth) {
+        if (params.mosdepth_bed) {
+            ch_bed_mosdepth = Channel.fromPath(params.mosdepth_bed)
+            .map { bed -> [[id: bed.baseName], bed] }
+            
+            ch_mosdepth_input = MAPPING.out.bam
+            .combine(ch_bed_mosdepth)
+            .map { meta, bam, bai, bed_meta, bed ->
+                [meta, bam, bai, bed]
+            }
+        
+        } else {
+            ch_mosdepth_input = MAPPING.out.bam.map { meta, bam, bai -> 
+                [meta, bam, bai, []]
+            }
+        }
+
+        MOSDEPTH(
+            ch_mosdepth_input,
+            ch_fasta
+        )
+
+        if (params.mosdepth_mode == 'fast') {
+        DECOMPRESS_MOSDEPTH_QUANTIZED(MOSDEPTH.out.quantized_bed)
+        }
+    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

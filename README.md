@@ -38,6 +38,11 @@ The pipeline can perform the following steps:
 
 - **Additional analysis:** Manta germline (`--run_manta_germline true`) for calling structural variants (SVs) and indels from mapped paired-end sequencing reads.
 
+- **Additional analysis:** Mosdepth (`--run_mosdepth true`) for calculating genome-wide sequencing coverage. Mosdepth has different argument configurations that have been defined in 3 modes: 
+    - **Fast**: When only the file .quantized.bed.gz is needed. It also decompress the file automatically. Arguments used: --quantize 10: -n -x (`--run_mosdepth true --mosdepth_mode fast`).
+    - **Full**: When you want a complete analysis without including a bed file. Arguments used: --quantize 10: (`--run_mosdepth true --mosdepth_mode full`).
+    - **Full_with_bed**: When you want a complete analysis and you include a bed file (for CNVs analysis). Arguments used: --quantize 10: --thresholds 1,5,10,30,50,100 (`--run_mosdepth true --mosdepth_bed /path/to/intervals.bed --mosdepth_mode full_with_bed`).
+
 - **Merge and integration** of the vcfs obtained with the different tools.
 - **Annotation** of the variants:
   - Regions of homozygosity (ROHs) with [AUTOMAP](https://github.com/mquinodo/AutoMap)
