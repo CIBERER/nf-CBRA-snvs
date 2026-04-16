@@ -7,7 +7,7 @@ include { GATK4_BASERECALIBRATOR } from '../../../modules/nf-core/gatk4/basereca
 include { GATK4_APPLYBQSR } from '../../../modules/nf-core/gatk4/applybqsr/main'
 include { SAMTOOLS_SORT   } from '../../../modules/nf-core/samtools/sort/main'
 include { SAMTOOLS_INDEX   } from '../../../modules/nf-core/samtools/index/main'
-
+include { VERIFYBAMID	} from '../../../modules/local/verifybamid/main'
 
 workflow MAPPING {
 
@@ -78,8 +78,13 @@ workflow MAPPING {
 
     bam = GATK4_APPLYBQSR.out.bam.join(SAMTOOLS_INDEX.out.bai)
 
+    contam = VERIFYBAMID(bam, fasta).out.files
+    
+    ch_versions = ch_versions.mix(VERIFYBAMID.out.versions.first())
+
     emit:
     bam  // channel: [ [val(meta)], path(bam), path(bai)]
+    contam //
     versions = ch_versions                     // channel: [ versions.yml ]
 
 }
