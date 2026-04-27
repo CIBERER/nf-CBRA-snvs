@@ -55,7 +55,11 @@ AshkenazimTrio,HG004,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/dat
 | `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
 | `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `ped`     | Full path to ped file for trio analysis.                                                                                                                                               |
+| `bam` | Full path to bam file. File must have the extension ".bam".                                                             |
+| `bai` | Full path to bai file. File must have the extension ".bai".                                                             |
+| `vcf` | Full path to vcf file. File must have the extension ".vcf" or ".vcf.gz".                                                             |
+| `tbi` | Full path to tbi file. File must have the extension ".vcf.gz.tbi".                                                             |
+| `ped`     | Full path to ped file for trio analysis. File must have the extension ".ped".                                                                                                                                              |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -82,9 +86,9 @@ If you wish to repeatedly use the same parameters for multiple runs, rather than
 
 Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <file>`.
 
-:::warning
-Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
-:::
+> [!WARNING]
+> Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
+
 
 The above pipeline run specified with a params file in yaml format:
 
@@ -103,7 +107,9 @@ genome: 'GRCh37'
 
 You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
 
-For trio analysis, set `--trio_analysis true` and the interval_list file needed for `GATK4_GENOMICSDBIMPORT` module with `--genomicsdbimport_interval`. 
+The pipeline can perform different steps: `--mapping`, `--variant_calling` and `--annotation`. These steps can be set to true or false depending on the input and the desired output. For example, to start from the fastq files and perform only mapping and variant calling, set `--mapping true` and `--variant_calling true` and inclue a samplesheet that contain the path to the fastq files. 
+
+Within variant calling (--variant_calling true), there are three variant callers available for singleton samples (GATK4 Haplotypecaller, Dragen and DeepVariant) and one different workflow for trio samples using GATK4 Haplotypecaller. The three variant callers for singleton are additive and can be included in the analysis using `run_gatk = true` , `run_dragen = true` and `run_deepvariant = true`. For trio analysis, set `--trio_analysis true` and the interval_list file needed for `GATK4_GENOMICSDBIMPORT` module with `--genomicsdbimport_interval`. 
 
 ### Updating the pipeline
 
@@ -129,9 +135,9 @@ If you wish to share such profile (such as upload as supplementary material for 
 
 ## Core Nextflow arguments
 
-:::note
-These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
-:::
+> [!NOTE]
+> These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+
 
 ### `-profile`
 
