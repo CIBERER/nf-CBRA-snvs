@@ -382,32 +382,109 @@ df_out$Benign_pred = apply(df_pathogenic_predictors, 1, function(x) paste(names(
 #=====================#
 # Splicing predictors #
 #=====================#
+# print("Splicing predictors")
+
+# # Select one splice prediction per row
+# for (j in c("SpliceAI_SNV_SpliceAI", "SpliceAI_INDEL_SpliceAI")){
+#   multi_gene_sites = grep(",",vep[,j])
+#   for (i in multi_gene_sites){
+#     splice_predictions = do.call("rbind",strsplit(strsplit(vep[i,j], ",")[[1]], "|",fixed = T))
+#     if (vep$SYMBOL[i] %in% splice_predictions[,2]) {
+#       vep[i,j] = paste(splice_predictions[splice_predictions[,2] == vep$SYMBOL[i],,drop = F][1,],collapse = "|")
+#     } else {
+#       max_value_row = which(splice_predictions[,3:6] == max(splice_predictions[,3:6]), arr.ind = TRUE)[1,1]
+#       vep[i,j] = paste(splice_predictions[max_value_row,],collapse = "|")
+#     }
+#   }
+# }
+# # Merge SpliceAI predictions for INDELs and SNVs 
+# vep$SpliceAI_INDEL_SpliceAI[vep$SpliceAI_INDEL_SpliceAI == "-"] = vep$SpliceAI_SNV_SpliceAI[vep$SpliceAI_INDEL_SpliceAI == "-"]
+# # Create data.frame with separated SpliceAI values
+# SpliceAI = data.frame(do.call("rbind", strsplit(vep$SpliceAI_INDEL_SpliceAI, "|", fixed = T)), stringsAsFactors = F)
+# colnames(SpliceAI) = c("ALLELE", "SYMBOL", "DS_AG", "DS_AL", "DS_DG", "DS_DL", "DP_AG", "DP_AL", "DP_DG", "DP_DL")
+# df_out$SpliceAI_SYMBOL = SpliceAI$SYMBOL
+# df_out$SpliceAI_DS_AG = as.numeric(SpliceAI$DS_AG)
+# df_out$SpliceAI_DS_AL = as.numeric(SpliceAI$DS_AL)
+# df_out$SpliceAI_DS_DG = as.numeric(SpliceAI$DS_DG)
+# df_out$SpliceAI_DS_DL = as.numeric(SpliceAI$DS_DL)
+# df_out$SpliceAI_DS_Max = apply(df_out[c("SpliceAI_DS_AG", "SpliceAI_DS_AL", "SpliceAI_DS_DG", "SpliceAI_DS_DL")], 1, max)                           
+# df_out$SpliceAI_DP_AG = as.numeric(SpliceAI$DP_AG)
+# df_out$SpliceAI_DP_AL = as.numeric(SpliceAI$DP_AL)
+# df_out$SpliceAI_DP_DG = as.numeric(SpliceAI$DP_DG)
+# df_out$SpliceAI_DP_DL = as.numeric(SpliceAI$DP_DL)
+
+# df_out$ada_score = as.numeric(vep$ada_score)
+# df_out$rf_score = as.numeric(vep$rf_score)
+# df_out$MaxEntScan_alt = as.numeric(vep$MaxEntScan_alt)
+# df_out$MaxEntScan_diff = as.numeric(vep$MaxEntScan_diff)
+# df_out$MaxEntScan_ref = as.numeric(vep$MaxEntScan_ref)
+
 print("Splicing predictors")
 
 # Select one splice prediction per row
 for (j in c("SpliceAI_SNV_SpliceAI", "SpliceAI_INDEL_SpliceAI")){
-  multi_gene_sites = grep(",",vep[,j])
+  multi_gene_sites = grep(",", vep[,j])
+  
   for (i in multi_gene_sites){
-    splice_predictions = do.call("rbind",strsplit(strsplit(vep[i,j], ",")[[1]], "|",fixed = T))
+    splice_predictions = do.call("rbind",
+                                 strsplit(strsplit(vep[i,j], ",")[[1]], "|", fixed = TRUE))
+    
     if (vep$SYMBOL[i] %in% splice_predictions[,2]) {
-      vep[i,j] = paste(splice_predictions[splice_predictions[,2] == vep$SYMBOL[i],,drop = F][1,],collapse = "|")
+      vep[i,j] = paste(
+        splice_predictions[splice_predictions[,2] == vep$SYMBOL[i], , drop = FALSE][1,],
+        collapse = "|"
+      )
     } else {
-      max_value_row = which(splice_predictions[,3:6] == max(splice_predictions[,3:6]), arr.ind = TRUE)[1,1]
-      vep[i,j] = paste(splice_predictions[max_value_row,],collapse = "|")
+      max_value_row = which(
+        splice_predictions[,3:6] == max(splice_predictions[,3:6]),
+        arr.ind = TRUE
+      )[1,1]
+      
+      vep[i,j] = paste(splice_predictions[max_value_row,], collapse = "|")
     }
   }
 }
+
 # Merge SpliceAI predictions for INDELs and SNVs 
-vep$SpliceAI_INDEL_SpliceAI[vep$SpliceAI_INDEL_SpliceAI == "-"] = vep$SpliceAI_SNV_SpliceAI[vep$SpliceAI_INDEL_SpliceAI == "-"]
-# Create data.frame with separated SpliceAI values
-SpliceAI = data.frame(do.call("rbind", strsplit(vep$SpliceAI_INDEL_SpliceAI, "|", fixed = T)), stringsAsFactors = F)
-colnames(SpliceAI) = c("ALLELE", "SYMBOL", "DS_AG", "DS_AL", "DS_DG", "DS_DL", "DP_AG", "DP_AL", "DP_DG", "DP_DL")
+vep$SpliceAI_INDEL_SpliceAI[vep$SpliceAI_INDEL_SpliceAI == "-"] =
+  vep$SpliceAI_SNV_SpliceAI[vep$SpliceAI_INDEL_SpliceAI == "-"]
+
+# ----------- FIX CLAVE AQUÍ -----------
+
+split_spliceai <- function(x) {
+  if (is.na(x) || x == "-") {
+    return(rep(NA, 10))
+  }
+  parts <- strsplit(x, "|", fixed = TRUE)[[1]]
+  length(parts) <- 10
+  return(parts)
+}
+
+SpliceAI = data.frame(
+  do.call("rbind", lapply(vep$SpliceAI_INDEL_SpliceAI, split_spliceai)),
+  stringsAsFactors = FALSE
+)
+
+colnames(SpliceAI) = c(
+  "ALLELE", "SYMBOL", "DS_AG", "DS_AL", "DS_DG", "DS_DL",
+  "DP_AG", "DP_AL", "DP_DG", "DP_DL"
+)
+
+# -------------------------------------
+
 df_out$SpliceAI_SYMBOL = SpliceAI$SYMBOL
 df_out$SpliceAI_DS_AG = as.numeric(SpliceAI$DS_AG)
 df_out$SpliceAI_DS_AL = as.numeric(SpliceAI$DS_AL)
 df_out$SpliceAI_DS_DG = as.numeric(SpliceAI$DS_DG)
 df_out$SpliceAI_DS_DL = as.numeric(SpliceAI$DS_DL)
-df_out$SpliceAI_DS_Max = apply(df_out[c("SpliceAI_DS_AG", "SpliceAI_DS_AL", "SpliceAI_DS_DG", "SpliceAI_DS_DL")], 1, max)                           
+
+df_out$SpliceAI_DS_Max = apply(
+  df_out[c("SpliceAI_DS_AG", "SpliceAI_DS_AL", "SpliceAI_DS_DG", "SpliceAI_DS_DL")],
+  1,
+  max,
+  na.rm = TRUE
+)
+
 df_out$SpliceAI_DP_AG = as.numeric(SpliceAI$DP_AG)
 df_out$SpliceAI_DP_AL = as.numeric(SpliceAI$DP_AL)
 df_out$SpliceAI_DP_DG = as.numeric(SpliceAI$DP_DG)
@@ -418,8 +495,6 @@ df_out$rf_score = as.numeric(vep$rf_score)
 df_out$MaxEntScan_alt = as.numeric(vep$MaxEntScan_alt)
 df_out$MaxEntScan_diff = as.numeric(vep$MaxEntScan_diff)
 df_out$MaxEntScan_ref = as.numeric(vep$MaxEntScan_ref)
-
-
 
 
 
