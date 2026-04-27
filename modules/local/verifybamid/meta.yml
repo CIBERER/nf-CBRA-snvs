@@ -1,0 +1,60 @@
+name: "verifybamid2"
+description: Detect sample contamination from DNA sequencing data
+keywords:
+  - bam
+  - contamination
+  - quality control
+  - qc
+tools:
+  - "verifybamid2":
+      description: "VerifyBamID2 estimates DNA sample contamination from sequence reads."
+      homepage: "https://github.com/Griffan/VerifyBamID"
+      documentation: "https://github.com/Griffan/VerifyBamID/blob/master/README.md"
+      doi: "10.1101/2020.02.27.968297"
+      licence: ["MIT"]
+      identifier: biotools:verifybamid2
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - bam:
+        type: file
+        description: BAM or CRAM file
+        pattern: "*.{bam,cram}"
+    - bai:
+        type: file
+        description: BAM or CRAM index file
+        pattern: "*.{bai,crai}"
+  - - fasta:
+        type: file
+        description: Reference genome FASTA file
+        pattern: "*.{fasta,fa,fna}"
+  - - svd_files:
+        type: file
+        description: |
+          A list of the four required SVD resource files (.mu, .bed, .UD, .V). 
+          They must share the same prefix.
+        pattern: "*.{mu,bed,UD,V}"
+
+output:
+  - files:
+      - meta:
+          type: map
+          description: Groovy Map containing sample information
+      - "*.{selfSM,Ancestry}":
+          type: file
+          description: Contamination and ancestry estimation results
+          pattern: "*.{selfSM,Ancestry}"
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@nidiabarcoarmengol"
+maintainers:
+  - "@nidiabarcoarmengol"

@@ -1,0 +1,59 @@
+nextflow_process {
+
+    name "Test Process VERIFYBAMID"
+    script "../main.nf"
+    process "VERIFYBAMID"
+
+    tag "modules"
+    tag "verifybamid"
+
+    test("verifybamid - check outputs exist") {
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test_sample' ],
+                    file('${projectDir}/tests/data/test.bam', checkIfExists: true),
+                    file('${projectDir}/tests/data/test.bam.bai', checkIfExists: true)
+                ]
+                input[1] = file('${projectDir}/tests/data/reference.fasta', checkIfExists: true)
+                
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() },
+                { assert process.out.files },
+                { assert process.out.versions },
+                { assert path(process.out.files[0][1][0]).exists() }, // .selfSM
+                { assert path(process.out.files[0][1][1]).exists() }  // .Ancestry
+            )
+        }
+    }
+
+    test("verifybamid - stub mode") {
+        options "-stub"
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'stub_test' ],
+                    file('${projectDir}/tests/data/test.bam', checkIfExists: true),
+                    file('${projectDir}/tests/data/test.bam.bai', checkIfExists: true)
+                ]
+                input[1] = file('${projectDir}/tests/data/reference.fasta', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.files.size() == 1 }
+            )
+        }
+    }
+}
