@@ -16,6 +16,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `GATK4 Haplotypecaller`
   - `Dragen`
   - `DeepVariant`
+  - Alternatively, trio analysis can be performed with `GATK4 Haplotypecaller` adding the family ped files. 
 - [Merge and Integration](#Merge-and-Integration) - Merge and integrate the variants from the vcfs obtained with the different tools
 - [Annotation](#Annotation) - Annotate the variants with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) and add regions of homozygosity (ROHs) with [AUTOMAP](https://github.com/mquinodo/AutoMap) and other custom information. 
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
