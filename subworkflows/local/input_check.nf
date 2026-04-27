@@ -10,11 +10,11 @@ workflow INPUT_CHECK {
 
     main:
     Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))
-        .map { create_fastq_channel(it) }.view()
+        .map { create_fastq_channel(it) }
         .set { reads }
 
     Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))
-        .map { create_ped_channel(it) }.view()
+        .map { create_ped_channel(it) }
         .set { ped }
 
     Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))//.view()
