@@ -29,7 +29,6 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
-ch_variant_catalog = params.variant_catalog ? Channel.fromPath(params.variant_catalog, checkIfExists: true).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([])
 
 
 //ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first() 
@@ -68,7 +67,7 @@ include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
 include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
-
+include { GATK_TRIO_VCF } from '../subworkflows/local/gatk_trio_vcf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,8 +87,6 @@ include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/crea
 include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
-
-include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,7 +111,6 @@ workflow SNVS {
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
     // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
     // ! There is currently no tooling to help you write a sample sheet schema
-    INPUT_CHECK.out.reads.view()
     // 
     // MODULE: Run FastQC
     //
@@ -166,6 +162,25 @@ workflow SNVS {
         ch_snps_tbi
     )
     
+    ch_intervals_genomicsdbimport = Channel.fromPath(params.genomicsdbimport_interval).collect()
+    ch_ped = INPUT_CHECK.out.ped.unique()
+
+    if (params.trio_analysis) {
+        GATK_TRIO_VCF (
+            MAPPING.out.bam,
+            ch_intervals,
+            ch_fasta,
+            ch_fai,
+            ch_refdict,
+            ch_snps.map{ it -> [ [id:it.baseName], it ] }.collect(),
+            ch_snps_tbi.map{ it -> [ [id:it.baseName], it ] }.collect(),
+            ch_intervals_genomicsdbimport, // ch_intervals_genomicsdbimport
+            ch_ped // ch_ped            
+        )
+
+        vcf_file = GATK_TRIO_VCF.out.vcf
+
+    } else { // start of GATK dragen etc IF block
 
     GATK_VCF (
         MAPPING.out.bam,
@@ -195,7 +210,7 @@ workflow SNVS {
         ch_intervals,
         Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
         Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
-    )
+    ) 
 
     ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : Channel.empty()
     ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : Channel.empty()
@@ -211,7 +226,12 @@ workflow SNVS {
         ch_assembly
     )
 
-    ch_custom_extra_files = params.custom_extra_files ? VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : VCF_MERGE_VARIANTCALLERS.out.vcf.map{ meta, vcf, tbi -> tuple(meta, []) }
+    vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
+
+    // END OF GATK_TRIO_VCF IF BLOCK
+    }
+
+    ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
     ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
 
     // Conditionally add files using mix
@@ -239,7 +259,7 @@ workflow SNVS {
     ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
 
     SNV_ANNOTATION (
-        VCF_MERGE_VARIANTCALLERS.out.vcf,
+        vcf_file,
         ch_fasta,
         ch_assembly,
         params.species,
@@ -251,16 +271,8 @@ workflow SNVS {
         ch_glowgenes_panel,
         ch_glowgenes_sgds
     )
- 
-    // Run EXPANSIONHUNTER as an additional step
-    if (params.run_expansionhunter) {
-        EXPANSIONHUNTER(
-            MAPPING.out.bam,
-            ch_fasta,
-            ch_fai,
-            ch_variant_catalog
-        )
-    }
+
+
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

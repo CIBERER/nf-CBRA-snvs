@@ -7,6 +7,12 @@
     "items": {
         "type": "object",
         "properties": {
+            "family": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Family name can be provided and cannot contain spaces",
+                "meta": ["family"]
+            },
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
@@ -30,6 +36,11 @@
                         "maxLength": 0
                     }
                 ]
+            },
+            "ped": {
+                "type": "string",
+                "pattern": "^\\S+\\.ped$",
+                "errorMessage": "ped file for trio analysis must be provided and cannot contain spaces, must have extension '.ped'"
             }
         },
         "required": ["sample", "fastq_1"]
