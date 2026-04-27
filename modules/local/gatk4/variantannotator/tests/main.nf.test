@@ -16,11 +16,11 @@ nextflow_process {
             process {
                 """
                 input[0] = [
-                    [id:"test"],
-                    file('/mnt/tblab/yolanda/GT-Bioinfo/GIAB/results_trio/individual_callers_snvs/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz', checkIfExists: true),
-                    file('/mnt/tblab/yolanda/GT-Bioinfo/GIAB/results_trio/individual_callers_snvs/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz.tbi', checkIfExists: true),
+                    [id:"AshkenazimTrio"],
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz', checkIfExists: true),
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz.tbi', checkIfExists: true),
                     [],
-                    file('/mnt/tblab/yolanda/GT-Bioinfo/GIAB/AshkenazimTrio.ped', checkIfExists: true)
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.ped', checkIfExists: true)
                 ]
                 """
             }
@@ -41,7 +41,7 @@ nextflow_process {
                             vcf,
                             tbi,
                             [],
-                            file('/mnt/tblab/yolanda/GT-Bioinfo/GIAB/AshkenazimTrio.ped', checkIfExists: true)
+                            file('https://zenodo.org/records/19064653/files/AshkenazimTrio.ped', checkIfExists: true)
                         ]
                     }
                 """

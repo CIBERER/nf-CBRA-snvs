@@ -54,26 +54,26 @@ nextflow_workflow {
                 // Create channel with three samples
                 input[0] = Channel.of(
                     [
-                        [ id : 'sample1_father', family: 'test_family' ],
+                        [ id : 'HG002', family: 'AshkenazimTrio' ],
                         [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
                     ],
                     [
-                        [ id : 'sample2_mother', family: 'test_family' ],
+                        [ id : 'HG003', family: 'AshkenazimTrio' ],
                         [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
                     ],
                     [
-                        [ id : 'sample3_child', family: 'test_family' ],
+                        [ id : 'HG004', family: 'AshkenazimTrio' ],
                         [file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_1.fastq.gz', checkIfExists: true),
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test.umi_2.fastq.gz', checkIfExists: true)]
                     ]
                 )
                 
                 input[1] = Channel.of(
-                    tuple([ id: 'sample1_father', family: 'test_family'], []),
-                    tuple([ id: 'sample2_mother', family: 'test_family'], []),
-                    tuple([ id: 'sample3_child', family: 'test_family'], [])
+                    tuple([ id: 'HG002', family: 'AshkenazimTrio'], []),
+                    tuple([ id: 'HG003', family: 'AshkenazimTrio'], []),
+                    tuple([ id: 'HG004', family: 'AshkenazimTrio'], [])
                 )
                 
                 input[2] = BWA_INDEX.out.index
@@ -142,8 +142,8 @@ nextflow_workflow {
                 input[7] = Channel.fromPath(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.interval_list', checkIfExists: true).collect()
                 
                 input[8] = Channel.fromList([
-                    tuple([  id: 'test_family'],
-                    file('/mnt/tblab/yolanda/GT-Bioinfo/trio/test_family.ped', checkIfExists: true))
+                    tuple([  id: 'AshkenazimTrio'],
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.ped', checkIfExists: true))
                 ])
 
                 """

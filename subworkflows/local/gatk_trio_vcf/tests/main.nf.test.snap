@@ -5,16 +5,16 @@
                 "0": [
                     [
                         {
-                            "id": "test_family",
+                            "id": "AshkenazimTrio",
                             "samples": [
-                                "sample3_child",
-                                "sample1_father",
-                                "sample2_mother"
+                                "HG002",
+                                "HG004",
+                                "HG003"
                             ],
                             "sample_count": 3
                         },
-                        "test_family.trio_annotated.vcf.gz:md5,3a1d483cfd8d88d83ce881428e9ab06a",
-                        "test_family.trio_annotated.vcf.gz.tbi:md5,e6130d7131d0d0ce462df7025d782ef0"
+                        "AshkenazimTrio.final.vcf.gz:md5,6ca12fffe226a155285a0ba2879e108d",
+                        "AshkenazimTrio.final.vcf.gz.tbi:md5,5501450e05afe6579ca17c9abcb90fb2"
                     ]
                 ],
                 "1": [
@@ -23,6 +23,7 @@
                     "versions.yml:md5,1fce0729b06abba7a681e153298a444c",
                     "versions.yml:md5,2d1c68ffdb67ba71ca82db345e5bcb0e",
                     "versions.yml:md5,3206879867c823204ab00fcbbed32714",
+                    "versions.yml:md5,48c2f3254d74b3ec485a3ec70ad3e8aa",
                     "versions.yml:md5,4ff24260bb047ac6f911721e74f1701d",
                     "versions.yml:md5,66749257146ead09e960eff355164d78",
                     "versions.yml:md5,92700e62d2a10d20c01fcd62963b077a",
@@ -32,16 +33,16 @@
                 "vcf": [
                     [
                         {
-                            "id": "test_family",
+                            "id": "AshkenazimTrio",
                             "samples": [
-                                "sample3_child",
-                                "sample1_father",
-                                "sample2_mother"
+                                "HG002",
+                                "HG004",
+                                "HG003"
                             ],
                             "sample_count": 3
                         },
-                        "test_family.trio_annotated.vcf.gz:md5,3a1d483cfd8d88d83ce881428e9ab06a",
-                        "test_family.trio_annotated.vcf.gz.tbi:md5,e6130d7131d0d0ce462df7025d782ef0"
+                        "AshkenazimTrio.final.vcf.gz:md5,6ca12fffe226a155285a0ba2879e108d",
+                        "AshkenazimTrio.final.vcf.gz.tbi:md5,5501450e05afe6579ca17c9abcb90fb2"
                     ]
                 ],
                 "versions": [
@@ -50,6 +51,7 @@
                     "versions.yml:md5,1fce0729b06abba7a681e153298a444c",
                     "versions.yml:md5,2d1c68ffdb67ba71ca82db345e5bcb0e",
                     "versions.yml:md5,3206879867c823204ab00fcbbed32714",
+                    "versions.yml:md5,48c2f3254d74b3ec485a3ec70ad3e8aa",
                     "versions.yml:md5,4ff24260bb047ac6f911721e74f1701d",
                     "versions.yml:md5,66749257146ead09e960eff355164d78",
                     "versions.yml:md5,92700e62d2a10d20c01fcd62963b077a",
@@ -62,6 +64,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-09-01T13:51:00.558291398"
+        "timestamp": "2026-03-17T11:43:18.545292338"
     }
 }

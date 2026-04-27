@@ -69,12 +69,14 @@ def create_fastq_channel(ArrayList row) {
 }
 
 // Function to get list of [ meta, [ ped ] ]
-//TODO: intentar que no haya que meter el ped en todos los familiares
+// TODO: Try to avoid requiring the PED file to be included for all family members in the samplesheet.
 def create_ped_channel(ArrayList row) {
     // gather meta
     def meta = row.get(0)
     
     // Remove family field if it's empty
+    // The following block is commented out because removing the 'family' field here may interfere with downstream trio analysis.
+    // It is preserved for future consideration as per the TODO above.
     // if (meta.family == [] || meta.family == null || meta.family == "") {
     //     meta.remove('family')
     // }

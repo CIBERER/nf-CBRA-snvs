@@ -28,7 +28,7 @@ input:
       description: |
         The input channel containing the bam and bai files
         Structure: [ val(meta), path(bam) , path(bai) ]
-      pattern: "*.{fastq/fastq.gz}"
+      pattern: "*.{bam}, *.{bai}"
   - ch_intervals:
       type: file
       description: |
@@ -75,7 +75,7 @@ input:
       type: file
       description: |
         Ped file
-        Structure: [ val(meta3),  path(tbi)  ]
+        Structure: [ val(meta3),  path(ped)  ]
        pattern: "*.ped"
 
 

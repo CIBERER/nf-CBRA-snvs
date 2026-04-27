@@ -5,17 +5,17 @@
                 "0": [
                     [
                         {
-                            "id": "test"
+                            "id": "AshkenazimTrio"
                         },
-                        "test.vcf.gz:md5,566f4c40b059e3657c2d546189b33714"
+                        "AshkenazimTrio.vcf.gz:md5,712d5e1c326ef0c58be293a97239e2a4"
                     ]
                 ],
                 "1": [
                     [
                         {
-                            "id": "test"
+                            "id": "AshkenazimTrio"
                         },
-                        "test.vcf.gz.tbi:md5,f0045584432bafbb15aa0de232c1890c"
+                        "AshkenazimTrio.vcf.gz.tbi:md5,f69ce7cce2364a09a729e9522b81c9a9"
                     ]
                 ],
                 "2": [
@@ -24,17 +24,17 @@
                 "tbi": [
                     [
                         {
-                            "id": "test"
+                            "id": "AshkenazimTrio"
                         },
-                        "test.vcf.gz.tbi:md5,f0045584432bafbb15aa0de232c1890c"
+                        "AshkenazimTrio.vcf.gz.tbi:md5,f69ce7cce2364a09a729e9522b81c9a9"
                     ]
                 ],
                 "vcf": [
                     [
                         {
-                            "id": "test"
+                            "id": "AshkenazimTrio"
                         },
-                        "test.vcf.gz:md5,566f4c40b059e3657c2d546189b33714"
+                        "AshkenazimTrio.vcf.gz:md5,712d5e1c326ef0c58be293a97239e2a4"
                     ]
                 ],
                 "versions": [
@@ -46,6 +46,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-09-01T11:12:47.012377306"
+        "timestamp": "2026-03-17T11:48:20.532275233"
     }
 }

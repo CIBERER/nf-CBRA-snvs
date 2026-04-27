@@ -31,7 +31,7 @@ input:
   - ped: 
       type: file
       description: ped file with the trio information.
-      pattern: "*.{vcf.gz.tbi}"
+      pattern: "*.ped"
 
 output:
 
@@ -43,7 +43,7 @@ output:
           e.g. `[ id:'sample1', single_end:false ]`
     - vcf:
         type: file
-        description: final filtered vcf file..
+        description: final filtered vcf file.
         pattern: "*.filtered.vcf.gz"
     - tbi:
         type: file

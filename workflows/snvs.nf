@@ -29,7 +29,6 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
-ch_variant_catalog = params.variant_catalog ? Channel.fromPath(params.variant_catalog, checkIfExists: true).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([])
 
 
 //ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first() 
@@ -89,8 +88,6 @@ include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrt
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
 
-include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -114,9 +111,6 @@ workflow SNVS {
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
     // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
     // ! There is currently no tooling to help you write a sample sheet schema
-
-    // check if index, refdict and ref_str are provided, otherwise create them
-    INPUT_CHECK.out.reads.view()
     // 
     // MODULE: Run FastQC
     //
@@ -353,16 +347,6 @@ workflow SNVS {
         ch_glowgenes_panel,
         ch_glowgenes_sgds
     )
- 
-    // Run EXPANSIONHUNTER as an additional step
-    if (params.run_expansionhunter) {
-        EXPANSIONHUNTER(
-            MAPPING.out.bam,
-            ch_fasta,
-            ch_fai,
-            ch_variant_catalog
-        )
-    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

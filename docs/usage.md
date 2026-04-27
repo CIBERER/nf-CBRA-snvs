@@ -44,9 +44,9 @@ For trio analysis, family id and ped file are required.
 
 ```csv title="samplesheet_trio.csv"
 family,sample,fastq_1,fastq_2,ped
-AshkenazimTrio,HG002,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/NIST_Illumina_2x250bps/reads/D1_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/NIST_Illumina_2x250bps/reads/D1_S1_L001_R2_001.fastq.gz",/mnt/tblab/yolanda/GT-Bioinfo/GIAB/AshkenazimTrio.ped
-AshkenazimTrio,HG003,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG003_NA24149_father/NIST_Illumina_2x250bps/reads/D2_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG003_NA24149_father/NIST_Illumina_2x250bps/reads/D2_S1_L001_R2_001.fastq.gz",/mnt/tblab/yolanda/GT-Bioinfo/GIAB/AshkenazimTrio.ped
-AshkenazimTrio,HG004,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG004_NA24143_mother/NIST_Illumina_2x250bps/reads/D3_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG004_NA24143_mother/NIST_Illumina_2x250bps/reads/D3_S1_L001_R2_001.fastq.gz",/mnt/tblab/yolanda/GT-Bioinfo/GIAB/AshkenazimTrio.ped
+AshkenazimTrio,HG002,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/NIST_Illumina_2x250bps/reads/D1_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/NIST_Illumina_2x250bps/reads/D1_S1_L001_R2_001.fastq.gz","https://zenodo.org/records/19064653/files/AshkenazimTrio.ped"
+AshkenazimTrio,HG003,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG003_NA24149_father/NIST_Illumina_2x250bps/reads/D2_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG003_NA24149_father/NIST_Illumina_2x250bps/reads/D2_S1_L001_R2_001.fastq.gz","https://zenodo.org/records/19064653/files/AshkenazimTrio.ped"
+AshkenazimTrio,HG004,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG004_NA24143_mother/NIST_Illumina_2x250bps/reads/D3_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG004_NA24143_mother/NIST_Illumina_2x250bps/reads/D3_S1_L001_R2_001.fastq.gz","https://zenodo.org/records/19064653/files/AshkenazimTrio.ped"
 ```
 
 | Column    | Description                                                                                                                                                                            |
@@ -103,7 +103,7 @@ genome: 'GRCh37'
 
 You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
 
-For trio analysis, set `--trio_analysis true` and the interval_list file nedeed for `GATK4_GENOMICSDBIMPORT` module with `--genomicsdbimport_interval`. 
+For trio analysis, set `--trio_analysis true` and the interval_list file needed for `GATK4_GENOMICSDBIMPORT` module with `--genomicsdbimport_interval`. 
 
 ### Updating the pipeline
 
