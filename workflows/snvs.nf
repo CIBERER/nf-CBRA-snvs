@@ -248,11 +248,6 @@ workflow SNVS {
             ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : bam_file.map{ meta, bam, bai -> tuple(meta, []) }
             ch_deepvariant = params.run_deepvariant ? DEEP_VARIANT_VCF.out.vcf : bam_file.map{ meta, bam, bai -> tuple(meta, []) }
 
-            ch_gatk.view()
-            ch_dragstr.view()
-            ch_deepvariant.view()
-
-            //ch_vcfs_for_merge = ch_gatk.join(ch_dragstr).join(ch_deepvariant)
 
             // Join the three channels and filter out empty lists while keeping tuple structure
             ch_vcfs_for_merge = ch_gatk
@@ -268,10 +263,6 @@ workflow SNVS {
                     // Return as a flat tuple: [meta, item1, item2, item3, ...]
                     [meta, *filtered]
                 }
-
-
-
-            ch_vcfs_for_merge.view()
 
 
             VCF_MERGE_VARIANTCALLERS (
@@ -345,6 +336,7 @@ workflow SNVS {
             ch_vep_cache_path,
             ch_custom_extra_files,
             ch_extra_files,
+            params.pvm_script,
             params.maf,
             ch_glowgenes_panel,
             ch_glowgenes_sgds,
