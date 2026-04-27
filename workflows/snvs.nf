@@ -111,37 +111,36 @@ workflow SNVS {
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
     // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
     // ! There is currently no tooling to help you write a sample sheet schema
-    // 
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-     
-    if (params.index) { 
-        ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] }.collect()
-    } else { 
-        BWA_INDEX (ch_fasta)
-        ch_index = BWA_INDEX.out.index
+
+    if (params.mapping) {
+        if (params.index) { 
+            ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] }.collect()
+        } else { 
+            BWA_INDEX (ch_fasta)
+            ch_index = BWA_INDEX.out.index
+        }
     }
 
-    if (params.refdict) { 
-        ch_refdict = Channel.fromPath(params.refdict).map{ it -> [ [id:it.baseName], it ] }.collect()
-    } else { 
-        PICARD_CREATESEQUENCEDICTIONARY (ch_fasta)
-        ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+    if (params.mapping || params.variant_calling) {
+        if (params.refdict) { 
+            ch_refdict = Channel.fromPath(params.refdict).map{ it -> [ [id:it.baseName], it ] }.collect()
+        } else { 
+            PICARD_CREATESEQUENCEDICTIONARY (ch_fasta)
+            ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+        }
     }
 
-    if (params.reference_str) { 
-        ch_ref_str = Channel.fromPath(params.reference_str).collect()
-    } else { 
-        GATK4_COMPOSESTRTABLEFILE (
-            ch_fasta.map {meta, fasta -> [fasta] },
-            ch_fai.map {meta, fai -> [fai]  },
-            ch_refdict.map {meta, dict -> [dict] }
-        )
-        ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+    if (params.variant_calling && params.run_dragen) {
+        if (params.reference_str) { 
+            ch_ref_str = Channel.fromPath(params.reference_str).collect()
+        } else { 
+            GATK4_COMPOSESTRTABLEFILE (
+                ch_fasta.map {meta, fasta -> [fasta] },
+                ch_fai.map {meta, fai -> [fai]  },
+                ch_refdict.map {meta, dict -> [dict] }
+            )
+            ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+        }
     }
 
     // In your main workflow, ensure intervals are created for all samples
@@ -209,7 +208,6 @@ workflow SNVS {
         } else { 
             
             if (params.run_gatk) {
-
             GATK_VCF (
                 bam_file,
                 ch_intervals,
@@ -233,13 +231,12 @@ workflow SNVS {
             }
 
             if (params.run_dragen) {
-
             DRAGEN_VCF (
                 bam_file, 
                 ch_fasta,
                 ch_fai,
                 ch_refdict,
-                GATK4_COMPOSESTRTABLEFILE.out.str_table,
+                ch_ref_str,
                 ch_intervals,
                 Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
                 Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
@@ -247,11 +244,35 @@ workflow SNVS {
 
             }
 
-            ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : Channel.empty()
-            ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : Channel.empty()
-            ch_deepvariant = params.run_deepvariant ? DEEP_VARIANT_VCF.out.vcf : Channel.empty()
+            ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : bam_file.map{ meta, bam, bai -> tuple(meta, []) }
+            ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : bam_file.map{ meta, bam, bai -> tuple(meta, []) }
+            ch_deepvariant = params.run_deepvariant ? DEEP_VARIANT_VCF.out.vcf : bam_file.map{ meta, bam, bai -> tuple(meta, []) }
 
-            ch_vcfs_for_merge = ch_gatk.join(ch_dragstr).join(ch_deepvariant)
+            ch_gatk.view()
+            ch_dragstr.view()
+            ch_deepvariant.view()
+
+            //ch_vcfs_for_merge = ch_gatk.join(ch_dragstr).join(ch_deepvariant)
+
+            // Join the three channels and filter out empty lists while keeping tuple structure
+            ch_vcfs_for_merge = ch_gatk
+                .join(ch_dragstr)
+                .join(ch_deepvariant)
+                .map { it ->
+                    def meta = it[0]
+                    // Get all items after meta, but DON'T flatten - keep them as separate elements
+                    def items = it[1..-1]
+                    // Filter out empty lists but keep the structure flat
+                    def filtered = items.findAll { item -> item != null && item != [] && item.toString() != '[]' }
+                    
+                    // Return as a flat tuple: [meta, item1, item2, item3, ...]
+                    [meta, *filtered]
+                }
+
+
+
+            ch_vcfs_for_merge.view()
+
 
             VCF_MERGE_VARIANTCALLERS (
                 ch_vcfs_for_merge,   
@@ -334,19 +355,6 @@ workflow SNVS {
 
     ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
 
-    SNV_ANNOTATION (
-        VCF_MERGE_VARIANTCALLERS.out.vcf,
-        ch_fasta,
-        ch_assembly,
-        params.species,
-        ch_vep_cache_version,
-        ch_vep_cache_path,
-        ch_custom_extra_files,
-        ch_extra_files,
-        params.maf,
-        ch_glowgenes_panel,
-        ch_glowgenes_sgds
-    )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
