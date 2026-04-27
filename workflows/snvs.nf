@@ -29,6 +29,7 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
+ch_variant_catalog = params.variant_catalog ? Channel.fromPath(params.variant_catalog, checkIfExists: true).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([])
 
 
 //ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first() 
@@ -88,6 +89,8 @@ include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrt
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
 
+include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -113,6 +116,15 @@ workflow SNVS {
     // ! There is currently no tooling to help you write a sample sheet schema
 
     // check if index, refdict and ref_str are provided, otherwise create them
+    INPUT_CHECK.out.reads.view()
+    // 
+    // MODULE: Run FastQC
+    //
+    FASTQC (
+        INPUT_CHECK.out.reads
+    )
+    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+     
     if (params.index) { 
         ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] }.collect()
     } else { 
@@ -326,9 +338,31 @@ workflow SNVS {
 
     }
 
+    ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
 
-
-
+    SNV_ANNOTATION (
+        VCF_MERGE_VARIANTCALLERS.out.vcf,
+        ch_fasta,
+        ch_assembly,
+        params.species,
+        ch_vep_cache_version,
+        ch_vep_cache_path,
+        ch_custom_extra_files,
+        ch_extra_files,
+        params.maf,
+        ch_glowgenes_panel,
+        ch_glowgenes_sgds
+    )
+ 
+    // Run EXPANSIONHUNTER as an additional step
+    if (params.run_expansionhunter) {
+        EXPANSIONHUNTER(
+            MAPPING.out.bam,
+            ch_fasta,
+            ch_fai,
+            ch_variant_catalog
+        )
+    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
