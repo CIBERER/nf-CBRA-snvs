@@ -122,7 +122,7 @@ def create_bam_channel(ArrayList row) {
      }
     return bam_bai_meta
     } else {
-        bam_bai_meta = [ meta, [] ]
+        bam_bai_meta = [ meta, [], [] ]
         return bam_bai_meta
     }
 }
