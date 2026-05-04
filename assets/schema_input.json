@@ -49,7 +49,7 @@
             },
             "vcf": {
                 "type": "string",
-                "pattern": "^\\S+\\.vcf\\.gz$",
+                "pattern": "^\\S+\\.vcf(\\.gz)?$",
                 "errorMessage": "vcf file cannot contain spaces and must have extension '.vcf' or '.vcf.gz' "
             },
             "tbi": {
