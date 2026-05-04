@@ -146,7 +146,7 @@ def create_vcf_channel(ArrayList row) {
      }
     return vcf_tbi_meta
     } else {
-        vcf_tbi_meta = [ meta, [] ]
+        vcf_tbi_meta = [ meta, [], [] ]
         return vcf_tbi_meta
     }
 }
