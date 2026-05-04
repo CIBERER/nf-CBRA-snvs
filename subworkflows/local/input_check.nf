@@ -145,8 +145,10 @@ def create_vcf_channel(ArrayList row) {
             } else {
                 exit 1, "ERROR: Please check input samplesheet -> given vcf file but not tbi file"
             }
-     }
-    return vcf_tbi_meta
+        } else {
+            exit 1, "ERROR: Please check input samplesheet -> VCF file does not exist!\n${row.get(5)}"
+        }
+        return vcf_tbi_meta
     } else {
         vcf_tbi_meta = [ meta, [], [] ]
         return vcf_tbi_meta
