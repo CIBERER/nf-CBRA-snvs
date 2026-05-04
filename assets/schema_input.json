@@ -64,7 +64,8 @@
             }
         },
         "dependentRequired": {
-            "bai": ["bam"]
+            "bai": ["bam"],
+            "vcf": ["tbi"]
         },
         "required": ["sample"]
     }
