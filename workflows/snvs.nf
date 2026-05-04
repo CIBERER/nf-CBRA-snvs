@@ -150,18 +150,18 @@ workflow SNVS {
 
 
     if (params.mapping) {
-        INPUT_CHECK.out.reads.map{meta, reads -> check_fastq(meta, reads)}
+        fastqs = INPUT_CHECK.out.reads.map{meta, reads -> check_fastq(meta, reads)}
 
         // 
         // MODULE: Run FastQC
         //
         FASTQC (
-            INPUT_CHECK.out.reads
+            fastqs
         )
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
         MAPPING (
-            INPUT_CHECK.out.reads,
+            fastqs,
             ch_intervals,
             ch_index,
             ch_fasta,
