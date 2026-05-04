@@ -61,11 +61,11 @@ def create_fastq_channel(ArrayList row) {
             }
             fastq_meta = [ meta, [ file(row.get(1)), file(row.get(2)) ] ]
         }
-    return fastq_meta
     } else {
         fastq_meta = [ meta, [] ]
     }
 
+    return fastq_meta
 }
 
 // Function to get list of [ meta, [ ped ] ]
