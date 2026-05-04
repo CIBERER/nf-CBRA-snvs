@@ -119,8 +119,10 @@ def create_bam_channel(ArrayList row) {
             } else {
                 exit 1, "ERROR: Please check input samplesheet -> given bam file but not bai file"
             }
-     }
-    return bam_bai_meta
+        } else {
+            exit 1, "ERROR: Please check input samplesheet -> BAM file does not exist!\n${row.get(3)}"
+        }
+        return bam_bai_meta
     } else {
         bam_bai_meta = [ meta, [], [] ]
         return bam_bai_meta
