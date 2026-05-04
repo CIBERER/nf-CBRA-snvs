@@ -107,7 +107,7 @@ genome: 'GRCh37'
 
 You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
 
-The pipeline can perform different steps: `--mapping`, `--variant_calling` and `--annotation`. These steps can be set to true or false depending on the input and the desired output. For example, to start from the fastq files and perform only mapping and variant calling, set `--mapping true` and `--variant_calling true` and inclue a samplesheet that contain the path to the fastq files. 
+The pipeline can perform different steps: `--mapping`, `--variant_calling` and `--annotation`. These steps can be set to true or false depending on the input and the desired output. For example, to start from the fastq files and perform only mapping and variant calling, set `--mapping true` and `--variant_calling true` and include a samplesheet that contain the path to the fastq files. 
 
 Within variant calling (--variant_calling true), there are three variant callers available for singleton samples (GATK4 Haplotypecaller, Dragen and DeepVariant) and one different workflow for trio samples using GATK4 Haplotypecaller. The three variant callers for singleton are additive and can be included in the analysis using `run_gatk = true` , `run_dragen = true` and `run_deepvariant = true`. For trio analysis, set `--trio_analysis true` and the interval_list file needed for `GATK4_GENOMICSDBIMPORT` module with `--genomicsdbimport_interval`. 
 
