@@ -186,7 +186,7 @@ workflow SNVS {
         if (params.trio_analysis) {
 
             ch_intervals_genomicsdbimport = params.genomicsdbimport_interval ? Channel.fromPath(params.genomicsdbimport_interval).collect() : Channel.of([])
-            //no_intervals = params.intervals ? false : true
+
             ch_ped = INPUT_CHECK.out.ped.unique()
             GATK_TRIO_VCF (
                 bam_file,
@@ -196,10 +196,7 @@ workflow SNVS {
                 ch_refdict,
                 ch_snps.map{ it -> [ [id:it.baseName], it ] }.collect(),
                 ch_snps_tbi.map{ it -> [ [id:it.baseName], it ] }.collect(),
-                //Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
-                //Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect(),
-                ch_intervals_genomicsdbimport, // ch_intervals_genomicsdbimport
-                //no_intervals, // no_intervals
+                ch_intervals_genomicsdbimport, 
                 ch_ped // ch_ped            
             )
 
@@ -288,8 +285,7 @@ workflow SNVS {
         }
 
         ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
-        //ch_extra_files = params.extra_files ? Channel.of(file(params.extra_files, checkIfExists: true)).collect() : Channel.value([])
-        //ch_extra_files.view()
+
         
         ch_extra_files = params.extra_files ? 
             Channel.fromPath(params.extra_files.split(',').collect { it.trim() }, checkIfExists: true)
