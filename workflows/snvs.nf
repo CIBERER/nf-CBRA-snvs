@@ -143,14 +143,14 @@ workflow SNVS {
         }
     }
 
-    // In your main workflow, ensure intervals are created for all samples
-    ch_intervals = params.intervals ? 
-        INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : 
-        INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
-
 
     if (params.mapping) {
         fastqs = INPUT_CHECK.out.reads.map{meta, reads -> check_fastq(meta, reads)}
+        
+        // Ensure intervals are created for all samples
+        ch_intervals = params.intervals ? 
+        INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : 
+        INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
 
         // 
         // MODULE: Run FastQC
@@ -179,9 +179,13 @@ workflow SNVS {
             bam_file = MAPPING.out.bam
         } else {
             bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+
+            ch_intervals = params.intervals ? 
+            INPUT_CHECK.out.bams.map{ meta, bam, bai -> tuple(meta, file(params.intervals)) } : 
+            INPUT_CHECK.out.bams.map{ meta, bam, bai -> tuple(meta, []) }
+
         }
 
-        //bam_file.view()
     
         if (params.trio_analysis) {
 
@@ -282,6 +286,10 @@ workflow SNVS {
             vcf_file = final_vcf_file
         } else {
             vcf_file = INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> check_vcf(meta, vcf, tbi) }
+            
+            ch_intervals = params.intervals ? 
+            INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> tuple(meta, file(params.intervals)) } : 
+            INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> tuple(meta, []) }
         }
 
         ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
