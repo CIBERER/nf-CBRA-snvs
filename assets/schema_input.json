@@ -54,7 +54,7 @@
             },
             "tbi": {
                 "type": "string",
-                "pattern": "^\\S+\\.tbi$",
+                "pattern": "^\\S+\\.(tbi|csi)$",
                 "errorMessage": "tbi file cannot contain spaces and must have extension '.tbi' "
             },
             "ped": {
