@@ -1,0 +1,73 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "postvep"
+## TODO nf-core: Add a description of the module and list keywords
+description: Run postVEP_modification.R, a script that takes VEP tab delimited output, filter variants by MAF, modify the format of the output and add GLOWgenes and other optional annotations.
+keywords:
+  - genomics
+  - VEP
+  - variant annotation
+  - GLOWgenes
+  - MAF
+  - variant filtering
+
+tools:
+  - "postvep":
+      description: "postVEP_modification.R is a script that processes VEP output, filters variants by minor allele frequency (MAF), modifies the format of the output, and adds GLOWgenes and other optional annotations."
+
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+
+  - vep_tsv:
+      type: file
+      description: VEP tab output file. 
+      pattern: "*.{tab.gz}"
+
+  - roh_automap: 
+      type: file
+      description: tsv file with ROH regions.
+      pattern: "*.{tsv}"
+
+  - maf: 
+      type: val
+      description: filter variants by minor allele frequency (MAF) threshold.
+
+  - assembly: 
+      type: val
+      description: assembly version of the reference genome used in VEP annotation.
+      pattern: "hg38 | hg19 | GRCh37 | GRCh38"
+
+  - glowgenes_panel: 
+      type: file
+      description: GLOWgenes gene ranking file. It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv
+      pattern: "*.{txt}"
+  
+  - glowgenes_sgds: 
+      type: file
+      description: Score of Gene-Disease Associations (SGDs) file. Available at https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv
+      pattern: "*.{tsv}"
+
+output:
+  - pvm_tsv:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - annotated_tsv: 
+        type: file
+        description: |
+          Final annotated tsv file. 
+
+
+authors:
+  - "@yolandabq"
+  - "@guriaregojo"
+maintainers:
+  - "@yolandabq"
+  - "@guriaregojo"
