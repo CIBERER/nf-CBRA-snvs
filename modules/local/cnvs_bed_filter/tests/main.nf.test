@@ -1,0 +1,57 @@
+nextflow_workflow {
+
+    name "Test Module CNVS_BED_FILTER"
+    script "../main.nf"
+    workflow "CNVS_BED_FILTER"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules/local/cnvs_bed_filter"
+  
+    test("cnvs_bed_filter - with chromosome filter") {
+
+            
+    when {
+        workflow {
+            """
+            input[0] = file("/mnt/tblab/yolanda/CBRA_new_modules/test_data/Twist_Exome_Target_hg38_nocontigs.bed_annotated.bed", checkIfExists: true) 
+            input[1] = file("/mnt/genetica7/references/hg38.fa.fai", checkIfExists: true)
+            input[2] = "200"
+            input[3] = "chrX,X,chrY,Y,chrM,MT"
+            """
+        }
+    }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+
+
+    test("cnvs_bed_filter - NO chromosome filter") {
+
+            
+    when {
+        workflow {
+            """
+            input[0] = file("/mnt/tblab/yolanda/CBRA_new_modules/test_data/Twist_Exome_Target_hg38_nocontigs.bed_annotated.bed", checkIfExists: true) 
+            input[1] = file("/mnt/genetica7/references/hg38.fa.fai", checkIfExists: true)
+            input[2] = "200"
+            input[3] = ""
+            """
+        }
+    }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+}
