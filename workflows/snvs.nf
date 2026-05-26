@@ -88,6 +88,9 @@ include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrt
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
 
+include { EXOMEDEPTH } from '../modules/local/exomedepth/main'
+include { CNVS_BED_FILTER } from '../modules/local/cnvs_bed_filter/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -348,6 +351,47 @@ workflow SNVS {
         )
 
     }
+
+    ch_intervals_cnvs = params.intervals 
+
+    CNVS_BED_FILTER (
+        ch_intervals_cnvs, //esto ver cómo hacerlo para que podamos usar el bed para SNVs y CNVs, O solo para CNVs aunque se meta el bed (porque no queramos meter bed en las cnvs)
+        ch_fai.map{ meta, fai -> fai },
+        params.min_target,
+        params.chromosomes
+    )
+
+
+    if (params.exomedepth) {
+        if (params.mapping) {
+            bam_file = MAPPING.out.bam
+        } else {
+            bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+
+            
+        }
+
+        // Define the run name
+		if (params.runname) { runname = params.runname }
+		else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
+		println "Run name: $runname" 
+
+        bam_file.view()
+
+        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect()
+        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect()
+
+        bam_file_list.view()
+
+        EXOMEDEPTH(
+            bam_file_list,
+            bai_file_list,
+            CNVS_BED_FILTER.out.cnvs_bed,
+            runname
+        )
+
+    }
+
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
