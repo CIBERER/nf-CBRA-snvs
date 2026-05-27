@@ -1,6 +1,6 @@
 process CONVADING {
     tag "${runname}"
-    label 'process_single'
+    label 'process_long'
 
     container "/mnt/genetica5/singularity_images/bioinfotools_2.0.0.sif"
     //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
