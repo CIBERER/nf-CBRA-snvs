@@ -89,7 +89,11 @@ include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibrate
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
 
 include { EXOMEDEPTH } from '../modules/local/exomedepth/main'
+include { PANELCNMOPS } from '../modules/local/panelcmops/main'
+include { CONVADING } from '../modules/local/convading/main'
 include { CNVS_BED_FILTER } from '../modules/local/cnvs_bed_filter/main'
+include { CNV_RESULT_MIXER } from '../modules/local/cnv_result_mixer/main'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -354,6 +358,11 @@ workflow SNVS {
 
     ch_intervals_cnvs = params.intervals 
 
+    // Define the run name
+    if (params.runname) { runname = params.runname }
+    else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
+    println "Run name: $runname" 
+
     CNVS_BED_FILTER (
         ch_intervals_cnvs, //esto ver cómo hacerlo para que podamos usar el bed para SNVs y CNVs, O solo para CNVs aunque se meta el bed (porque no queramos meter bed en las cnvs)
         ch_fai.map{ meta, fai -> fai },
@@ -361,36 +370,103 @@ workflow SNVS {
         params.chromosomes
     )
 
+    // ─── Initialize empty channels for each CNV caller ───
+    ch_convading_cnvs   = channel.empty()
+    ch_panelcnmops_cnvs = channel.empty()
+    ch_exomedepth_cnvs  = channel.empty()
+
+
+    if (params.convading) {
+        if (params.mapping) {
+            bam_file = MAPPING.out.bam
+        } else {
+            bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+        }
+
+        //bam_file.view()
+
+        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect()
+        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect()
+
+        //bam_file_list.view()
+
+        CONVADING(
+            bam_file_list.map { files -> files.sort { it.name } },
+            bai_file_list.map { files -> files.sort { it.name } },
+            CNVS_BED_FILTER.out.cnvs_bed,
+            ch_fai.map{ meta, fai -> fai },
+            runname
+        )
+
+        ch_convading_cnvs = CONVADING.out.cnvs
+
+    }
+
+    if (params.panelcmops) {
+        if (params.mapping) {
+            bam_file = MAPPING.out.bam
+        } else {
+            bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+        }
+
+        //bam_file.view()
+
+        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect()
+        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect()
+
+        //bam_file_list.view()
+
+        PANELCNMOPS(
+            bam_file_list.map { files -> files.sort { it.name } },
+            bai_file_list.map { files -> files.sort { it.name } },
+            CNVS_BED_FILTER.out.cnvs_bed,
+            runname
+        )
+        PANELCNMOPS.out.cnvs.view()
+        ch_panelcnmops_cnvs = PANELCNMOPS.out.cnvs
+    }
+
+
+
 
     if (params.exomedepth) {
         if (params.mapping) {
             bam_file = MAPPING.out.bam
         } else {
             bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
-
-            
         }
 
-        // Define the run name
-		if (params.runname) { runname = params.runname }
-		else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
-		println "Run name: $runname" 
-
-        bam_file.view()
+        //bam_file.view()
 
         bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect()
         bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect()
 
-        bam_file_list.view()
+        //bam_file_list.view()
 
         EXOMEDEPTH(
-            bam_file_list,
-            bai_file_list,
+            bam_file_list.map { files -> files.sort { it.name } },
+            bai_file_list.map { files -> files.sort { it.name } },
             CNVS_BED_FILTER.out.cnvs_bed,
             runname
         )
+        EXOMEDEPTH.out.cnvs.view()
+        ch_exomedepth_cnvs = EXOMEDEPTH.out.cnvs
 
     }
+
+    //ch_cnvs = EXOMEDEPTH.mix(PANELCNMOPS.out.cnvs).mix(CONVADING.out.cnvs).collect().view()
+    //ch_cnvs = EXOMEDEPTH.out.cnvs.join(PANELCNMOPS.out.cnvs).collect().view()
+    ch_cnvs = ch_exomedepth_cnvs
+        .mix(ch_panelcnmops_cnvs, ch_convading_cnvs)
+        .groupTuple().map { meta, file_lists -> [meta, file_lists.flatten()] }.view()
+
+    samples2analyce = params.samples_cnvs ? Channel.fromPath(params.samples_cnvs, checkIfExists: true).collect() : Channel.value([])
+
+    CNV_RESULT_MIXER (
+        ch_cnvs,
+        samples2analyce
+    )
+
 
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
