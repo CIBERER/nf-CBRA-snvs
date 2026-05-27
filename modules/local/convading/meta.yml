@@ -10,6 +10,7 @@ keywords:
 tools:
   - "convading":
       description: "Convading is a R script designed to detect copy number variants (CNVs)."
+      homepage: "https://github.com/molgenis/CoNVaDING"
 
 
 input:

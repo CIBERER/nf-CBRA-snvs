@@ -11,6 +11,7 @@ keywords:
 tools:
   - "panelcmops":
       description: "PanelCMOps is a R script designed to detect copy number variants (CNVs)."
+      homepage: "https://github.com/bioinf-jku/panelcn.mops"
 
 
 input:

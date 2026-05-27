@@ -11,6 +11,8 @@ keywords:
 tools:
   - "exomedepth":
       description: "ExomeDepth is a R script designed to detect copy number variants (CNVs)."
+      homepage: "https://github.com/vplagnol/ExomeDepth"
+      documentation: "https://rdrr.io/cran/ExomeDepth/f/inst/doc/ExomeDepth-vignette.pdf"
 
 
 input:
