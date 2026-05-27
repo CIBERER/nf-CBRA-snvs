@@ -1,0 +1,23 @@
+nextflow_process {
+
+    name "Test Process ANNOTSV_INSTALLANNOTATIONS"
+    script "../main.nf"
+    process "ANNOTSV_INSTALLANNOTATIONS"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "annotsv"
+    tag "annotsv/installannotations"
+
+    test("homo_sapiens - stub") {
+
+        options "-stub"
+
+        then {
+            assert process.success
+            assert snapshot(sanitizeOutput(process.out)).match()
+        }
+
+    }
+
+}
