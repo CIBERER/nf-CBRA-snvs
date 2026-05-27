@@ -13,6 +13,7 @@ process CNV_RESULT_MIXER {
 
     output:
     tuple val(meta), path("${meta}.CNV.merged.bed"), emit: merged_bed
+    tuple val(meta), path("colnames.txt"), emit: colnames
 
     when:
     task.ext.when == null || task.ext.when
