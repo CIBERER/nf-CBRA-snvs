@@ -68,6 +68,7 @@ include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_varia
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
 include { GATK_TRIO_VCF } from '../subworkflows/local/gatk_trio_vcf'
+include { CNVS_CALLING } from '../subworkflows/local/cnvs_calling'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,11 +89,7 @@ include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrt
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
 
-include { EXOMEDEPTH } from '../modules/local/exomedepth/main'
-include { PANELCNMOPS } from '../modules/local/panelcmops/main'
-include { CONVADING } from '../modules/local/convading/main'
-include { CNVS_BED_FILTER } from '../modules/local/cnvs_bed_filter/main'
-include { CNV_RESULT_MIXER } from '../modules/local/cnv_result_mixer/main'
+include { ANNOTSV_INSTALLANNOTATIONS } from '../modules/nf-core/annotsv/installannotations/main'
 
 
 /*
@@ -356,118 +353,73 @@ workflow SNVS {
 
     }
 
-    ch_intervals_cnvs = params.intervals 
 
-    // Define the run name
-    if (params.runname) { runname = params.runname }
-    else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
-    println "Run name: $runname" 
+    // to install annotsv annotations intependently of whether the user wants to run annotsv or not, since the installation of the annotations takes a long time and we don't want to do it if the user already has them, but if they want to run annotsv, we need to have the annotations ready
+    if (params.annotsv_annotations) {
+        ANNOTSV_INSTALLANNOTATIONS()
+        
+        annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations
+    } 
 
-    CNVS_BED_FILTER (
-        ch_intervals_cnvs, //esto ver cómo hacerlo para que podamos usar el bed para SNVs y CNVs, O solo para CNVs aunque se meta el bed (porque no queramos meter bed en las cnvs)
-        ch_fai.map{ meta, fai -> fai },
-        params.min_target,
-        params.chromosomes
-    )
+    if (params.cnvs) {
+        if (params.runname) { runname = params.runname }
+        else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
+        println "Run name: $runname" 
 
-    // ─── Initialize empty channels for each CNV caller ───
-    ch_convading_cnvs   = channel.empty()
-    ch_panelcnmops_cnvs = channel.empty()
-    ch_exomedepth_cnvs  = channel.empty()
+        ch_intervals_cnvs = params.intervals 
 
+        // Define the run name
+        if (params.runname) { runname = params.runname }
+        else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
+        println "Run name: $runname" 
 
-    if (params.convading) {
+        // define bam file 
+
         if (params.mapping) {
             bam_file = MAPPING.out.bam
         } else {
             bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
         }
 
-        //bam_file.view()
+        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect().map { files -> files.sort { it.name } }
+        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect().map { files -> files.sort { it.name } }
 
-        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect()
-        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect()
+        // define the input channels
 
-        //bam_file_list.view()
+        samples2analyce = params.samples_cnvs ? Channel.fromPath(params.samples_cnvs, checkIfExists: true).collect() : Channel.value([])
 
-        CONVADING(
-            bam_file_list.map { files -> files.sort { it.name } },
-            bai_file_list.map { files -> files.sort { it.name } },
-            CNVS_BED_FILTER.out.cnvs_bed,
-            ch_fai.map{ meta, fai -> fai },
-            runname
-        )
+        //if the user defines the annotsv annotations, we will use them, but if not, we will install the annotations and use them.
 
-        ch_convading_cnvs = CONVADING.out.cnvs
-
-    }
-
-    if (params.panelcmops) {
-        if (params.mapping) {
-            bam_file = MAPPING.out.bam
-        } else {
-            bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+        if (params.annotsv_annotations){
+            annotations = Channel.fromPath(params.annotsv_annotations).map{ it -> [ [id:it.baseName], it ] }.collect()
+        }
+        else {
+            
+            ANNOTSV_INSTALLANNOTATIONS()
+            annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations.map{ it -> [ [id:it.baseName], it ] }.collect()
         }
 
-        //bam_file.view()
+        ch_gene_transcripts = params.gene_transcripts ? Channel.fromPath(params.gene_transcripts).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
+        ch_candidate_genes = params.candidate_genes ? Channel.fromPath(params.candidate_genes).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
+        ch_false_positive_snv = params.false_positive_snv ? Channel.fromPath(params.false_positive_snv).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
+        ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
 
-        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect()
-        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect()
 
-        //bam_file_list.view()
-
-        PANELCNMOPS(
-            bam_file_list.map { files -> files.sort { it.name } },
-            bai_file_list.map { files -> files.sort { it.name } },
-            CNVS_BED_FILTER.out.cnvs_bed,
-            runname
+        CNVS_CALLING (
+            bam_file_list,
+            bai_file_list,
+            ch_intervals_cnvs,
+            ch_fai,
+            runname,
+            samples2analyce,
+            annotations,
+            ch_gene_transcripts,
+            ch_candidate_genes,
+            ch_false_positive_snv,
+            ch_glowgenes_panel
         )
-        PANELCNMOPS.out.cnvs.view()
-        ch_panelcnmops_cnvs = PANELCNMOPS.out.cnvs
+    
     }
-
-
-
-
-    if (params.exomedepth) {
-        if (params.mapping) {
-            bam_file = MAPPING.out.bam
-        } else {
-            bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
-        }
-
-        //bam_file.view()
-
-        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect()
-        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect()
-
-        //bam_file_list.view()
-
-        EXOMEDEPTH(
-            bam_file_list.map { files -> files.sort { it.name } },
-            bai_file_list.map { files -> files.sort { it.name } },
-            CNVS_BED_FILTER.out.cnvs_bed,
-            runname
-        )
-        EXOMEDEPTH.out.cnvs.view()
-        ch_exomedepth_cnvs = EXOMEDEPTH.out.cnvs
-
-    }
-
-    //ch_cnvs = EXOMEDEPTH.mix(PANELCNMOPS.out.cnvs).mix(CONVADING.out.cnvs).collect().view()
-    //ch_cnvs = EXOMEDEPTH.out.cnvs.join(PANELCNMOPS.out.cnvs).collect().view()
-    ch_cnvs = ch_exomedepth_cnvs
-        .mix(ch_panelcnmops_cnvs, ch_convading_cnvs)
-        .groupTuple().map { meta, file_lists -> [meta, file_lists.flatten()] }.view()
-
-    samples2analyce = params.samples_cnvs ? Channel.fromPath(params.samples_cnvs, checkIfExists: true).collect() : Channel.value([])
-
-    CNV_RESULT_MIXER (
-        ch_cnvs,
-        samples2analyce
-    )
-
-
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
