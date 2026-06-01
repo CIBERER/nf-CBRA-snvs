@@ -439,9 +439,6 @@
     "vep_cache_version",
     "species",
     "maf",
-    "run_deepvariant",
-    "run_gatk",
-    "assembly",
-    "run_dragen"
+    "assembly"
   ]
 }

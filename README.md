@@ -12,9 +12,9 @@ This pipeline is developed using Nextflow, a workflow management system that ena
 
 The pipeline can perform the following steps:
 
-- **Mapping** of the reads to reference (BWA-MEM)
+- **Mapping** (`mapping = true`) of the reads to reference (BWA-MEM) 
 - Process BAM file (`GATK MarkDuplicates`, `GATK BaseRecalibrator` and `GATK ApplyBQSR`)
-- **Variant calling** with the following tools:
+- **Variant calling** (`variant_calling = true`) with the following tools:
 
   - GATK4 Haplotypecaller (`run_gatk = true`). This subworkflow includes:
     - **GATK4 Haplotypecaller**.
@@ -33,11 +33,25 @@ The pipeline can perform the following steps:
     - **DeepVariant postprocessvariants**: Convert variant calls from callvariants to VCF, and also create GVCF files based on genomic information from makeexamples. More information [here](https://github.com/nf-core/modules/tree/master/modules/nf-core/deepvariant).
     - **Bcftools Filter** to keep PASS variants on chr1-22, X, Y.
     - **Split Multialletic**.
+
+  - In addition to these three variant callers, a trio analysis can be performed with option `trio_analysis = true`. Based on [GATK guides](https://gatk.broadinstitute.org/hc/en-us/articles/360035531432-Genotype-Refinement-workflow-for-germline-short-variants). This subworkflow includes: 
+    - **GATK4 Haplotypecaller**.
+    - **GATK4 Genomicsdbimport** to merge GVCFs from multiple samples
+    - **GATK4 Genotypegvcfs** to perform joint genotyping
+    - **Hard Filters** and **VarianFiltration** to mark PASS variants. More information [here](docs/variant_calling.md).
+    - **Bcftools Filter** to keep PASS variants on chr1-22, X, Y.
+    - **GATK4 Calculategenotypeposteriors** to calculate genotype posterior probabilities given the family 
+    - **GATK4 Variantfiltration** based on genotypeposterior GQ<20
+    - **GATK4 Variantannotator** to annotate possible de novo mutations in trios
+    - **Filter proband ref**: filter variants that are REF in the proband
+    - **Split Multialletic**.
+
+
   
 - **Additional analysis:** Expansion Hunter (`--run_expansionhunter true`) for targeted genotyping of short tandem repeats (STRs) and flanking variants.
 
 - **Merge and integration** of the vcfs obtained with the different tools.
-- **Annotation** of the variants:
+- **Annotation** (`annotation = true`) of the variants:
   - Regions of homozygosity (ROHs) with [AUTOMAP](https://github.com/mquinodo/AutoMap)
   - Effect of the variants with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) using the flag `--everything`, which includes the following options: `--sift b, --polyphen b, --ccds, --hgvs, --symbol, --numbers, --domains, --regulatory, --canonical, --protein, --biotype, --af, --af_1kg, --af_esp, --af_gnomade, --af_gnomadg, --max_af, --pubmed, --uniprot, --mane, --tsl, --appris, --variant_class, --gene_phenotype, --mirna`
   - Postvep format VEP tab demilited output and filter variants by minor allele frequency (`--maf`).

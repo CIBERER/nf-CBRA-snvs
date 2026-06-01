@@ -34,7 +34,12 @@ process ADD_VAF_TRIO {
         bcftools view -s \${sample} ${vcf} | bcftools query -f '[\\t%AD{0}]\\n'  | sed 's/\\t//1' | sed 's/\\.//g' > \${sample}_RD.txt
 
         # Calculate variant allele depth (VAD)
-        paste \${sample}_VD.txt \${sample}_DP.txt | awk -v OFMT=%.2f '{if (\$2 == 0) print "-nan"; else print(\$1/\$2)}' > \${sample}_VAF.txt
+        paste \${sample}_VD.txt \${sample}_DP.txt | \
+            awk -v OFMT=%.2f '{
+                vd = (\$1 == "" ? 0 : \$1)
+                dp = (\$2 == "" ? 0 : \$2)
+                if (dp == 0) print "-nan"; else print(vd/dp)
+            }' > \${sample}_VAF.txt
 
         paste -d ":" \${sample}_FORMAT.txt \${sample}_VAF.txt | tr -d '\\t' > \${sample}_FORMAT_SAMPLE.txt
 

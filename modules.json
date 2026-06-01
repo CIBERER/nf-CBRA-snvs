@@ -106,16 +106,6 @@
             "git_sha": "679f45cae4f603f12d7c38c042afee11150574a0",
             "installed_by": ["modules"]
           },
-          "gatk4/genomicsdbimport": {
-            "branch": "master",
-            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-            "installed_by": ["modules"]
-          },
-          "gatk4/genotypegvcfs": {
-            "branch": "master",
-            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-            "installed_by": ["modules"]
-          },
           "gatk4/haplotypecaller": {
             "branch": "master",
             "git_sha": "d742e3143f2ccb8853c29b35cfcf50b5e5026980",
@@ -139,11 +129,6 @@
           "gatk4/variantfiltration": {
             "branch": "master",
             "git_sha": "00409369b2aff69bded4f0a9e7a80e17d933b426",
-            "installed_by": ["modules"]
-          },
-          "gatk4/variantrecalibrator": {
-            "branch": "master",
-            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
             "installed_by": ["modules"]
           },
           "gatk4spark/markduplicates": {

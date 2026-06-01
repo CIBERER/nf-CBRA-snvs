@@ -37,12 +37,36 @@
                     }
                 ]
             },
+            "bam": {
+                "type": "string",
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "bam file cannot contain spaces and must have extension '.bam' "
+            },
+            "bai": {
+                "type": "string",
+                "pattern": "^\\S+\\.bai$",
+                "errorMessage": "bai file cannot contain spaces and must have extension '.bai' "
+            },
+            "vcf": {
+                "type": "string",
+                "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                "errorMessage": "vcf file cannot contain spaces and must have extension '.vcf' or '.vcf.gz' "
+            },
+            "tbi": {
+                "type": "string",
+                "pattern": "^\\S+\\.(tbi|csi)$",
+                "errorMessage": "tbi file cannot contain spaces and must have extension '.tbi' "
+            },
             "ped": {
                 "type": "string",
                 "pattern": "^\\S+\\.ped$",
                 "errorMessage": "ped file for trio analysis must be provided and cannot contain spaces, must have extension '.ped'"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "dependentRequired": {
+            "bai": ["bam"],
+            "vcf": ["tbi"]
+        },
+        "required": ["sample"]
     }
 }

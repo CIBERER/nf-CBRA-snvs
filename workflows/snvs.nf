@@ -111,168 +111,243 @@ workflow SNVS {
     // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
     // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
     // ! There is currently no tooling to help you write a sample sheet schema
-    // 
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-     
-    if (params.index) { 
-        ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] }.collect()
-    } else { 
-        BWA_INDEX (ch_fasta)
-        ch_index = BWA_INDEX.out.index
+
+    if (params.mapping) {
+        if (params.index) { 
+            ch_index = Channel.fromPath(params.index).map{ it -> [ [id:it.baseName], it ] }.collect()
+        } else { 
+            BWA_INDEX (ch_fasta)
+            ch_index = BWA_INDEX.out.index
+        }
     }
 
-    if (params.refdict) { 
-        ch_refdict = Channel.fromPath(params.refdict).map{ it -> [ [id:it.baseName], it ] }.collect()
-    } else { 
-        PICARD_CREATESEQUENCEDICTIONARY (ch_fasta)
-        ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+    if (params.mapping || params.variant_calling) {
+        if (params.refdict) { 
+            ch_refdict = Channel.fromPath(params.refdict).map{ it -> [ [id:it.baseName], it ] }.collect()
+        } else { 
+            PICARD_CREATESEQUENCEDICTIONARY (ch_fasta)
+            ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+        }
     }
 
-    if (params.reference_str) { 
-        ch_ref_str = Channel.fromPath(params.reference_str).collect()
-    } else { 
-        GATK4_COMPOSESTRTABLEFILE (
-            ch_fasta.map {meta, fasta -> [fasta] },
-            ch_fai.map {meta, fai -> [fai]  },
-            ch_refdict.map {meta, dict -> [dict] }
-        )
-        ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+    if (params.variant_calling && params.run_dragen) {
+        if (params.reference_str) { 
+            ch_ref_str = Channel.fromPath(params.reference_str).collect()
+        } else { 
+            GATK4_COMPOSESTRTABLEFILE (
+                ch_fasta.map {meta, fasta -> [fasta] },
+                ch_fai.map {meta, fai -> [fai]  },
+                ch_refdict.map {meta, dict -> [dict] }
+            )
+            ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+        }
     }
 
-    // In your main workflow, ensure intervals are created for all samples
-    ch_intervals = params.intervals ? 
+
+    if (params.mapping) {
+        fastqs = INPUT_CHECK.out.reads.map{meta, reads -> check_fastq(meta, reads)}
+        
+        // Ensure intervals are created for all samples
+        ch_intervals = params.intervals ? 
         INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : 
         INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
 
+        // 
+        // MODULE: Run FastQC
+        //
+        FASTQC (
+            fastqs
+        )
+        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-
-    MAPPING (
-        INPUT_CHECK.out.reads,
-        ch_intervals,
-        ch_index,
-        ch_fasta,
-        ch_fai,
-        ch_refdict,
-        ch_snps,
-        ch_snps_tbi
-    )
-    
-    ch_intervals_genomicsdbimport = Channel.fromPath(params.genomicsdbimport_interval).collect()
-    ch_ped = INPUT_CHECK.out.ped.unique()
-
-    if (params.trio_analysis) {
-        GATK_TRIO_VCF (
-            MAPPING.out.bam,
+        MAPPING (
+            fastqs,
             ch_intervals,
+            ch_index,
             ch_fasta,
             ch_fai,
             ch_refdict,
-            ch_snps.map{ it -> [ [id:it.baseName], it ] }.collect(),
-            ch_snps_tbi.map{ it -> [ [id:it.baseName], it ] }.collect(),
-            ch_intervals_genomicsdbimport, // ch_intervals_genomicsdbimport
-            ch_ped // ch_ped            
+            ch_snps,
+            ch_snps_tbi
         )
 
-        vcf_file = GATK_TRIO_VCF.out.vcf
-
-    } else { // start of GATK dragen etc IF block
-
-    GATK_VCF (
-        MAPPING.out.bam,
-        ch_intervals,
-        ch_fasta,
-        ch_fai,
-        ch_refdict,
-        Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
-        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
-    )
+        } 
     
-    DEEP_VARIANT_VCF (
-        MAPPING.out.bam,
-        ch_intervals,
-        ch_fasta,
-        ch_fai,
-        ch_gzi,
-        ch_par_bed
-    )
 
-   DRAGEN_VCF (
-        MAPPING.out.bam, 
-        ch_fasta,
-        ch_fai,
-        ch_refdict,
-        GATK4_COMPOSESTRTABLEFILE.out.str_table,
-        ch_intervals,
-        Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
-        Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
-    ) 
-
-    ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : Channel.empty()
-    ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : Channel.empty()
-    ch_deepvariant = params.run_deepvariant ? DEEP_VARIANT_VCF.out.vcf : Channel.empty()
-
-    ch_vcfs_for_merge = ch_gatk.join(ch_dragstr).join(ch_deepvariant)
-
-    VCF_MERGE_VARIANTCALLERS (
-        ch_vcfs_for_merge,   
-        ch_fasta,
-        ch_fai,
-        ch_intervals,
-        ch_assembly
-    )
-
-    vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
-
-    // END OF GATK_TRIO_VCF IF BLOCK
-    }
-
-    ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
-    ch_extra_files = params.extra_files ? Channel.fromPath(params.extra_files, checkIfExists: true).collect() : Channel.value([])
-
-    // Conditionally add files using mix
-    if (params.plugins_dir) {
-        ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
-    }
-
-    ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
-    ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
-
-    if (params.vep_cache_path) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true).collect() } else { 
-        // Define your meta_vep
-        def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
-        if (params.refseq_cache) {
-            ch_vep_download = Channel.of([meta_vep, params.assembly, "${params.species}_refseq", params.vep_cache_version])
+    if (params.variant_calling) {
+        if (params.mapping) {
+            bam_file = MAPPING.out.bam
         } else {
-            ch_vep_download = Channel.of([meta_vep, params.assembly, params.species, params.vep_cache_version])
+            bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+
+            ch_intervals = params.intervals ? 
+            INPUT_CHECK.out.bams.map{ meta, bam, bai -> tuple(meta, file(params.intervals)) } : 
+            INPUT_CHECK.out.bams.map{ meta, bam, bai -> tuple(meta, []) }
+
         }
-        ENSEMBLVEP_DOWNLOAD (
-            ch_vep_download
+
+    
+        if (params.trio_analysis) {
+
+            ch_intervals_genomicsdbimport = params.genomicsdbimport_interval ? Channel.fromPath(params.genomicsdbimport_interval).collect() : Channel.of([])
+
+            ch_ped = INPUT_CHECK.out.ped.unique()
+            GATK_TRIO_VCF (
+                bam_file,
+                ch_intervals,
+                ch_fasta,
+                ch_fai,
+                ch_refdict,
+                ch_snps.map{ it -> [ [id:it.baseName], it ] }.collect(),
+                ch_snps_tbi.map{ it -> [ [id:it.baseName], it ] }.collect(),
+                ch_intervals_genomicsdbimport, 
+                ch_ped // ch_ped            
             )
-        ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }.collect()
+
+            final_vcf_file = GATK_TRIO_VCF.out.vcf
+
+        } else { 
+            
+            if (params.run_gatk) {
+            GATK_VCF (
+                bam_file,
+                ch_intervals,
+                ch_fasta,
+                ch_fai,
+                ch_refdict,
+                Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
+                Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
+            )   
+            }
+            
+            if (params.run_deepvariant) {
+            DEEP_VARIANT_VCF (
+                bam_file,
+                ch_intervals,
+                ch_fasta,
+                ch_fai,
+                ch_gzi,
+                ch_par_bed
+            )
+            }
+
+            if (params.run_dragen) {
+            DRAGEN_VCF (
+                bam_file, 
+                ch_fasta,
+                ch_fai,
+                ch_refdict,
+                ch_ref_str,
+                ch_intervals,
+                Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
+                Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
+            )
+
+            }
+
+            ch_gatk = params.run_gatk ? GATK_VCF.out.vcf : bam_file.map{ meta, bam, bai -> tuple(meta, []) }
+            ch_dragstr = params.run_dragen ? DRAGEN_VCF.out.vcf : bam_file.map{ meta, bam, bai -> tuple(meta, []) }
+            ch_deepvariant = params.run_deepvariant ? DEEP_VARIANT_VCF.out.vcf : bam_file.map{ meta, bam, bai -> tuple(meta, []) }
+
+
+            // Join the three channels and filter out empty lists while keeping tuple structure
+            ch_vcfs_for_merge = ch_gatk
+                .join(ch_dragstr)
+                .join(ch_deepvariant)
+                .map { it ->
+                    def meta = it[0]
+                    // Get all items after meta, but DON'T flatten - keep them as separate elements
+                    def items = it[1..-1]
+                    // Filter out empty lists but keep the structure flat
+                    def filtered = items.findAll { item -> item != null && item != [] && item.toString() != '[]' }
+                    
+                    // Return as a flat tuple: [meta, item1, item2, item3, ...]
+                    [meta, *filtered]
+                }
+
+
+            VCF_MERGE_VARIANTCALLERS (
+                ch_vcfs_for_merge,   
+                ch_fasta,
+                ch_fai,
+                ch_intervals,
+                ch_assembly
+            )
+
+            final_vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
+
+        } 
+    
     }
+    
 
-    ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
+    if (params.annotation) {
+        if (params.variant_calling) {
+            vcf_file = final_vcf_file
+        } else {
+            vcf_file = INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> check_vcf(meta, vcf, tbi) }
+            
+            ch_intervals = params.intervals ? 
+            INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> tuple(meta, file(params.intervals)) } : 
+            INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> tuple(meta, []) }
+        }
 
-    SNV_ANNOTATION (
-        vcf_file,
-        ch_fasta,
-        ch_assembly,
-        params.species,
-        ch_vep_cache_version,
-        ch_vep_cache_path,
-        ch_custom_extra_files,
-        ch_extra_files,
-        params.maf,
-        ch_glowgenes_panel,
-        ch_glowgenes_sgds
-    )
+        ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
 
+        
+        ch_extra_files = params.extra_files ? 
+            Channel.fromPath(params.extra_files.split(',').collect { it.trim() }, checkIfExists: true)
+                .collect() : 
+            Channel.value([])
 
+        // Conditionally add files using mix
+        if (params.plugins_dir) {
+            ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
+        }
+
+        //ch_extra_files.view()
+
+        ch_extra_files_pvm = params.extra_files_pvm ? 
+            Channel.fromPath(params.extra_files_pvm.split(',').collect { it.trim() }, checkIfExists: true)
+                .collect() : 
+            Channel.value([])
+
+        ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
+        ch_glowgenes_sgds = params.glowgenes_sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
+
+        if (params.vep_cache_path) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true).collect() } else { 
+            // Define your meta_vep
+            def meta_vep = [id: "vep_${params.assembly}", assembly: params.assembly]
+            if (params.refseq_cache) {
+                ch_vep_download = Channel.of([meta_vep, params.assembly, "${params.species}_refseq", params.vep_cache_version])
+            } else {
+                ch_vep_download = Channel.of([meta_vep, params.assembly, params.species, params.vep_cache_version])
+            }
+            ENSEMBLVEP_DOWNLOAD (
+                ch_vep_download
+                )
+            ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }.collect()
+        }
+
+        ch_vep_cache_version = params.vep_cache_version ? Channel.value(params.vep_cache_version) : Channel.value([])
+
+        SNV_ANNOTATION (
+            vcf_file,
+            ch_fasta,
+            ch_assembly,
+            params.species,
+            ch_vep_cache_version,
+            ch_vep_cache_path,
+            ch_custom_extra_files,
+            ch_extra_files,
+            params.pvm_script,
+            params.maf,
+            ch_glowgenes_panel,
+            ch_glowgenes_sgds,
+            ch_extra_files_pvm
+        )
+
+    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -291,7 +366,10 @@ workflow SNVS {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+
+    if (params.mapping) {
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    }
 
     MULTIQC (
         ch_multiqc_files.collect(),
@@ -300,6 +378,36 @@ workflow SNVS {
         ch_multiqc_logo.toList()
     )
     multiqc_report = MULTIQC.out.report.toList()
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+def check_fastq (meta, reads) {
+    if (reads.size() == 0) {
+        exit 1, "ERROR: Please check input samplesheet -> No FastQ files provided for one or more samples!"
+    } else {
+        return [ meta, reads ]
+    }
+}
+
+def check_bam (meta, bam, bai) {
+    if (bam.size() == 0) {
+        exit 1, "ERROR: Please check input samplesheet -> No bam files provided for one or more samples!"
+    } else {
+        return [ meta, bam, bai ]
+    }
+}
+
+def check_vcf (meta, vcf, tbi) {
+    if (vcf.size() == 0) {
+        exit 1, "ERROR: Please check input samplesheet -> No vcf files provided for one or more samples!"
+    } else {
+        return [ meta, vcf, tbi ]
+    }
 }
 
 /*

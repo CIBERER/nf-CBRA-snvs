@@ -8,13 +8,16 @@ process POSTVEP {
 
     input:
     tuple val(meta), path(vep_tsv), path(roh_automap)
+    path(pvm_script)
     val maf
     val assembly
     path glowgenes_panel
     path glowgenes_sgds
+    path extra_files_pvm 
 
     output:
     tuple val(meta), path("*.SNV.INDEL.annotated.tsv"), emit: pvm_tsv
+    
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,7 +31,7 @@ process POSTVEP {
 
     """
 
-    postVEP_modification.R \\
+    ${pvm_script} \\
     --input ${vep_tsv} \\
     --output ${prefix}.${assembly}.SNV.INDEL.annotated.tsv \\
     --maf ${maf} \\
