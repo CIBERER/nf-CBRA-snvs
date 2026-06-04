@@ -1,7 +1,10 @@
 process CNVS_BED_FILTER {
     label 'process_single'
 
-    container "/mnt/genetica5/singularity_images/bioinfotools_2.0.0.sif"
+    //container "/mnt/genetica5/singularity_images/bioinfotools_2.0.0.sif"
+    container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_0'
+    : 'quay.io/biocontainers/bedtools:2.31.1--hf5e1c6e_0'}"
     //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     //    'docker://docker.io/yolandabq/post_vep:v1' :
     //    'docker.io/yolandabq/post_vep:v1' }"
@@ -13,7 +16,7 @@ process CNVS_BED_FILTER {
     val chromosomes
 
     output:
-    path("*cnv.bed"), emit: cnvs_bed
+    path("*cnv.bed"), emit: cnvs_bed_filtered
 
     when:
     task.ext.when == null || task.ext.when

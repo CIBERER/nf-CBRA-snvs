@@ -99,13 +99,40 @@ print(nrow(vep))
 
 #vep <- vep[is.na(vep$MAX_AF) | (!is.na(vep$MAX_AF) & vep$MAX_AF < as.numeric(maf)), ]
 
-vep$gnomADe_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADe_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
-vep$gnomADg_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADg_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
+# vep = vep[is.na(vep$gnomADe_AF_grpmax) | as.numeric(vep$gnomADe_AF_grpmax) < as.numeric(maf) | vep$gnomADe_filt != "PASS",]
+# print(nrow(vep))
+# vep = vep[is.na(vep$gnomADg_AF_grpmax) | as.numeric(vep$gnomADg_AF_grpmax) < as.numeric(maf) | vep$gnomADg_filt != "PASS",]
+# print(nrow(vep))
 
-vep = vep[is.na(vep$gnomADe_AF_grpmax) | as.numeric(vep$gnomADe_AF_grpmax) < as.numeric(maf) | vep$gnomADe_filt != "PASS",]
-print(nrow(vep))
-vep = vep[is.na(vep$gnomADg_AF_grpmax) | as.numeric(vep$gnomADg_AF_grpmax) < as.numeric(maf) | vep$gnomADg_filt != "PASS",]
-print(nrow(vep))
+if ("gnomADe_AF_grpmax" %in% colnames(vep) && "gnomADg_AF_grpmax" %in% colnames(vep)) {
+  
+  vep$gnomADe_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADe_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
+  vep$gnomADg_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADg_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
+  
+  vep <- vep[
+    is.na(vep$gnomADe_AF_grpmax) |
+    as.numeric(vep$gnomADe_AF_grpmax) < as.numeric(maf) |
+    vep$gnomADe_filt != "PASS",
+  ]
+  print(nrow(vep))
+  
+  vep <- vep[
+    is.na(vep$gnomADg_AF_grpmax) |
+    as.numeric(vep$gnomADg_AF_grpmax) < as.numeric(maf) |
+    vep$gnomADg_filt != "PASS",
+  ]
+  print(nrow(vep))
+  
+} else {
+  
+  vep <- vep[
+    is.na(vep$MAX_AF) |
+    as.numeric(vep$MAX_AF) < as.numeric(maf),
+  ]
+  print(nrow(vep))
+  
+}
+
 
 #### include GLOWgenes and SGDS 
 if (!is.null(glowgenes_path)){

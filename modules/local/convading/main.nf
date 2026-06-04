@@ -1,11 +1,11 @@
 process CONVADING {
     tag "${runname}"
-    label 'process_long'
+    label 'process_medium'
 
     container "/mnt/genetica5/singularity_images/bioinfotools_2.0.0.sif"
-    //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //    'docker://docker.io/yolandabq/post_vep:v1' :
-    //    'docker.io/yolandabq/post_vep:v1' }"
+    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+    //    'docker://docker.io/yolandabq/convading:latest' :
+    //    'docker.io/yolandabq/convading:latest' }"
 
     input:
     path bam

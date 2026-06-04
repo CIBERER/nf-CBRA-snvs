@@ -355,7 +355,7 @@ workflow SNVS {
 
 
     // to install annotsv annotations intependently of whether the user wants to run annotsv or not, since the installation of the annotations takes a long time and we don't want to do it if the user already has them, but if they want to run annotsv, we need to have the annotations ready
-    if (params.annotsv_annotations) {
+    if (params.annotsv_install_annotations) {
         ANNOTSV_INSTALLANNOTATIONS()
         
         annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations
@@ -403,6 +403,12 @@ workflow SNVS {
         ch_candidate_genes = params.candidate_genes ? Channel.fromPath(params.candidate_genes).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
         ch_false_positive_snv = params.false_positive_snv ? Channel.fromPath(params.false_positive_snv).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
         ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
+        //ch_small_variants = params.candidate_small_variants ? Channel.value(file(params.candidate_small_variants)) : Channel.value([])
+        ch_small_variants = params.candidate_small_variants
+            ? Channel.value(file(params.candidate_small_variants))
+            : Channel.value(file('NO_FILE'))
+
+        annotations.view()
 
 
         CNVS_CALLING (
@@ -413,6 +419,7 @@ workflow SNVS {
             runname,
             samples2analyce,
             annotations,
+            ch_small_variants,
             ch_gene_transcripts,
             ch_candidate_genes,
             ch_false_positive_snv,

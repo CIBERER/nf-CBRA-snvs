@@ -102,6 +102,25 @@ The variants are annotated with [Ensembl VEP](https://www.ensembl.org/info/docs/
 
 [POSTVEP](../modules/local/postvep/main.nf) step takes the VEP tab delimited output, filter variants by minor allele frequency (`--maf`) and add other custom annotations, as regions of homozygosity (ROHs) detected with [AUTOMAP](https://github.com/mquinodo/AutoMap) and [GLOWgenes](https://www.translationalbioinformaticslab.es/tblab-home-page/tools/glowgenes), a network-based algorithm developed to prioritize novel candidate genes associated with rare diseases.
 
+
+### CNVs
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `cnvs/`
+  - `*.tsv`: final tsv file with annotated CNVs. 
+  - `exomedepth/`: exomedepth results.
+  - `panelcmops/`: panelcmops results.
+  - `convading/`: convading results.
+
+- `AnnotSV_annotations/`: if `--annotsv_install_annotations true`of `--annotsv_annotations` is not specified. 
+
+  
+
+</details>
+
+
 ### MultiQC
 
 <details markdown="1">

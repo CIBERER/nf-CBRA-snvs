@@ -1,11 +1,10 @@
-process CNV_RESULT_MIXER {
+process CNVS_RESULT_MIXER {
     tag "${meta}"
     label 'process_single'
 
-    container "/mnt/genetica5/singularity_images/bioinfotools_2.0.0.sif"
-    //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //    'docker://docker.io/yolandabq/post_vep:v1' :
-    //    'docker.io/yolandabq/post_vep:v1' }"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+       'docker://docker.io/yolandabq/cnv_mixer:latest' :
+       'docker.io/yolandabq/cnv_mixer:latest' }"
 
     input:
     tuple val(meta), path(cnvs)
