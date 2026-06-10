@@ -1,4 +1,4 @@
-# nf-CBRA-snvs: Documentation about the SNV/Indel annotation subworkflow
+# CBRA: Documentation about the SNV/Indel annotation subworkflow
 
 ## [snv_annotation subworkflow](https://github.com/CIBERER/GdTBioinfo-nf-snvs/blob/annot_subworkflow_postvep/subworkflows/local/snv_annotation/main.nf)
 

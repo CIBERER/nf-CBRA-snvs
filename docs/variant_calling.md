@@ -1,4 +1,4 @@
-# nf-CBRA-snvs: Documentation about Variant Calling
+# CBRA: Documentation about Variant Calling
 
 ## [GATK subworkflow](https://github.com/CIBERER/GdTBioinfo-nf-snvs/blob/gatk_subworkflow/subworkflows/local/gatk_vcf/main.nf)
 

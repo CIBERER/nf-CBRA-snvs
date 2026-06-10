@@ -1,4 +1,4 @@
-# nf-CBRA-snvs: Output
+# CBRA: Output
 
 ## Introduction
 

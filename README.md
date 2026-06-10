@@ -1,11 +1,11 @@
 # Introduction
 
-**nf-CBRA-snvs** (nf-core - CIBERER Bioinformatics for Rare diseases Analysis - Small Nucleotide Variant) is a workflow optimized for the analysis of rare diseases, designed to detect SNVs and INDELs in targeted sequencing data (CES/WES) as well as whole genome sequencing (WGS).
+**CBRA** (nf-core - CIBERER Bioinformatics for Rare diseases Analysis - Small Nucleotide Variant) is a workflow optimized for the analysis of rare diseases, designed to detect SNVs and INDELs in targeted sequencing data (CES/WES) as well as whole genome sequencing (WGS).
 
 This pipeline is developed using Nextflow, a workflow management system that enables an easy execution across various computing environments. It uses Docker or Singularity containers, simplifying setup and ensuring reproducibility of results. The pipeline assigns a container to each process, which simplifies the management and updating of software dependencies. When possible, processes are sourced from nf-core/modules, promoting reusability across all nf-core pipelines and contributing to the broader Nextflow community.
 
 <p align="center">
-    <img title="nf-CBRA-snvs Workflow" src="docs/images/workflow.png" width=80%>
+  <img title="CBRA Workflow" src="docs/images/workflow.png" width=80%>
 </p>
 
 # Pipeline summary
@@ -80,7 +80,7 @@ Each row represents a pair of paired end fastq files.
 You can run the pipeline using: 
 
 ```
-nextflow run nf-cbra-snvs/main.nf \
+nextflow run CBRA/main.nf \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
@@ -95,7 +95,7 @@ For details about the output files and reports, please refer to the [output](doc
 
 # Credits
 
-nf-CBRA-snvs was developed within the framework of a call for intramural cooperative and complementary actions (ACCI) funded by CIBERER (Biomedical Research Network Centre for Rare Diseases).
+CBRA was developed within the framework of a call for intramural cooperative and complementary actions (ACCI) funded by CIBERER (Biomedical Research Network Centre for Rare Diseases).
 
 **Main Developer**
 - [Yolanda Benítez Quesada](https://github.com/yolandabq)
