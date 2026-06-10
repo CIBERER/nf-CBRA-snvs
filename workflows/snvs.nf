@@ -68,6 +68,7 @@ include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_varia
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
 include { GATK_TRIO_VCF } from '../subworkflows/local/gatk_trio_vcf'
+include { CNVS_CALLING } from '../subworkflows/local/cnvs_calling'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,6 +88,9 @@ include { PICARD_CREATESEQUENCEDICTIONARY } from '../modules/nf-core/picard/crea
 include { GATK4_COMPOSESTRTABLEFILE } from '../modules/nf-core/gatk4/composestrtablefile/main'
 include { GATK4_CALIBRATEDRAGSTRMODEL } from '../modules/nf-core/gatk4/calibratedragstrmodel/main'
 include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/main'
+
+include { ANNOTSV_INSTALLANNOTATIONS } from '../modules/nf-core/annotsv/installannotations/main'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -305,7 +309,6 @@ workflow SNVS {
             ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
         }
 
-        //ch_extra_files.view()
 
         ch_extra_files_pvm = params.extra_files_pvm ? 
             Channel.fromPath(params.extra_files_pvm.split(',').collect { it.trim() }, checkIfExists: true)
@@ -347,6 +350,79 @@ workflow SNVS {
             ch_extra_files_pvm
         )
 
+    }
+
+
+    // to install annotsv annotations intependently of whether the user wants to run annotsv or not, since the installation of the annotations takes a long time and we don't want to do it if the user already has them, but if they want to run annotsv, we need to have the annotations ready
+    if (params.annotsv_install_annotations) {
+        ANNOTSV_INSTALLANNOTATIONS()
+        
+        annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations
+    } 
+
+    if (params.cnvs) {
+        if (params.runname) { runname = params.runname }
+        else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
+        println "Run name: $runname" 
+
+        ch_intervals_cnvs = params.intervals 
+
+        // Define the run name
+        if (params.runname) { runname = params.runname }
+        else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
+        println "Run name: $runname" 
+
+        // define bam file 
+
+        if (params.mapping) {
+            bam_file = MAPPING.out.bam
+        } else {
+            bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+        }
+
+        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect().map { files -> files.sort { it.name } }
+        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect().map { files -> files.sort { it.name } }
+
+        // define the input channels
+
+        samples2analyce = params.samples_cnvs ? Channel.fromPath(params.samples_cnvs, checkIfExists: true).collect() : Channel.value([])
+
+        //if the user defines the annotsv annotations, we will use them, but if not, we will install the annotations and use them.
+
+        if (params.annotsv_annotations){
+            annotations = Channel.fromPath(params.annotsv_annotations).map{ it -> [ [id:it.baseName], it ] }.collect()
+        }
+        else {
+            
+            ANNOTSV_INSTALLANNOTATIONS()
+            annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations.map{ it -> [ [id:it.baseName], it ] }.collect()
+        }
+
+        ch_gene_transcripts = params.gene_transcripts ? Channel.fromPath(params.gene_transcripts).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
+        ch_candidate_genes = params.candidate_genes ? Channel.fromPath(params.candidate_genes).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
+        ch_false_positive_snv = params.false_positive_snv ? Channel.fromPath(params.false_positive_snv).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
+        ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
+        ch_small_variants = params.candidate_small_variants
+            ? Channel.value(file(params.candidate_small_variants))
+            : Channel.value(file('NO_FILE'))
+
+
+
+        CNVS_CALLING (
+            bam_file_list,
+            bai_file_list,
+            ch_intervals_cnvs,
+            ch_fai,
+            runname,
+            samples2analyce,
+            annotations,
+            ch_small_variants,
+            ch_gene_transcripts,
+            ch_candidate_genes,
+            ch_false_positive_snv,
+            ch_glowgenes_panel
+        )
+    
     }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

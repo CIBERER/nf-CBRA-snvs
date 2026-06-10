@@ -1,0 +1,58 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "cnvs_result_mixer"
+## TODO nf-core: Add a description of the module and list keywords
+description: Module to mix the results of different CNV calling tools.
+    Is designed to be flexible with the CNVs calling tools used.
+keywords:
+  - genomics
+  - CNVs calling
+  - CNVs
+
+tools:
+  - "cnvs_result_mixer":
+      description: "Module to mix the results of different CNV calling tools. Is designed to be flexible with the CNVs calling tools used."
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+
+  - cnvs:
+      type: file
+      description: CNV results file.
+      pattern: "*.{.toAnnotate.txt}"
+
+  - samples2analyce: 
+      type: file
+      description: File with samples name to analyze (optional).
+      pattern: "*.{txt}"
+
+output:
+  - merged_bed:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - CNV.merged.bed: 
+        type: file
+        description: |
+          Final merged bed file. 
+  - colnames:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - colnames: 
+        type: file
+        description: |
+          File with final column names of the merged bed file. Useful for annotsv annotation. 
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"

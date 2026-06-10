@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "cnvs_calling"
+description: Subworkflow for calling copy number variants (CNVs) from BAM files using multiple tools (CONVADING, PANELCNMOPS, EXOMEDEPTH). 
+    The subworkflow includes steps for filtering the bed file used for targered sequencing, running the CNV calling tools, mixing the results, and annotating the final CNV calls with AnnotSV. 
+    The subworkflow is designed to be flexible, allowing users to choose which CNV calling tools to run based on their preferences and requirements.
+
+keywords:
+  - bam
+  - CNVs calling
+  - CNVs
+  - CNVs annotation
+
+
+components:
+  - cnvs_bed_filter
+  - exomedepth
+  - panelcmops
+  - convading
+  - cnvs_result_mixer
+  - annotsv/annotsv
+  - postannotsv
+
+input:
+  - bam_file_list:
+      type: file
+      description: |
+        List of BAM files from the same sequencing batch to be analyzed
+        Structure: [ path(sample1.bam), path(sample2.bam), ... ]
+      pattern: "*.{.bam}"
+  - bai_file_list:
+      type: file
+      description: |
+        List of BAI files from the same sequencing batch to be analyzed
+        Structure: [ path(sample1.bai), path(sample2.bai), ... ]
+      pattern: "*.{.bai}"
+  - ch_intervals_cnvs:
+      type: file
+      description: |
+        Bed file with the genomic regions included in the library design (for targeted sequencing) 
+        Structure: [  path(bed)  ]
+      pattern: "*.{bed}"
+  - ch_fai:
+      type: file
+      description: |
+        Reference index in FAI format
+        Structure: [ val(meta2),  path(fai)  ]
+      pattern: "*.{fai}"
+  - runname:
+      type: value
+      description: |
+        (Optional).Name of the run, to be used as prefix for output files
+  - samples2analyce:
+      type: file
+      description: |
+        (Optional).File containing the list of samples to be analyzed (one sample per line).
+  - annotations:
+      type: directory
+      description: |
+        Annotsv annotations file (mandatory)
+        Structure: [ val(meta3),  path(annotations)  ]
+  - ch_small_variants:
+      type: file
+      description: OPTIONAL - A file containing candidate small variants
+      pattern: "*.{vcf,vcf.gz}"
+      ontologies:
+        - edam: "http://edamontology.org/format_3016" # VCF
+  - ch_gene_transcripts:
+      type: file
+      description: |
+        OPTIONAL - A file containing the preferred gene transcripts
+          to be used in priority during annotation (either space-separated or
+          tab-separated)
+        Structure: [ val(meta3),  path(gene_transcripts)  ]
+      pattern: "*.txt"
+  - ch_candidate_genes:
+      type: file
+      description: |
+        OPTIONAL - A file containing genes (either space-separated,
+          tab-separated or line-break-separated)
+        Structure: [ val(meta3),  path(candidate_genes)  ]
+      pattern: "*.txt"
+  - ch_false_positive_snv:
+      type: file
+      description: |
+        OPTIONAL - A VCF file containing small variant candidates
+        Structure: [ val(meta3),  path(false_positive_snv)  ]
+      pattern: "*.{vcf,vcf.gz}"
+  - ch_glowgenes_panel:
+      type: file
+      description: |
+        GLOWgenes gene ranking file. It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv
+  
+      
+output:
+  - annotated_cnv:
+      type: file
+      description: |
+        TSV file containing the annotated CNV calls
+        Structure: [ val(meta), path(annotated_cnv) ]
+      pattern: "*.tsv"
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"

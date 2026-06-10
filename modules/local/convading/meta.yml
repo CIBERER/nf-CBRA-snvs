@@ -1,0 +1,61 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "convading"
+description: Run Convading, a R script designed to detect copy number variants (CNVs).
+keywords:
+  - genomics
+  - CNVs
+  - structural variants
+
+tools:
+  - "convading":
+      description: "Convading is a R script designed to detect copy number variants (CNVs)."
+      homepage: "https://github.com/molgenis/CoNVaDING"
+
+
+input:
+  - bam:
+      type: file
+      description: |
+        List of bam files to analyze. They must have been sequenced within the same batch. 
+      pattern: "*.{bam}"
+      example: "[file1.bam, file2.bam, file3.bam]"
+
+  - bai:
+      type: file
+      description: |
+        List of bai files to analyze. They must have been sequenced within the same batch. 
+      pattern: "*.{bai}"
+      example: "[file1.bai, file2.bai, file3.bai]"
+
+  - bed: 
+      type: file
+      description: bed file with target regions.
+      pattern: "*.{bed}"
+
+  - fai: 
+    type: file
+    description: fai file.
+    pattern: "*.{fai}"
+
+  - runname: 
+      type: val
+      description: Name of the run. It will be used to name the output files and folders. If not provided, it will be set to date of execution.
+
+
+output:
+  - cnvs:
+    - runname:
+        type: map
+        description: |
+          Name of the run.
+    - CoNVaDING*: 
+        type: file
+        description: |
+          CoNVaDING output files. 
+
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"

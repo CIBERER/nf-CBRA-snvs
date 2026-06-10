@@ -1,9 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Author: Gonzalo Nunez Moreno
-# Date: 16/03/2021
 ## Reedited by: Yolanda Benítez Quesada
-## Date: 23/05/2025
 
 library(optparse)
 library(data.table)

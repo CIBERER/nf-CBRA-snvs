@@ -14,7 +14,7 @@ The pipeline can perform the following steps:
 
 - **Mapping** (`mapping = true`) of the reads to reference (BWA-MEM) 
 - Process BAM file (`GATK MarkDuplicates`, `GATK BaseRecalibrator` and `GATK ApplyBQSR`)
-- **Variant calling** (`variant_calling = true`) with the following tools:
+- **Single Nucleotide Variant (SNVs) calling** (`variant_calling = true`) with the following tools:
 
   - GATK4 Haplotypecaller (`run_gatk = true`). This subworkflow includes:
     - **GATK4 Haplotypecaller**.
@@ -46,16 +46,24 @@ The pipeline can perform the following steps:
     - **Filter proband ref**: filter variants that are REF in the proband
     - **Split Multialletic**.
 
-
   
 - **Additional analysis:** Expansion Hunter (`--run_expansionhunter true`) for targeted genotyping of short tandem repeats (STRs) and flanking variants.
 
 - **Merge and integration** of the vcfs obtained with the different tools.
-- **Annotation** (`annotation = true`) of the variants:
+- **Annotation of SNVs** (`annotation = true`) of the variants:
   - Regions of homozygosity (ROHs) with [AUTOMAP](https://github.com/mquinodo/AutoMap)
   - Effect of the variants with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) using the flag `--everything`, which includes the following options: `--sift b, --polyphen b, --ccds, --hgvs, --symbol, --numbers, --domains, --regulatory, --canonical, --protein, --biotype, --af, --af_1kg, --af_esp, --af_gnomade, --af_gnomadg, --max_af, --pubmed, --uniprot, --mane, --tsl, --appris, --variant_class, --gene_phenotype, --mirna`
   - Postvep format VEP tab demilited output and filter variants by minor allele frequency (`--maf`).
   - You can enhance the annotation by incorporating gene rankings from [GLOWgenes](https://www.translationalbioinformaticslab.es/tblab-home-page/tools/glowgenes), a network-based algorithm developed to prioritize novel candidate genes associated with rare diseases. Precomputed rankings based on PanelApp gene panels are available [here](https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv). To include a specific GLOWgenes ranking, use the option `--glowgenes_panel (path to the panel.txt)`, for example: `--glowgenes_panel https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/precomputed_panelAPP/GLOWgenes_prioritization_Neurological_ciliopathies_GA.txt`. Additionally, you can include the Gene-Disease Specificity Score (SGDS) using: `--glowgenes_sgds https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/SGDS.csv`. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity).
+
+- **Copy number variants (CNVs) calling** (`cnvs = true`), with the following steps:
+  - **Bed file filtering**: Module to filter the bed file used for targered sequencing, to keep only the regions with a length > `--min_target` (default 20) and to exclude the regions in `--chromosomes` (default 'chrX,X,chrY,Y,chrM,MT'). 
+  - **Software for detecting CNVs**: These tools require a set of samples sequenced in the same batch in order to detect changes in coverage that indicate the presence of a CNV.
+    - [ExomeDepth](https://github.com/vplagnol/ExomeDepth) (`exomedepth = true`). 
+    - [panelcn.MOPS](https://github.com/bioinf-jku/panelcn.mops) (`panelcmops = true`).
+    - [CoNVaDING](https://github.com/molgenis/CoNVaDING) (`convading = true`).
+  - **Combining the results from the various CNVs caller**
+  - **CNVs Annotation**: [AnnotSV](https://lbgi.fr/AnnotSV/) is used to annotate the merged results. AnnotSV needs the annotations files. They can be downloaded using `annotsv_install_annotations = true`. The path to the notes folder can be specified using `--annotsv_annotations folder_path`. If `--annotsv_annotations` is not specified, the annotations files will be downloadad directly. 
 
 
 # Usage
