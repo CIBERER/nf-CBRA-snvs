@@ -84,16 +84,8 @@ def get_avg_gene_cov(cov_file,gene_list):
 # for bam_file in glob(bam_folder):
 def count_extraction(bam_file):
 	sample_name = get_sample_name(bam_file)
-	# print '-----'
-	# print 'BedFile: ' + bedfile + '\nBamFile: ' + bam_file + '\nFai: ' + fai
-	# print 'Calculating coverage of sample: ' + sample_name + ' ...'
 	call('bedtools coverage -a ' + bedfile + ' -b ' + bam_file + ' -sorted -g ' + fai + ' -mean| sort -k1,1 -k2,2n  > ' + raw_coverages_folder + '/' + sample_name + '_mean_coverage.txt',shell = True)
-#	call('bedtools coverage -a ' + bedfile + ' -b ' + bam_file + ' -sorted -g /mnt/genetica/ionut/GeneticaPipeDB/pipeline/CoNVaDING-1.2.1/rCRS_fasta.fai -mean| sort -k1,1 -k2,2n  > ' + raw_coverages_folder + '/' + sample_name + '_mean_coverage.txt',shell = True)
 
-
-	#call('bedtools coverage -a ' + bedfile + ' -b ' + bam_file + ' -mean| sort -k1,1 -k2,2n > ' + raw_coverages_folder + '/' + sample_name + '_mean_coverage.txt',shell = True)
-
-	# print 'Saved in ' + raw_coverages_folder
 pool = mp.Pool(mp.cpu_count())
 resultsparallel = pool.map(count_extraction, glob(bam_folder))
 pool.close()

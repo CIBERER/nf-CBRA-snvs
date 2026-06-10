@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 ### CNV analysis 
 ### Author: Gonzalo Núñez Moreno
-### Date: 20/03/19
 
 
 rm(list=ls())
@@ -33,21 +32,15 @@ opt_parser=OptionParser(option_list = option_list)
 opt=parse_args(opt_parser) #list of the args
 
 dirPath <- opt$dir
-# output_dir <- paste(opt$outputdir,"/cnvs/Panelcn.MOPS/",sep="")
 bedFile <- opt$bed
 projectname <- opt$name
 
-# dirPath <- "/mnt/genetica3/Ionut/MCorton/SureSelect_Glaucoma_03/all_bams_new/Sure_123/some"
-# output_dir <- "/mnt/genetica/gonzalo/panelcn.mops/"
-# bedFile <- "/mnt/genetica/gonzalo/CoNIFER/muestras_Marta/SureSelect_Glaucoma_2018_real_target_manifest_v2_numbered.bed"
-# projectname <- "some"
 
 sink(paste("software_",opt$name,".txt",sep=""),append=TRUE)
 print("R SESSION INFO (Panelcn.MOPS):")
 sessionInfo()
 sink()
 
-# dir.create(output_dir)
 
 
 #*****************************************#
@@ -62,7 +55,6 @@ test <- countBamListInGRanges(countWindows = countWindows,
 # setwd(output_dir)
 save.image(file = paste('panelcn.mops.','_counts_image.RData', sep=''))
 write.table(data.frame(test), file = paste('panelcn.mops','_count_matrix.txt', sep=''), sep = "\t", quote = F, row.names = F, col.names = T)
-# write.table(data.frame(test), file = '/home/gonzalo/Documents/cnvs/panelcn.mops_count_matrix.txt', sep = "\t", quote = F, row.names = F, col.names = T)
 
 #***********************#
 # Running the algorithm #
@@ -104,44 +96,8 @@ toAnnotateTable <- data.frame(finaltable$Chr, finaltable$Start, finaltable$End, 
 colnames(toAnnotateTable) = c("CHR", "START", "END", "CNV_TYPE", "SAMPLE","RATIO")
 toAnnotateTable$SAMPLE = gsub("\\..*","", toAnnotateTable$SAMPLE, perl = TRUE)
 toAnnotateTable$CHR[grep("chr", toAnnotateTable$CHR,invert = T)] = paste0("chr", toAnnotateTable$CHR[grep("chr", toAnnotateTable$CHR,invert = T)])
-# toAnnotateTable = toAnnotateTable[toAnnotateTable$RATIO > 1.46 | toAnnotateTable$RATIO < 0.57, ]
 
 write.table(toAnnotateTable, file ='panelcn.MOPS.toAnnotate.txt', sep='\t', quote=F, row.names=F, col.names = T)
-
-#******************************************************#  
-# Función que se le da directamete la matriz de conteo #  ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ CAMBIAR !!!!!!!!!!!!!!!!!!!!!!
-#******************************************************# 
-# matrix_count <- Y
-# countWindows <- getWindows(bedFile) # Getting count windows from the BED file
-# vec_pos <- 1:(ncol(matrix_count))
-# temporal_test <- matrix()
-# finaltable <- data.frame()
-# for (i in 1: ncol(matrix_count)){
-#   temporal_test <- cbind(matrix_count[,vec_pos[i]],
-#                          matrix_count[,vec_pos[-i]])
-#   resultlist <- panelcn.mops(input = matrix_count,
-#                         testi = 1)
-#   sampleNames <- colnames(matrix_count)
-#   resulttable <- createResultTable(resultlist = resultlist,
-#                                    XandCB = matrix_count,
-#                                    countWindows = countWindows,
-#                                    sampleNames = sampleNames)
-#   resulttable <- resulttable[[1]]
-#   resulttable <- resulttable[!grepl("CN2",resulttable$CN),] # Delete rows that does not have a CNV
-#   finaltable <- rbind(finaltable,resulttable)
-# }
-# 
-# finaltable$Sample <- sub("_.*$","",finaltable$Sample)
-# 
-# finaltable$CN <- sub("CN1|CN0","DEL",finaltable$CN)
-# finaltable$CN <- sub("CN3|CN4","DUP",finaltable$CN)
-# 
-# write.table(finaltable, file = paste(projectname, '_panelcn.MOPS.txt', sep=''), sep='\t', quote=F, row.names=F)
-# 
-# toAnnotateTable <- data.frame(finaltable$Chr, finaltable$Start, finaltable$End, finaltable$CN)
-# 
-# write.table(toAnnotateTable, file = paste(projectname, '_panelcn.MOPS_toAnnotate.txt', sep=''), sep='\t', quote=F, row.names=F)
-
 
 #stop clock
 finish <- proc.time() - ptm

@@ -2,7 +2,7 @@
 
 ### CNV analysis 
 ### Author: Gonzalo Núñez Moreno
-### Date: 22/03/19
+
 
 
 rm(list=ls())
@@ -29,21 +29,6 @@ option_list=list(
 
 opt_parser=OptionParser(option_list = option_list)
 opt=parse_args(opt_parser) #list of the args
-
-# 
-# opt=list()
-# opt$input <- "/home/gonzalo/tblab/mnt/genetica4/gonzalo/pruebas_merge_cnvs/results2/cnvs/2022-06-13_15-16.CNV.annotated.tsv"
-# opt$outputfile <- "/home/gonzalo/tblab/mnt/genetica4/gonzalo/pruebas_merge_cnvs/results2/cnvs/2022-06-13_15-16.CNV.annotated.final.tsv"
-# opt$extracolnames <- "/home/gonzalo/tblab/mnt/genetica4/gonzalo/pruebas_merge_cnvs/cnvs/colnames.txt"
-# opt$genefilter = "/home/gonzalo/tblab/mnt/genetica7/distrofias_retina_sindr_nosindr.txt"
-# opt$glowgenes = "/home/gonzalo/tblab/mnt/genetica7/GLOWgenes_prioritization_IRD_sindr_nosidr.txt"
-
-# 
-# opt=list()
-# opt$input <- "/home/gonzalo/tblab/mnt/tblab/gonzalo/reanalysis/cAyuso081022/work/8b/1f5b0435729e881c147fa38e758bbe/2022-10-27_16-45.CNV.annotated.tsv"
-# opt$outputfile <- "/home/gonzalo/tblab/mnt/tblab/gonzalo/reanalysis/cAyuso081022/results2/cnvs/"
-# opt$extracolnames <- "/home/gonzalo/tblab/mnt/genetica6/reanotacion_cnvs/colnames_extra.txt"
-
 
 input <- opt$input
 outputfile <- opt$outputfile

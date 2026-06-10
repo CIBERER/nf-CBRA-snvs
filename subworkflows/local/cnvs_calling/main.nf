@@ -95,16 +95,6 @@ workflow CNVS_CALLING {
         samples2analyce
     )
 
-    // ch_for_annotsv = CNVS_RESULT_MIXER.out.merged_bed
-    //     .map { meta, sv_vcf ->
-    //         def sv_vcf_idx = []
-    //         def candidate = params.candidate_small_variants
-    //             ? file(params.candidate_small_variants)
-    //             : []
-    //         [[id:meta], sv_vcf, sv_vcf_idx, candidate]
-    // }
-
-
     ch_for_annotsv = CNVS_RESULT_MIXER.out.merged_bed
         .combine(ch_small_variants)
         .map { meta, sv_vcf, candidate ->
@@ -123,12 +113,10 @@ workflow CNVS_CALLING {
     )
 
     POSTANNOTSV (
-        ANNOTSV_ANNOTSV.out.tsv.join(CNVS_RESULT_MIXER.out.colnames.map {meta, colnames -> [[id:meta], colnames] }).view(),
+        ANNOTSV_ANNOTSV.out.tsv.join(CNVS_RESULT_MIXER.out.colnames.map {meta, colnames -> [[id:meta], colnames] }),
         ch_candidate_genes.map{ meta, file -> file },
         ch_glowgenes_panel
     )
-
-    //cnvs_annotated = POSTANNOTSV.out.annotated_cnv
 
     emit:
     cnvs_annotated = POSTANNOTSV.out.annotated_cnv // channel: [ val(meta), path(tsv)]

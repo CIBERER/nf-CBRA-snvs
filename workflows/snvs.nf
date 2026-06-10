@@ -309,7 +309,6 @@ workflow SNVS {
             ch_extra_files = ch_extra_files.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
         }
 
-        //ch_extra_files.view()
 
         ch_extra_files_pvm = params.extra_files_pvm ? 
             Channel.fromPath(params.extra_files_pvm.split(',').collect { it.trim() }, checkIfExists: true)
@@ -403,12 +402,10 @@ workflow SNVS {
         ch_candidate_genes = params.candidate_genes ? Channel.fromPath(params.candidate_genes).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
         ch_false_positive_snv = params.false_positive_snv ? Channel.fromPath(params.false_positive_snv).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
         ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
-        //ch_small_variants = params.candidate_small_variants ? Channel.value(file(params.candidate_small_variants)) : Channel.value([])
         ch_small_variants = params.candidate_small_variants
             ? Channel.value(file(params.candidate_small_variants))
             : Channel.value(file('NO_FILE'))
 
-        annotations.view()
 
 
         CNVS_CALLING (

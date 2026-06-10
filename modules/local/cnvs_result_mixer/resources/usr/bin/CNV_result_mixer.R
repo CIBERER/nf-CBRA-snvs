@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 ### CNV analysis 
 ### Author: Gonzalo Núñez Moreno
-### Date: 22/03/19
 
 
 rm(list=ls())
@@ -27,16 +26,6 @@ option_list=list(
 opt_parser=OptionParser(option_list = option_list)
 opt=parse_args(opt_parser) #list of the args
 
-
-# opt=list()
-# opt$inputdir <- "/home/gonzalo/Documents/prueba_merge_cnv_tmp"
-# opt$outputfile <- "/home/gonzalo/Documents/prueba_merge_cnv_tmp/PRUEBA.CNV.merged.bed"
-# opt$samples <- "/home/gonzalo/Documents/prueba_merge_cnv_tmp/samples2analyce.txt"
-
-# opt=list()
-# opt$inputdir <- "/home/gonzalo/tblab/mnt/genetica4/gonzalo/pruebas_merge_cnvs/work/49/7e9f779328cc16dff25a77f2a1c9e8/"
-# opt$outputfile <- "/home/gonzalo/tblab/mnt/genetica4/gonzalo/pruebas_merge_cnvs/work/49/7e9f779328cc16dff25a77f2a1c9e8/PRUEBA.CNV.merged.bed"
-# opt$samples <- NULL
 
 
 inputdir <- opt$inputdir

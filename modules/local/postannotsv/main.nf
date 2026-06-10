@@ -1,12 +1,13 @@
 process POSTANNOTSV {
     tag "${meta}"
     label 'process_single'
+    errorStrategy 'ignore'
 
-    container "/mnt/genetica5/singularity_images/bioinfotools_2.0.0.sif"
-    //container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //    'docker://docker.io/yolandabq/post_vep:v1' :
-    //    'docker.io/yolandabq/post_vep:v1' }"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+       'docker://docker.io/tblabfjd/postannotsv:latest' :
+       'docker.io/tblabfjd/postannotsv:latest' }"
 
+       
     input:
     tuple val(meta), path(annotated_cnv), path(colnames)
     path genefilter
@@ -14,7 +15,6 @@ process POSTANNOTSV {
 
     output:
     tuple val(meta), path("${prefix}.CNV.annotated.final.tsv"), emit: annotated_cnv
-    //tuple val(meta), path("colnames.txt"), emit: colnames
 
     when:
     task.ext.when == null || task.ext.when

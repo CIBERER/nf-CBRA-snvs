@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 ### CNV analysis 
 ### Author: Lorena de la Fuente
-### Date: 14/01/19
 
 
 rm(list=ls())
@@ -81,9 +80,6 @@ colnames(myexons) = colnamesbed
 cat('\nTotal number of testing regions: ', nrow(myexons), '\n', sep = "")
 
 
-#reference.fasta <- '/home/lorena/floridaCluster/broad_bundle_hg19_v/ftp.broadinstitute.org/bundle/hg19/ucsc.hg19.fasta'
-
-
 #******************************#
 #   List of sample bam files   #
 #******************************#
@@ -111,7 +107,6 @@ my.counts <- getBamCounts(bed.frame = myexons,
 
 save(my.counts, file = paste('exomedepth',"_counts_image.RData", sep=''))
 write.table(my.counts, file = 'exomedepth_count_matrix.txt', sep = "\t", quote = F, row.names = F, col.names = T)
-# write.table(my.counts, file = '/home/gonzalo/Documents/cnvs/exomedepth_count_matrix.txt', sep = "\t", quote = F, row.names = F, col.names = T)
 
 ExomeCount.dafr <- my.counts
 
@@ -130,9 +125,7 @@ ExomeCount.dafr$chromosome <- gsub(as.character(ExomeCount.dafr$chromosome),patt
 
 
 ExomeCount.mat <- as.matrix(ExomeCount.dafr[, grep(names(ExomeCount.dafr), pattern = '*.bam')])
-#rownames(ExomeCount.mat) = ExomeCount.dafr$exon
 nsamples <- ncol(ExomeCount.mat)
-#colnames(ExomeCount.mat) = sapply(colnames(ExomeCount.mat), function(x) sub(".bam", "",strsplit(x, split = "_",  fixed = T)[[1]][1]))
 colnames(ExomeCount.mat) = sapply(mybams, function(x) strsplit(x, split = ".",  fixed = T)[[1]][1])
 
 if(opt$samples!="all" && !all(samples %in% colnames(ExomeCount.mat))){
@@ -176,13 +169,6 @@ for (i in 1:nsamples) {
                                        bin.length = (ExomeCount.dafr$end - ExomeCount.dafr$start)/1000,
                                        n.bins.reduced = 10000)
   
-    # PCA per sample
-    # myfactors=data.frame(row.names = colnames(ExomeCount.mat), sample=colnames(ExomeCount.mat)=="17-2983")
-    # myfactors[which(rownames(myfactors)%in%my.choice$reference.choice),"sample"]<-"reference"
-    # myfactors[which(rownames(myfactors)==samplename),"sample"]<-"test"
-    # mydata2 = readData(ExomeCount.mat,factors = myfactors)
-    # myPCA = dat(mydata2, type = "PCA")
-    # explo.plot(myPCA, factor = "sample")
     
     cat('Reference set choice: ', paste(my.choice$reference.choice, collapse = ","),"\n",sep = "")
     

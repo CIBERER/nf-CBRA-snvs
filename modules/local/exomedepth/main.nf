@@ -1,6 +1,7 @@
 process EXOMEDEPTH {
     tag "${runname}"
     label 'process_single'
+    errorStrategy 'ignore'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
        'docker://docker.io/yolandabq/exomedepth:latest' :

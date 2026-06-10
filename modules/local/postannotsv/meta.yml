@@ -1,19 +1,18 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "postvep"
+name: "postannotsv"
 ## TODO nf-core: Add a description of the module and list keywords
-description: Run postVEP_modification.R, a script that takes VEP tab delimited output, filter variants by MAF, modify the format of the output and add GLOWgenes and other optional annotations.
+description: Run postAnnotsv_modification.R, a script that takes Annotsv output, modify the format of the output and add GLOWgenes.
 keywords:
   - genomics
-  - VEP
+  - CNVs
+  - Annotsv
   - variant annotation
   - GLOWgenes
-  - MAF
-  - variant filtering
 
 tools:
-  - "postvep":
-      description: "postVEP_modification.R is a script that processes VEP output, filters variants by minor allele frequency (MAF), modifies the format of the output, and adds GLOWgenes and other optional annotations."
+  - "postannotsv":
+      description: "postAnnotsv_modification.R is a script that processes Annotsv output, modifies the format of the output, and adds GLOWgenes."
 
 
 input:
@@ -23,43 +22,32 @@ input:
         Groovy Map containing sample information
         e.g. `[ id:'sample1', single_end:false ]`
 
-  - vep_tsv:
+  - annotated_cnv:
       type: file
-      description: VEP tab output file. 
-      pattern: "*.{tab.gz}"
+      description: Annotsv output file. 
 
-  - roh_automap: 
+  - colnames: 
       type: file
-      description: tsv file with ROH regions.
-      pattern: "*.{tsv}"
+      description: File with final column names of the bed file used for annotsv annotation.
 
-  - maf: 
-      type: val
-      description: filter variants by minor allele frequency (MAF) threshold.
-
-  - assembly: 
-      type: val
-      description: assembly version of the reference genome used in VEP annotation.
-      pattern: "hg38 | hg19 | GRCh37 | GRCh38"
+  - genefilter: 
+      type: file
+      description: File with genes to filter the final annotated file.
 
   - glowgenes_panel: 
       type: file
       description: GLOWgenes gene ranking file. It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv
       pattern: "*.{txt}"
   
-  - glowgenes_sgds: 
-      type: file
-      description: Score of Gene-Disease Associations (SGDs) file. Available at https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv
-      pattern: "*.{tsv}"
 
 output:
-  - pvm_tsv:
+  - annotated_cnv:
     - meta:
         type: map
         description: |
           Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
-    - annotated_tsv: 
+    - CNV.annotated.final.tsv: 
         type: file
         description: |
           Final annotated tsv file. 
@@ -67,7 +55,5 @@ output:
 
 authors:
   - "@yolandabq"
-  - "@guriaregojo"
 maintainers:
   - "@yolandabq"
-  - "@guriaregojo"
