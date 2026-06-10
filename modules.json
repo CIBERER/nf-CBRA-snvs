@@ -1,6 +1,6 @@
 {
-  "name": "nf-CBRA-snvs",
-  "homePage": "https://github.com/CIBERER/nf-CBRA-snvs",
+  "name": "CBRA",
+  "homePage": "https://github.com/CIBERER/CBRA",
   "repos": {
     "https://github.com/nf-core/modules.git": {
       "modules": {
