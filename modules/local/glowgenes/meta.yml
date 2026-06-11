@@ -1,55 +1,42 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "exomedepth"
+name: "GLOWgenes"
 ## TODO nf-core: Add a description of the module and list keywords
-description: Run ExomeDepth, a R script designed to detect copy number variants (CNVs).
+description: Run GLOWgenes, a R script designed to prioritize genetic variants.
 keywords:
   - genomics
-  - CNVs
-  - structural variants
+  - candidate genes
+  - prioritization
+  - systems biology
+  - rare diseases
 
 tools:
-  - "exomedepth":
-      description: "ExomeDepth is a R script designed to detect copy number variants (CNVs)."
-      homepage: "https://github.com/vplagnol/ExomeDepth"
-      documentation: "https://rdrr.io/cran/ExomeDepth/f/inst/doc/ExomeDepth-vignette.pdf"
+  - "glowgenes":
+      description: "GLOWgenes is a network based algorithm to predict new gene-disease associations."
+      homepage: "https://github.com/TBLabFJD/GLOWgenes"
+      publication: "https://www.mdpi.com/1422-0067/24/2/1661"
 
 
 input:
-  - bam:
+  - gene_list:
       type: file
       description: |
-        List of bam files to analyze. They must have been sequenced within the same batch. 
-      pattern: "*.{bam}"
-      example: "[file1.bam, file2.bam, file3.bam]"
-
-  - bai:
-      type: file
-      description: |
-        List of bai files to analyze. They must have been sequenced within the same batch. 
-      pattern: "*.{bai}"
-      example: "[file1.bai, file2.bai, file3.bai]"
-
-  - bed: 
-      type: file
-      description: bed file with target regions.
-      pattern: "*.{bed}"
-
-  - runname: 
-      type: val
-      description: Name of the run. It will be used to name the output files and folders. If not provided, it will be set to date of execution.
-
+        List of genes associated with the rare disease. 
+      pattern: "*.{txt}"
 
 output:
-  - cnvs:
-    - runname:
-        type: map
-        description: |
-          Name of the run.
-    - exomedepth*: 
-        type: file
-        description: |
-          ExomeDepth output files. 
+  - glow_ranking:
+      type: file
+      description: |
+        Output file with the final GLOWgenes ranking of candidate genes.
+  - all_results:
+      type: file
+      description: |
+        GLOWgenes results files
+  - single_network_modeling: 
+      type: folder
+      description: |
+        GLOWgenes results files for single network modeling
 
 
 authors:

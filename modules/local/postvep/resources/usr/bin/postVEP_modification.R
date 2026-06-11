@@ -114,16 +114,17 @@ if ("gnomADe_AF_grpmax" %in% colnames(vep) && "gnomADg_AF_grpmax" %in% colnames(
     as.numeric(vep$gnomADe_AF_grpmax) < as.numeric(maf) |
     vep$gnomADe_filt != "PASS",
   ]
-  print(nrow(vep))
+  #print(nrow(vep))
   
   vep <- vep[
     is.na(vep$gnomADg_AF_grpmax) |
     as.numeric(vep$gnomADg_AF_grpmax) < as.numeric(maf) |
     vep$gnomADg_filt != "PASS",
   ]
-  print(nrow(vep))
+  #print(nrow(vep))
   
 } else {
+  vep$MAX_AF = as.numeric(unlist(lapply(vep$MAX_AF, function(x) strsplit(x, ",")[[1]][1])))
   
   vep <- vep[
     is.na(vep$MAX_AF) |
@@ -134,13 +135,34 @@ if ("gnomADe_AF_grpmax" %in% colnames(vep) && "gnomADg_AF_grpmax" %in% colnames(
 }
 
 
+# genefilter
+if (!is.null(genefilter_path)){
+  genefilter = read.delim(genefilter_path, header = F, stringsAsFactors = F, quote = "", check.names=F)
+}
+
+
+
 #### include GLOWgenes and SGDS 
 if (!is.null(glowgenes_path)){
   
   glowgenes = read.delim(glowgenes_path, header = F, stringsAsFactors = F, quote = "", check.names=F)
-  colnames(glowgenes) = c("SYMBOL", "GLOWgenes")
+  colnames(glowgenes) = c("SYMBOL", "score", "GLOWgenes")
+  
+  # Add 0 to the genes used to run GLOWgenes but that are not in the output file of GLOWgenes
+  if (!is.null(genefilter_path)){
+    genefilter$score = NA
+    genefilter$GLOWgenes = 0
+    colnames(genefilter) = c("SYMBOL", "score", "GLOWgenes")
+  
+    glowgenes = rbind(genefilter, glowgenes)
+  }
 
   vep = merge(vep, glowgenes[c("SYMBOL", "GLOWgenes")], by= "SYMBOL", all.x = T)
+}
+
+# Gene Filter
+if ((!is.null(genefilter_path)) & (is.null(glowgenes_path))){
+  vep = vep[vep$SYMBOL %in% genefilter$V1,]
 }
 
 if (!is.null(SGDS_path)) {
@@ -176,7 +198,7 @@ df_out  = data.frame(row.names = 1:nrow(vep), stringsAsFactors = F)
 # Remove columns starting with "SAMPLE"
 columns_to_remove <- grep("^SAMPLE", colnames(vep))
 # Add "USED_REF" and "Allele" to the removal
-columns_to_remove <- c(columns_to_remove, which(colnames(vep) %in% c("#Uploaded_variation","USED_REF", "Allele")))
+columns_to_remove <- c(columns_to_remove, which(colnames(vep) %in% c("#Uploaded_variation","USED_REF", "Allele", "SYMBOL", "Location", "VARIANT_CLASS")))
 
 # Subset the dataframe
 vep_cleaned_columns <- colnames(vep[, -columns_to_remove])

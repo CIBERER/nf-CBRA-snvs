@@ -13,7 +13,9 @@ process POSTVEP {
     val assembly
     path glowgenes_panel
     path glowgenes_sgds
+    path gene_list
     path extra_files_pvm 
+    
 
     output:
     tuple val(meta), path("*.SNV.INDEL.annotated.tsv"), emit: pvm_tsv
@@ -28,6 +30,7 @@ process POSTVEP {
     def automap = roh_automap ? "--automap '${roh_automap}'" : ''
     def glowgenes = glowgenes_panel ? "--glowgenes ${glowgenes_panel}" : ''
     def sgds = glowgenes_sgds ? "--SGDS ${glowgenes_sgds}" : ''
+    def gene_filter = gene_list ? "--genefilter ${gene_list}" : ''
 
     """
 
@@ -38,6 +41,7 @@ process POSTVEP {
     ${automap} \\
     ${glowgenes} \\
     ${sgds} \\
+    ${gene_filter} \\
     ${args}
 
     
