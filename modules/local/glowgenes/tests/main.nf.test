@@ -15,7 +15,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = file('/mnt/tblab/yolanda/CBRA_new_modules/Autism_GA.csv', checkIfExists: true)
+                input[0] = file("https://raw.githubusercontent.com/CIBERER/CBRA/refs/heads/devel/assets/gene_list.csv", checkIfExists: true)
                 """
             }
         }

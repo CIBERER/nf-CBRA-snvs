@@ -11,7 +11,9 @@ process GLOWGENES {
 
 
     output:
-    path("GLOWgenes_prioritization_Random.txt"), emit: glow_ranking
+    path("GLOWgenes_ranking.txt"), emit: glow_ranking
+    path("*.txt"), emit: all_results
+    path("singleNetworkModeling"), emit: single_network_modeling
 
     when:
     task.ext.when == null || task.ext.when
@@ -20,5 +22,6 @@ process GLOWGENES {
 
     """
     python /opt/GLOWgenes/GLOWgenes.py -i ${gene_list} -n /opt/GLOWgenesNets/GLOWgenesNets/networks_knowledgeCategories.cfg -o .
+    mv GLOWgenes_prioritization_Random.txt GLOWgenes_ranking.txt
     """
 }
