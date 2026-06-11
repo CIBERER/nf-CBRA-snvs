@@ -1,0 +1,32 @@
+nextflow_process {
+
+    name "Test Process GLOWGENES"
+    script "../main.nf"
+    process "GLOWGENES"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "gatk4"
+    tag "gatk4/calculategenotypeposteriors"
+
+
+    test("glowgenes - csv") {
+
+        when {
+            process {
+                """
+                input[0] = file('/mnt/tblab/yolanda/CBRA_new_modules/Autism_GA.csv', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}

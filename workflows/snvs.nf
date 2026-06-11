@@ -91,6 +91,7 @@ include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/mai
 
 include { ANNOTSV_INSTALLANNOTATIONS } from '../modules/nf-core/annotsv/installannotations/main'
 
+include { GLOWGENES } from '../modules/local/glowgenes/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,6 +147,12 @@ workflow SNVS {
             ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
         }
     }
+
+    ch_gene_list = params.gene_list ? Channel.fromPath(params.gene_list, checkIfExists: true).collect() : Channel.value([])
+
+    GLOWGENES (
+       ch_gene_list
+    )
 
 
     if (params.mapping) {

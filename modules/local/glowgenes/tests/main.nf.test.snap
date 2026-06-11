@@ -1,0 +1,19 @@
+{
+    "glowgenes - csv": {
+        "content": [
+            {
+                "0": [
+                    "GLOWgenes_prioritization_Random.txt:md5,ca055d07a86db88ca9088a2960cc8511"
+                ],
+                "glow_ranking": [
+                    "GLOWgenes_prioritization_Random.txt:md5,ca055d07a86db88ca9088a2960cc8511"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.6"
+        },
+        "timestamp": "2026-06-11T07:26:33.786480701"
+    }
+}
