@@ -22,7 +22,7 @@ workflow CNVS_CALLING {
     ch_gene_transcripts // channel (optional) : [ val(meta), path(gene_transcripts) ] from params.gene_transcripts
     ch_candidate_genes // channel (optional) : [ val(meta), path(candidate_genes) ] from params.candidate_genes
     ch_false_positive_snv // channel (optional) : [ val(meta), path(false_positive_snv) ] from params.false_positive_snv
-    ch_glowgenes_panel
+    ch_glowgenes_ranking
 
     main:
 
@@ -115,7 +115,7 @@ workflow CNVS_CALLING {
     POSTANNOTSV (
         ANNOTSV_ANNOTSV.out.tsv.join(CNVS_RESULT_MIXER.out.colnames.map {meta, colnames -> [[id:meta], colnames] }),
         ch_candidate_genes.map{ meta, file -> file },
-        ch_glowgenes_panel
+        ch_glowgenes_ranking
     )
 
     emit:

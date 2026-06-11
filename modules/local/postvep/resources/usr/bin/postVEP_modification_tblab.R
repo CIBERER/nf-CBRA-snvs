@@ -142,7 +142,16 @@ vep = merge(vep, dbNSFP_gene, by.x = "SYMBOL", by.y = "Gene_name", all.x = T)
 if (!is.null(glowgenes_path)){
   print("Include GLOWgenes ranking")
   glowgenes = read.delim(glowgenes_path, header = F, stringsAsFactors = F, quote = "", check.names=F)
-  colnames(glowgenes) = c("SYMBOL", "GLOWgenes")
+  colnames(glowgenes) = c("SYMBOL", "score", "GLOWgenes")
+
+  # Add 0 to the genes used to run GLOWgenes but that are not in the output file of GLOWgenes
+  if (!is.null(genefilter_path)){
+    genefilter$score = NA
+    genefilter$GLOWgenes = 0
+    colnames(genefilter) = c("SYMBOL", "score", "GLOWgenes")
+  
+    glowgenes = rbind(genefilter, glowgenes)
+  }
 
   vep = merge(vep, glowgenes[c("SYMBOL", "GLOWgenes")], by= "SYMBOL", all.x = T)
 }
@@ -151,7 +160,7 @@ if (!is.null(SGDS_path)) {
   print("Include GLOWgenes SGDS")
   SGDS <- read.delim(SGDS_path, sep = ",", header = TRUE, stringsAsFactors = FALSE, quote = "", check.names = FALSE)
   colnames(SGDS) = c("SYMBOL", "SGDS", "GLOWgenes_best_ranking", "GLOWgenes_median_ranking")
-  vep = merge(vep, SGDS, by = "SYMBOL", all.x = TRUE)
+  vep = merge(vep, SGDS, by = "SYMBOL", all.x = T)
   
 }
 
@@ -214,6 +223,9 @@ df_out$SYMBOL = vep$SYMBOL
 df_out$Gene_full_name = vep$Gene_full_name
 if (!is.null(glowgenes_path)) df_out$GLOWgenes = vep$GLOWgenes
 if ((!is.null(genefilter_path)) & (!is.null(glowgenes_path))) df_out$GLOWgenes[df_out$SYMBOL %in% genefilter$V1] = 0 # We assume the genes of the list are the genes from the panel
+if (!is.null(SGDS_path)) df_out$SGDS = vep$SGDS
+if (!is.null(SGDS_path)) df_out$GLOWgenes_best_ranking = vep$GLOWgenes_best_ranking
+if (!is.null(SGDS_path)) df_out$GLOWgenes_median_ranking = vep$GLOWgenes_median_ranking
 df_out$VARIANT_CLASS = vep$VARIANT_CLASS
 df_out$Panels_name = vep$panels
 

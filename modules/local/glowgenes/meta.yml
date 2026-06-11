@@ -1,0 +1,45 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "GLOWgenes"
+## TODO nf-core: Add a description of the module and list keywords
+description: Run GLOWgenes, a R script designed to prioritize genetic variants.
+keywords:
+  - genomics
+  - candidate genes
+  - prioritization
+  - systems biology
+  - rare diseases
+
+tools:
+  - "glowgenes":
+      description: "GLOWgenes is a network based algorithm to predict new gene-disease associations."
+      homepage: "https://github.com/TBLabFJD/GLOWgenes"
+      publication: "https://www.mdpi.com/1422-0067/24/2/1661"
+
+
+input:
+  - gene_list:
+      type: file
+      description: |
+        List of genes associated with the rare disease. 
+      pattern: "*.{txt}"
+
+output:
+  - glow_ranking:
+      type: file
+      description: |
+        Output file with the final GLOWgenes ranking of candidate genes.
+  - all_results:
+      type: file
+      description: |
+        GLOWgenes results files
+  - single_network_modeling: 
+      type: folder
+      description: |
+        GLOWgenes results files for single network modeling
+
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"
