@@ -151,18 +151,18 @@ workflow SNVS {
     ch_gene_list = params.gene_list ? Channel.fromPath(params.gene_list, checkIfExists: true).collect() : Channel.value([])
 
     if (params.glowgenes) {
-        if (params.glowgenes_panel) {
-            ch_glowgenes_panel = Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect()
+        if (params.glowgenes_ranking) {
+            ch_glowgenes_ranking = Channel.fromPath(params.glowgenes_ranking, checkIfExists: true).collect()
         } else if (params.gene_list) {
                 GLOWGENES (
                     ch_gene_list
                 )
-                ch_glowgenes_panel = GLOWGENES.out.glow_ranking
+                ch_glowgenes_ranking = GLOWGENES.out.glow_ranking
         } else { 
             println "No valid glowgenes input provided."  
-            ch_glowgenes_panel = Channel.value([]) 
+            ch_glowgenes_ranking = Channel.value([]) 
             }
-    } else { ch_glowgenes_panel = Channel.value([]) }
+    } else { ch_glowgenes_ranking = Channel.value([]) }
 
     if (params.mapping) {
         fastqs = INPUT_CHECK.out.reads.map{meta, reads -> check_fastq(meta, reads)}
@@ -331,7 +331,7 @@ workflow SNVS {
                 .collect() : 
             Channel.value([])
 
-        //ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
+        //ch_glowgenes_ranking = params.glowgenes_ranking ? Channel.fromPath(params.glowgenes_ranking, checkIfExists: true).collect() : Channel.value([])
         ch_glowgenes_sgds = params.sgds ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect() : Channel.value([])
 
         if (params.vep_cache_path) { ch_vep_cache_path = Channel.fromPath(params.vep_cache_path, checkIfExists: true).collect() } else { 
@@ -361,7 +361,7 @@ workflow SNVS {
             ch_extra_files,
             params.pvm_script,
             params.maf,
-            ch_glowgenes_panel,
+            ch_glowgenes_ranking,
             ch_glowgenes_sgds,
             ch_gene_list,
             ch_extra_files_pvm
@@ -418,7 +418,7 @@ workflow SNVS {
         ch_gene_transcripts = params.gene_transcripts ? Channel.fromPath(params.gene_transcripts).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
         ch_candidate_genes = params.candidate_genes ? Channel.fromPath(params.candidate_genes).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
         ch_false_positive_snv = params.false_positive_snv ? Channel.fromPath(params.false_positive_snv).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
-        //ch_glowgenes_panel = params.glowgenes_panel ? Channel.fromPath(params.glowgenes_panel, checkIfExists: true).collect() : Channel.value([])
+        //ch_glowgenes_ranking = params.glowgenes_ranking ? Channel.fromPath(params.glowgenes_ranking, checkIfExists: true).collect() : Channel.value([])
         ch_small_variants = params.candidate_small_variants
             ? Channel.value(file(params.candidate_small_variants))
             : Channel.value(file('NO_FILE'))
@@ -437,7 +437,7 @@ workflow SNVS {
             ch_gene_transcripts,
             ch_candidate_genes,
             ch_false_positive_snv,
-            ch_glowgenes_panel
+            ch_glowgenes_ranking
         )
     
     }

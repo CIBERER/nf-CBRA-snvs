@@ -17,7 +17,7 @@ workflow SNV_ANNOTATION {
     ch_vep_extra_files                   // channel (optional)  : [ path(extra_files) ]  
     pvm_script
     maf                 // channel (optional)  : [ val(maf) ]
-    ch_glowgenes_panel              // channel (optional)  : [ path(glowgenes_panel) ]
+    ch_glowgenes_ranking              // channel (optional)  : [ path(glowgenes_ranking) ]
     ch_glowgenes_sgds           // channel (optional)  : [ path(glowgenes_sgds) ]
     ch_gene_list              // channel (optional)  : [ path(gene_list) ]
     ch_extra_files_pvm          // channel (optional)  : [ path(extra_files_pvm) ]
@@ -97,7 +97,7 @@ workflow SNV_ANNOTATION {
         pvm_script,
         maf, 
         ucsc_genome,
-        ch_glowgenes_panel,
+        ch_glowgenes_ranking,
         ch_glowgenes_sgds,
         ch_gene_list,
         ch_extra_files_pvm
