@@ -1,4 +1,4 @@
-# nf-CBRA-snvs: Output
+# CBRA: Output
 
 ## Introduction
 
@@ -16,6 +16,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `GATK4 Haplotypecaller`
   - `Dragen`
   - `DeepVariant`
+  - Alternatively, trio analysis can be performed with `GATK4 Haplotypecaller` adding the family ped files. 
 - [Merge and Integration](#Merge-and-Integration) - Merge and integrate the variants from the vcfs obtained with the different tools
 - [Annotation](#Annotation) - Annotate the variants with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) and add regions of homozygosity (ROHs) with [AUTOMAP](https://github.com/mquinodo/AutoMap) and other custom information. 
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
@@ -100,6 +101,25 @@ Vcf files are merged with [bcftools merge](https://samtools.github.io/bcftools/b
 The variants are annotated with [Ensembl VEP](https://www.ensembl.org/info/docs/tools/vep/index.html) using the flag `--everything`, which includes the following options: `--sift b, --polyphen b, --ccds, --hgvs, --symbol, --numbers, --domains, --regulatory, --canonical, --protein, --biotype, --af, --af_1kg, --af_esp, --af_gnomade, --af_gnomadg, --max_af, --pubmed, --uniprot, --mane, --tsl, --appris, --variant_class, --gene_phenotype, --mirna`. See [this page](https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html) for more information. `--custom` flag is used to include INFO field of the vcf file in the final annotated tsv file. 
 
 [POSTVEP](../modules/local/postvep/main.nf) step takes the VEP tab delimited output, filter variants by minor allele frequency (`--maf`) and add other custom annotations, as regions of homozygosity (ROHs) detected with [AUTOMAP](https://github.com/mquinodo/AutoMap) and [GLOWgenes](https://www.translationalbioinformaticslab.es/tblab-home-page/tools/glowgenes), a network-based algorithm developed to prioritize novel candidate genes associated with rare diseases.
+
+
+### CNVs
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `cnvs/`
+  - `*.tsv`: final tsv file with annotated CNVs. 
+  - `exomedepth/`: exomedepth results.
+  - `panelcmops/`: panelcmops results.
+  - `convading/`: convading results.
+
+- `AnnotSV_annotations/`: if `--annotsv_install_annotations true`of `--annotsv_annotations` is not specified. 
+
+  
+
+</details>
+
 
 ### MultiQC
 

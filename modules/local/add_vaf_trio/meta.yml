@@ -1,0 +1,57 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "add_vaf_trio"
+
+description: Takes a trio vcf file and add VAF to FORMAT field. 
+keywords:
+  - annotation
+  - vcf
+  - format
+tools:
+  - "add_vaf_trio":
+    description: "add_vaf_trio module takes a trio VCF and add VAF to FORMAT field for eeach sample"
+        
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  
+  - vcf:
+      type: file
+      description: multisample vcf trio file. 
+      pattern: "*.{vcf.gz}"
+
+  - tbi: 
+      type: file
+      description: vcf index
+      pattern: "*.{vcf.gz.tbi}"
+
+output:
+
+  - vcf:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - vcf:
+        type: file
+        description: final vcf file with VAF.
+        pattern: "*.final.vcf.gz"
+    - tbi:
+        type: file
+        description: final vcf index with VAF.
+        pattern: "*.final.vcf.gz.tbi"
+
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"

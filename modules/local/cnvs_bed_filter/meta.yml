@@ -1,0 +1,50 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "cnvs_bed_filter"
+## TODO nf-core: Add a description of the module and list keywords
+description: Filter the bed file used for targered sequencing, to keep only the regions with a length > ${min_target} parameter and to exclude the regions in the ${chromosomes} parameter. 
+keywords:
+  - CNVs
+  - bed file filtering
+  - targeted sequencing
+
+tools:
+  - "cnvs_bed_filter":
+      description: "Filter the bed file used for targeted sequencing, to keep only the regions with a length > ${min_target} (default 20) parameter and to remove the regions in the ${chromosomes} (default 'chrX,X,chrY,Y,chrM,MT') parameter."
+
+
+input:
+
+  - cnvs_bed:
+      type: file
+      description: Bed file with the genomic regions included in the library design (for targeted sequencing) 
+      pattern: "*.{bed}"
+
+  - fai:
+      type: file
+      description: |
+        Reference index in FAI format
+        Structure: [ path(fai)  ]
+      pattern: "*.{fai}"
+
+  - min_target: 
+      type: val
+      description: |
+        Minimum length of the regions to be kept in the bed file. Default: 20.
+
+  - chromosomes: 
+      type: val
+      description: |
+        Comma-separated list of chromosomes to be excluded from the bed file. Default: 'chrX,X,chrY,Y,chrM,MT'.
+
+output:
+  - cnvs_bed:
+    - cnv.bed: 
+        type: file
+        description: |
+          Final filtered bed file. 
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"

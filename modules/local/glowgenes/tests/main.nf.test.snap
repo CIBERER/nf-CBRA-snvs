@@ -1,0 +1,99 @@
+{
+    "glowgenes - csv": {
+        "content": [
+            {
+                "0": [
+                    "GLOWgenes_ranking.txt:md5,8f52b502ee8c429dd6241e6846a73d1e"
+                ],
+                "1": [
+                    [
+                        "GLOWgenes_ranking.txt:md5,8f52b502ee8c429dd6241e6846a73d1e",
+                        "GLOWgenes_trainingGenes.txt:md5,fbd71e265dd3017598e21c65b98ce8ec",
+                        "bestnetsEvaluation.txt:md5,89f6bc5f43ff8777b5a0f8c9a0beafab",
+                        "networkEvaluation.txt:md5,beb3f9ab5c18346fefae448e0b02b875"
+                    ]
+                ],
+                "2": [
+                    [
+                        "GLOWgenes_COXPRESdb_COEXPRESSION.txt:md5,ab3997d13370a608c68abee146317457",
+                        "GLOWgenes_DoRothEA_REGULATION.txt:md5,4084c156b1326c661f1a815402e2ef53",
+                        "GLOWgenes_HIunion_PPI.txt:md5,412387f84b4be0f5019d1fe9f487eac9",
+                        "GLOWgenes_HPO_PHENOTYPE.txt:md5,0740e1ed4e2675954a0cb0c10399af1f",
+                        "GLOWgenes_HPOext_PHENOTYPE.txt:md5,5883aa0863f0fd0462225045b27df55a",
+                        "GLOWgenes_HuMAP_COMPLEX.txt:md5,4dfd8bd12a3bcff2a664ec262aee82cf",
+                        "GLOWgenes_HuRI_PPI.txt:md5,c57ee2f4c77bdaabef0a0efa0e6df25d",
+                        "GLOWgenes_MGIphenotypes_MOUSEMODELS.txt:md5,9ee93c9543371adae90735098e1949e5",
+                        "GLOWgenes_ReactomeFI_PATHWAYS.txt:md5,585a08b887474da68b7e4a30744a7bed",
+                        "GLOWgenes_Reactome_PATHWAYS.txt:md5,a585dc30ad1b3e788808ba912985fd21",
+                        "GLOWgenes_RegNetwork_REGULATION.txt:md5,d0bd3a7a51ead3d9e04d81d7ae1e013d",
+                        "GLOWgenes_TRANSFAC_REGULATION.txt:md5,b2bb2d8007ad07bf3b71078881422df3",
+                        "GLOWgenes_TTRUST_REGULATION.txt:md5,193aa6b2882113d02d2b5fc91e6b3f14",
+                        "GLOWgenes_ThulMAP_COLOCALIZATION.txt:md5,b5d06814786a15b536b58cadd9d6951b",
+                        "GLOWgenes_biologicalProcessGO_FUNCTION.txt:md5,d94e3ba9794c6cccd4df395e40274c89",
+                        "GLOWgenes_celularComponentGO_COLOCALIZATION.txt:md5,e008a416d83d4c2bf445ae5703267ec4",
+                        "GLOWgenes_coessentialityKim_COESSENTIALITY.txt:md5,993c9e783dc715d857d35bf4f434bd40",
+                        "GLOWgenes_coexpressionSTRING_COEXPRESSION.txt:md5,0bd38603666ffe04b192a916e4382de9",
+                        "GLOWgenes_databaseSTRING_PATHWAYS.txt:md5,b3284134d0f83a8ca4a73bee18af81ab",
+                        "GLOWgenes_experimentalSTRING_PPI.txt:md5,49c7e07ff7229a2068f71dfbc3d91098",
+                        "GLOWgenes_fitnessCRISPR_COESSENTIALITY.txt:md5,9d6b7cfa069173aa844ca0b889e91ee6",
+                        "GLOWgenes_fitnessRNAi_COESSENTIALITY.txt:md5,8635b77bdb665967de4b843021368563",
+                        "GLOWgenes_geneticBIOGRID_COESSENTIALITY.txt:md5,d23f63b6a1ce0d7247640f3651cf38b4",
+                        "GLOWgenes_geneticRauscher_COESSENTIALITY.txt:md5,f860b30ed701392f46e3a8d192f6276b",
+                        "GLOWgenes_molecularFunctionGO_FUNCTION.txt:md5,3de0846ca3a8ac371d501ad4c15eb836",
+                        "GLOWgenes_neighborhoodSTRING_GENOMIC.txt:md5,28db28e76ae1ff53d6b7cedff896e548",
+                        "GLOWgenes_physicalBIOGRID_PPI.txt:md5,14604804b9c527943ea4a09714d16fe9",
+                        "GLOWgenes_textminingSTRING_COCITATION.txt:md5,27eb98a72f0bcabb8a368ede77b44d9b"
+                    ]
+                ],
+                "all_results": [
+                    [
+                        "GLOWgenes_ranking.txt:md5,8f52b502ee8c429dd6241e6846a73d1e",
+                        "GLOWgenes_trainingGenes.txt:md5,fbd71e265dd3017598e21c65b98ce8ec",
+                        "bestnetsEvaluation.txt:md5,89f6bc5f43ff8777b5a0f8c9a0beafab",
+                        "networkEvaluation.txt:md5,beb3f9ab5c18346fefae448e0b02b875"
+                    ]
+                ],
+                "glow_ranking": [
+                    "GLOWgenes_ranking.txt:md5,8f52b502ee8c429dd6241e6846a73d1e"
+                ],
+                "single_network_modeling": [
+                    [
+                        "GLOWgenes_COXPRESdb_COEXPRESSION.txt:md5,ab3997d13370a608c68abee146317457",
+                        "GLOWgenes_DoRothEA_REGULATION.txt:md5,4084c156b1326c661f1a815402e2ef53",
+                        "GLOWgenes_HIunion_PPI.txt:md5,412387f84b4be0f5019d1fe9f487eac9",
+                        "GLOWgenes_HPO_PHENOTYPE.txt:md5,0740e1ed4e2675954a0cb0c10399af1f",
+                        "GLOWgenes_HPOext_PHENOTYPE.txt:md5,5883aa0863f0fd0462225045b27df55a",
+                        "GLOWgenes_HuMAP_COMPLEX.txt:md5,4dfd8bd12a3bcff2a664ec262aee82cf",
+                        "GLOWgenes_HuRI_PPI.txt:md5,c57ee2f4c77bdaabef0a0efa0e6df25d",
+                        "GLOWgenes_MGIphenotypes_MOUSEMODELS.txt:md5,9ee93c9543371adae90735098e1949e5",
+                        "GLOWgenes_ReactomeFI_PATHWAYS.txt:md5,585a08b887474da68b7e4a30744a7bed",
+                        "GLOWgenes_Reactome_PATHWAYS.txt:md5,a585dc30ad1b3e788808ba912985fd21",
+                        "GLOWgenes_RegNetwork_REGULATION.txt:md5,d0bd3a7a51ead3d9e04d81d7ae1e013d",
+                        "GLOWgenes_TRANSFAC_REGULATION.txt:md5,b2bb2d8007ad07bf3b71078881422df3",
+                        "GLOWgenes_TTRUST_REGULATION.txt:md5,193aa6b2882113d02d2b5fc91e6b3f14",
+                        "GLOWgenes_ThulMAP_COLOCALIZATION.txt:md5,b5d06814786a15b536b58cadd9d6951b",
+                        "GLOWgenes_biologicalProcessGO_FUNCTION.txt:md5,d94e3ba9794c6cccd4df395e40274c89",
+                        "GLOWgenes_celularComponentGO_COLOCALIZATION.txt:md5,e008a416d83d4c2bf445ae5703267ec4",
+                        "GLOWgenes_coessentialityKim_COESSENTIALITY.txt:md5,993c9e783dc715d857d35bf4f434bd40",
+                        "GLOWgenes_coexpressionSTRING_COEXPRESSION.txt:md5,0bd38603666ffe04b192a916e4382de9",
+                        "GLOWgenes_databaseSTRING_PATHWAYS.txt:md5,b3284134d0f83a8ca4a73bee18af81ab",
+                        "GLOWgenes_experimentalSTRING_PPI.txt:md5,49c7e07ff7229a2068f71dfbc3d91098",
+                        "GLOWgenes_fitnessCRISPR_COESSENTIALITY.txt:md5,9d6b7cfa069173aa844ca0b889e91ee6",
+                        "GLOWgenes_fitnessRNAi_COESSENTIALITY.txt:md5,8635b77bdb665967de4b843021368563",
+                        "GLOWgenes_geneticBIOGRID_COESSENTIALITY.txt:md5,d23f63b6a1ce0d7247640f3651cf38b4",
+                        "GLOWgenes_geneticRauscher_COESSENTIALITY.txt:md5,f860b30ed701392f46e3a8d192f6276b",
+                        "GLOWgenes_molecularFunctionGO_FUNCTION.txt:md5,3de0846ca3a8ac371d501ad4c15eb836",
+                        "GLOWgenes_neighborhoodSTRING_GENOMIC.txt:md5,28db28e76ae1ff53d6b7cedff896e548",
+                        "GLOWgenes_physicalBIOGRID_PPI.txt:md5,14604804b9c527943ea4a09714d16fe9",
+                        "GLOWgenes_textminingSTRING_COCITATION.txt:md5,27eb98a72f0bcabb8a368ede77b44d9b"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.6"
+        },
+        "timestamp": "2026-06-11T08:24:52.503618554"
+    }
+}

@@ -1,8 +1,8 @@
-# nf-CBRA-snvs: Usage
+# CBRA: Usage
 
 ## Introduction
 
-**nf-CBRA-snvs** (nf-core - CIBERER Bioinformatics for Rare diseases Analysis - Small Nucleotide Variant) is a workflow optimized for the analysis of rare diseases, designed to detect SNVs and INDELs in targeted sequencing data (CES/WES) as well as whole genome sequencing (WGS).
+**CBRA** (nf-core - CIBERER Bioinformatics for Rare diseases Analysis - Small Nucleotide Variant) is a workflow optimized for the analysis of rare diseases, designed to detect SNVs and INDELs in targeted sequencing data (CES/WES) as well as whole genome sequencing (WGS).
 
 ## Samplesheet input
 
@@ -27,7 +27,7 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice. 
 
 ```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2
@@ -40,11 +40,26 @@ TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
 TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
 ```
 
+For trio analysis, family id and ped file are required. 
+
+```csv title="samplesheet_trio.csv"
+family,sample,fastq_1,fastq_2,ped
+AshkenazimTrio,HG002,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/NIST_Illumina_2x250bps/reads/D1_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/NIST_Illumina_2x250bps/reads/D1_S1_L001_R2_001.fastq.gz","https://zenodo.org/records/19064653/files/AshkenazimTrio.ped"
+AshkenazimTrio,HG003,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG003_NA24149_father/NIST_Illumina_2x250bps/reads/D2_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG003_NA24149_father/NIST_Illumina_2x250bps/reads/D2_S1_L001_R2_001.fastq.gz","https://zenodo.org/records/19064653/files/AshkenazimTrio.ped"
+AshkenazimTrio,HG004,"ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG004_NA24143_mother/NIST_Illumina_2x250bps/reads/D3_S1_L001_R1_001.fastq.gz","ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG004_NA24143_mother/NIST_Illumina_2x250bps/reads/D3_S1_L001_R2_001.fastq.gz","https://zenodo.org/records/19064653/files/AshkenazimTrio.ped"
+```
+
 | Column    | Description                                                                                                                                                                            |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trio`    | Custom family name. This entry will be identical for samples from the same family. Spaces in sample names are automatically converted to underscores (`_`).                            |
 | `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
 | `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `bam` | Full path to bam file. File must have the extension ".bam".                                                             |
+| `bai` | Full path to bai file. File must have the extension ".bai".                                                             |
+| `vcf` | Full path to vcf file. File must have the extension ".vcf" or ".vcf.gz".                                                             |
+| `tbi` | Full path to tbi file. File must have the extension ".vcf.gz.tbi".                                                             |
+| `ped`     | Full path to ped file for trio analysis. File must have the extension ".ped".                                                                                                                                              |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -53,7 +68,7 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-CBRA-snvs/main.nf --input ./samplesheet.csv --outdir ./results -profile docker
+nextflow run CBRA/main.nf --input ./samplesheet.csv --outdir ./results -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -71,14 +86,14 @@ If you wish to repeatedly use the same parameters for multiple runs, rather than
 
 Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <file>`.
 
-:::warning
-Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
-:::
+> [!WARNING]
+> Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
+
 
 The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run nf-CBRA-snvs/main.nf -profile docker -params-file params.yaml
+nextflow run CBRA/main.nf -profile docker -params-file params.yaml
 ```
 
 with `params.yaml` containing:
@@ -92,19 +107,25 @@ genome: 'GRCh37'
 
 You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
 
+The pipeline can perform different steps: `--mapping`, `--variant_calling`, `--annotation` and `--cnvs`. These steps can be set to true or false depending on the input and the desired output. For example, to start from the fastq files and perform only mapping and variant calling, set `--mapping true` and `--variant_calling true` and include a samplesheet that contain the path to the fastq files. 
+
+Within SNVs variant calling (`--variant_calling true`), there are three variant callers available for singleton samples (GATK4 Haplotypecaller, Dragen and DeepVariant) and one different workflow for trio samples using GATK4 Haplotypecaller. The three variant callers for singleton are additive and can be included in the analysis using `--run_gatk true`, `--run_dragen true` and `--run_deepvariant true`. For trio analysis, set `--trio_analysis true` and provide the interval_list file needed for the `GATK4_GENOMICSDBIMPORT` module with `--genomicsdbimport_interval`. 
+
+In the CNVs calling (`--cnvs true`), there are three programs available (ExomeDepth, panelcn.MOPS, CoNVaDING). They can be included in the analysis independently with `exomedepth = true`, `panelcmops = true` and `convading = true`. The results from the software used will be merged into a single file, which will be annotated using AnnotSV. 
+
 ### Updating the pipeline
 
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull nf-CBRA-snvs
+nextflow pull CIBERER/CBRA
 ```
 
 ### Reproducibility
 
 It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [nf-CBRA-snvs releases page](https://github.com/CIBERER/nf-CBRA-snvs/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
+First, go to the [CBRA releases page](https://github.com/CIBERER/CBRA/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 
@@ -116,9 +137,9 @@ If you wish to share such profile (such as upload as supplementary material for 
 
 ## Core Nextflow arguments
 
-:::note
-These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
-:::
+> [!NOTE]
+> These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+
 
 ### `-profile`
 

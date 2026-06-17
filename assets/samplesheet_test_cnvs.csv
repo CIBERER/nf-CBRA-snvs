@@ -1,0 +1,11 @@
+sample,bam,bai
+sample1,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bai
+sample2,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/9876T.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/9876T.recal.bai
+sample3,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bai
+sample4,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bai
+sample5,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bai
+sample6,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bai
+sample7,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bai
+sample8,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bai
+sample9,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bam,https://github.com/nf-core/test-datasets/raw/refs/heads/sarek/testdata/recalbam/1234N.recal.bai
+

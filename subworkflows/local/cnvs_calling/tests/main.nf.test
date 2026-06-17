@@ -1,0 +1,96 @@
+nextflow_workflow {
+
+    name "Test Subworkflow CNVS_CALLING"
+    script "../main.nf"
+    workflow "CNVS_CALLING"
+
+    tag "subworkflows"
+    tag "subworkflows/cnvs_calling"
+
+
+// tengo que utilizar otro set de datos de muestra. 
+
+//    setup {
+//     run("ANNOTSV_INSTALLANNOTATIONS") {
+//                 script "../../../../modules/nf-core/annotsv/installannotations/main.nf"
+//                 process {
+//                     """
+//                     """
+//                 }
+
+//     }
+//    }
+
+    test("cnvs_calling - bams ") {
+
+        when {
+            params {
+            convading = false
+            panelcmops = true
+            exomedepth = true
+            //min_target = 20
+            //chromosomes = "chr1,chr2"
+            // any other required params
+            }
+
+            workflow {
+                """
+                input[0] = Channel.of([
+                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.single_end.sorted.bam', checkIfExists: true),
+                ])
+
+                input[1] = Channel.of([
+                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam.bai', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.single_end.sorted.bam.bai', checkIfExists: true)
+                ])
+                
+                input[2] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.bed', checkIfExists: true)
+
+                input[3] =  Channel.fromList([
+                        tuple([ id: 'genome'],
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true))
+                    ])
+
+                input[4] = "Test"
+                input[5] = []
+
+                input[6] = Channel.fromList([
+                        tuple([ id: 'annotsv'],
+                        file("/mnt/tblab/yolanda/CBRA_new_modules/test_data/test_small/final_test/AnnotSV_annotations", checkIfExists: true))
+                    ])
+                    
+                input[7] = Channel.fromList([
+                        tuple([ id: 'test_small_variants'],
+                        [])
+                    ])    
+                input[8] = Channel.fromList([
+                        tuple([ id: 'test_gene_transcripts'],
+                        [])
+                    ])    
+                input[9] = Channel.fromList([
+                        tuple([ id: 'test_candidate_genes'],
+                        [])
+                    ])    
+                input[10] = Channel.fromList([
+                        tuple([ id: 'test_false_positive_snv'],
+                        [])
+                    ])    
+                input[11] = Channel.fromList([
+                        tuple([ id: 'test_glowgenes'],
+                        [])
+                    ])    
+            
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+    }
+
+}

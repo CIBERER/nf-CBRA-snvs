@@ -1,0 +1,59 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "postannotsv"
+## TODO nf-core: Add a description of the module and list keywords
+description: Run postAnnotsv_modification.R, a script that takes Annotsv output, modify the format of the output and add GLOWgenes.
+keywords:
+  - genomics
+  - CNVs
+  - Annotsv
+  - variant annotation
+  - GLOWgenes
+
+tools:
+  - "postannotsv":
+      description: "postAnnotsv_modification.R is a script that processes Annotsv output, modifies the format of the output, and adds GLOWgenes."
+
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+
+  - annotated_cnv:
+      type: file
+      description: Annotsv output file. 
+
+  - colnames: 
+      type: file
+      description: File with final column names of the bed file used for annotsv annotation.
+
+  - genefilter: 
+      type: file
+      description: File with genes to filter the final annotated file.
+
+  - glowgenes_panel: 
+      type: file
+      description: GLOWgenes gene ranking file. It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv
+      pattern: "*.{txt}"
+  
+
+output:
+  - annotated_cnv:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - CNV.annotated.final.tsv: 
+        type: file
+        description: |
+          Final annotated tsv file. 
+
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"
