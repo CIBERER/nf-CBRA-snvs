@@ -1,12 +1,18 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/CIBERER/nf-CBRA-snvs/master/assets/schema_input.json",
-    "title": "CIBERER/nf-CBRA-snvs pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/CIBERER/CBRA/master/assets/schema_input.json",
+    "title": "CIBERER/CBRA pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {
         "type": "object",
         "properties": {
+            "family": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Family name can be provided and cannot contain spaces",
+                "meta": ["family"]
+            },
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
@@ -30,8 +36,37 @@
                         "maxLength": 0
                     }
                 ]
+            },
+            "bam": {
+                "type": "string",
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "bam file cannot contain spaces and must have extension '.bam' "
+            },
+            "bai": {
+                "type": "string",
+                "pattern": "^\\S+\\.bai$",
+                "errorMessage": "bai file cannot contain spaces and must have extension '.bai' "
+            },
+            "vcf": {
+                "type": "string",
+                "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                "errorMessage": "vcf file cannot contain spaces and must have extension '.vcf' or '.vcf.gz' "
+            },
+            "tbi": {
+                "type": "string",
+                "pattern": "^\\S+\\.(tbi|csi)$",
+                "errorMessage": "tbi file cannot contain spaces and must have extension '.tbi' "
+            },
+            "ped": {
+                "type": "string",
+                "pattern": "^\\S+\\.ped$",
+                "errorMessage": "ped file for trio analysis must be provided and cannot contain spaces, must have extension '.ped'"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "dependentRequired": {
+            "bai": ["bam"],
+            "vcf": ["tbi"]
+        },
+        "required": ["sample"]
     }
 }

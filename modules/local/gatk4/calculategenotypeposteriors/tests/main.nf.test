@@ -1,0 +1,38 @@
+nextflow_process {
+
+    name "Test Process GATK4_CALCULATEGENOTYPEPOSTERIORS"
+    script "../main.nf"
+    process "GATK4_CALCULATEGENOTYPEPOSTERIORS"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "gatk4"
+    tag "gatk4/calculategenotypeposteriors"
+
+
+    test("homo_sapiens - [vcf, tbi, [], ped]") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:"AshkenazimTrio"],
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz', checkIfExists: true),
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz.tbi', checkIfExists: true),
+                    [],
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.ped', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}

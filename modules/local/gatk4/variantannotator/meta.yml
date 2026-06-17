@@ -1,0 +1,76 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "gatk4_variantannotator"
+
+description: "This module takes the VCF with the information from CalculateGenotypePosteriors and annotates possible de novo mutations in trios."
+keywords:
+  - vcf
+  - trio
+  - genotype
+  - de novo
+
+tools:
+  - "VariantAnnotator":
+      description: "VariantAnnotator is a tool for adding annotations to VCF files. It tags possible de novo mutations using the posterior genotype probabilities."
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+
+  - vcf_file:
+      type: file
+      description: multisample vcf file with posterior genotype probabilities information.
+      pattern: "*vcf.gz"
+
+  - tbi_file:
+      type: file
+      description: index file. 
+      pattern: "*vcf.gz.tbi"
+  
+  - intervals:
+      type: file
+      description: Optional. A bed file with the the intervals over which to operate.
+      pattern: "*.bed"
+
+  - ped:
+      type: file
+      description: A pedigree file with family information.
+      pattern: "*.ped"
+
+output:
+
+  - vcf:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - vcf_file:
+        type: file
+        description: New VCF file with possible de novo mutations tagged. 
+        pattern: "*.vcf.gz"
+
+  - tbi:
+    - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1', single_end:false ]`
+    - tbi_file:
+        type: file
+        description: Index file for the new VCF file.
+        pattern: "*.vcf.gz.tbi"
+  
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"

@@ -1,0 +1,60 @@
+nextflow_process {
+
+    name "Test Process GATK4_VARIANTANNOTATOR"
+    config "./nextflow.config"
+    script "../main.nf"
+    process "GATK4_VARIANTANNOTATOR"
+
+    tag "modules"
+    tag "gatk4"
+    tag "gatk4/variantannotator"
+
+  setup {
+
+        run("GATK4_CALCULATEGENOTYPEPOSTERIORS") {
+            script "../../../../local/gatk4/calculategenotypeposteriors/main.nf"
+            process {
+                """
+                input[0] = [
+                    [id:"AshkenazimTrio"],
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz', checkIfExists: true),
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.gatk.PASS.chr22_1000.vcf.gz.tbi', checkIfExists: true),
+                    [],
+                    file('https://zenodo.org/records/19064653/files/AshkenazimTrio.ped', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+    }
+
+    test("homo_sapiens - [vcf, tbi, [], ped]") {
+
+        when {
+            process {
+                """
+                input[0] = GATK4_CALCULATEGENOTYPEPOSTERIORS.out.vcf
+                    .join(GATK4_CALCULATEGENOTYPEPOSTERIORS.out.tbi, by: 0)
+                    .map { meta, vcf, tbi -> 
+                        [
+                            meta,
+                            vcf,
+                            tbi,
+                            [],
+                            file('https://zenodo.org/records/19064653/files/AshkenazimTrio.ped', checkIfExists: true)
+                        ]
+                    }
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}

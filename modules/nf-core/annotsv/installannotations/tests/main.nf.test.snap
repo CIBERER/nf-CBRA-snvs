@@ -1,0 +1,25 @@
+{
+    "homo_sapiens - stub": {
+        "content": [
+            {
+                "annotations": [
+                    [
+                        "stub_file.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_annotsv": [
+                    [
+                        "ANNOTSV_INSTALLANNOTATIONS",
+                        "annotsv",
+                        "3.5.3"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-03-11T16:27:30.805046134",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

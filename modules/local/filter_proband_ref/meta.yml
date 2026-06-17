@@ -1,0 +1,62 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "filter_proband_ref"
+
+description: Takes a trio vcf file and filter variants for which proband is 0/0. 
+keywords:
+  - filtering
+  - vcf
+  - format
+tools:
+  - "filter_proband_ref":
+    description: "Filter variants for which proband is 0/0"
+        
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+  
+  - vcf:
+      type: file
+      description: multisamples vcf file with trio genotypes. 
+      pattern: "*.{vcf.gz}"
+
+  - tbi: 
+      type: file
+      description: vcf index
+      pattern: "*.{vcf.gz.tbi}"
+
+  - ped: 
+      type: file
+      description: ped file with the trio information.
+      pattern: "*.ped"
+
+output:
+
+  - vcf:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+    - vcf:
+        type: file
+        description: final filtered vcf file.
+        pattern: "*.filtered.vcf.gz"
+    - tbi:
+        type: file
+        description: final filtered vcf index.
+        pattern: "*.filtered.vcf.gz.tbi"
+
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"
