@@ -56,7 +56,8 @@ The pipeline can perform the following steps:
 
   - Additionally, you can include the Gene-Disease Specificity Score (SGDS) using: `--sgds`. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity). 
 
-- **Structural variants (SVs) analysis:** For WGS, Manta germline (`--svs = true and --NGS_type = WGS`) is used for calling structural variants (SVs) and indels from mapped paired-end sequencing reads.
+- **Structural variants (SVs) analysis (`--svs = true and --NGS_type = WGS`):** For WGS, Manta germline is used for calling structural variants (SVs) and indels from mapped paired-end sequencing reads. It also includes the following step:
+  - **SVs Annotation**: [AnnotSV](https://lbgi.fr/AnnotSV/) is used to annotate the merged results. AnnotSV needs the annotations files. They can be downloaded using `annotsv_install_annotations = true`. The path to the notes folder can be specified using `--annotsv_annotations folder_path`. If `--annotsv_annotations` is not specified, the annotations files will be downloadad directly.
 
 - **Copy number variants (CNVs) calling** (`--svs = true and --NGS_type = WES`), with the following steps for WES:
   - **Bed file filtering**: Module to filter the bed file used for targered sequencing, to keep only the regions with a length > `--min_target` (default 20) and to exclude the regions in `--chromosomes` (default 'chrX,X,chrY,Y,chrM,MT'). 
