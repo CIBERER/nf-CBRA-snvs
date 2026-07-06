@@ -56,10 +56,10 @@ The pipeline can perform the following steps:
 
   - Additionally, you can include the Gene-Disease Specificity Score (SGDS) using: `--sgds`. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity). 
 
-- **Structural variants (SVs) analysis (`--svs = true and --NGS_type = WGS`):** For WGS, Manta germline is used for calling structural variants (SVs) from mapped paired-end sequencing reads. It also includes the following step:
+- **Structural variants (SVs) analysis (`--svs = true and --ngs_type = wgs`):** For WGS, Manta germline is used for calling structural variants (SVs) from mapped paired-end sequencing reads. It also includes the following step:
   - **SVs Annotation**: [AnnotSV](https://lbgi.fr/AnnotSV/) is used to annotate the merged results. AnnotSV needs the annotations files. They can be downloaded using `annotsv_install_annotations = true`. The path to the notes folder can be specified using `--annotsv_annotations folder_path`. If `--annotsv_annotations` is not specified, the annotations files will be downloadad directly.
 
-- **Copy number variants (CNVs) calling** (`--svs = true and --NGS_type = WES`), with the following steps for WES:
+- **Copy number variants (CNVs) calling** (`--svs = true and --ngs_type = wes`), with the following steps for WES:
   - **Bed file filtering**: Module to filter the bed file used for targered sequencing, to keep only the regions with a length > `--min_target` (default 20) and to exclude the regions in `--chromosomes` (default 'chrX,X,chrY,Y,chrM,MT'). 
   - **Software for detecting CNVs**: These tools require a set of samples sequenced in the same batch in order to detect changes in coverage that indicate the presence of a CNV.
     - [ExomeDepth](https://github.com/vplagnol/ExomeDepth) (`exomedepth = true`). 
