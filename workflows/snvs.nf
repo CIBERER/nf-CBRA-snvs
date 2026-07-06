@@ -68,7 +68,7 @@ include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
 include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
-include { SV_ANNOTATION } from '../subworkflows/local/sv_annotation'
+include { SV_CALLING } from '../subworkflows/local/sv_calling'
 include { GATK_TRIO_VCF } from '../subworkflows/local/gatk_trio_vcf'
 include { CNVS_CALLING } from '../subworkflows/local/cnvs_calling'
 
@@ -99,7 +99,7 @@ include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
 
 include { MOSDEPTH } from '../modules/nf-core/mosdepth/main'
 
-include { DECOMPRESS_MOSDEPTH_QUANTIZED } from '../modules/local/decompress_mosdepth_quantized/main'
+include { DECOMPRESS_MOSDEPTH_QUANTIZED } from '../modules/local/decompress_mostdepth_quantized/main'
 
 
 /*
@@ -446,50 +446,6 @@ workflow SNVS {
                 ch_false_positive_snv,
                 ch_glowgenes_ranking
             )
-
-            // If annotation is also requested for WES SVs
-            if (params.annotation) {
-
-                ch_vcf_svs = CNVS_CALLING.out.vcf
-
-                ch_custom_extra_files_sv = params.custom_extra_files
-                    ? ch_vcf_svs.map { meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) }
-                    : ch_vcf_svs.map { meta, vcf, tbi -> tuple(meta, []) }
-
-                ch_extra_files_sv = params.extra_files
-                    ? Channel.fromPath(params.extra_files.split(',').collect { it.trim() }, checkIfExists: true).collect()
-                    : Channel.value([])
-
-                if (params.plugins_dir) {
-                    ch_extra_files_sv = ch_extra_files_sv.mix(Channel.fromPath("${params.plugins_dir}", checkIfExists: true)).collect()
-                }
-
-                ch_extra_files_pvm_sv = params.extra_files_pvm
-                    ? Channel.fromPath(params.extra_files_pvm.split(',').collect { it.trim() }, checkIfExists: true).collect()
-                    : Channel.value([])
-
-                ch_glowgenes_sgds_sv = params.sgds
-                    ? Channel.fromPath(params.glowgenes_sgds, checkIfExists: true).collect()
-                    : Channel.value([])
-
-                SNV_ANNOTATION (
-                    ch_vcf_svs,
-                    ch_fasta,
-                    ch_assembly,
-                    params.species,
-                    ch_vep_cache_version,
-                    ch_vep_cache_path,
-                    ch_custom_extra_files_sv,
-                    ch_extra_files_sv,
-                    params.pvm_script,
-                    params.maf,
-                    ch_glowgenes_ranking,
-                    ch_glowgenes_sgds_sv,
-                    ch_gene_list,
-                    ch_extra_files_pvm_sv
-                )
-            }
-
         //
         // WGS: Manta germline SV calling + AnnotSV annotation
         //
@@ -499,7 +455,7 @@ workflow SNVS {
                 ? Channel.fromPath(params.manta_config, checkIfExists: true)
                 : Channel.empty()
 
-            SV_ANNOTATION (
+            SV_CALLING (
                 ch_bam_svs,
                 ch_fasta,
                 ch_fai,
