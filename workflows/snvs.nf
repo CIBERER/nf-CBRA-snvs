@@ -159,6 +159,16 @@ workflow SNVS {
 
     ch_gene_list = params.gene_list ? Channel.fromPath(params.gene_list, checkIfExists: true).collect() : Channel.value([])
 
+    // Create ch_intervals channel for snvs detection if targeted_snvs_detection is enabled and intervals file is provided
+    if (params.targeted_snvs_detection && params.intervals){
+        ch_intervals = INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) }
+    } else if (params.targeted_snvs_detection && !params.intervals) {
+        log.error "Targeted SNVs detection is enabled, but no intervals file is provided. Please provide an intervals file using the --intervals parameter."
+        System.exit(1)
+    } else {
+        ch_intervals = INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
+    }
+    
     if (params.glowgenes) {
         if (params.glowgenes_ranking) {
             ch_glowgenes_ranking = Channel.fromPath(params.glowgenes_ranking, checkIfExists: true).collect()
@@ -177,9 +187,9 @@ workflow SNVS {
         fastqs = INPUT_CHECK.out.reads.map{meta, reads -> check_fastq(meta, reads)}
         
         // Ensure intervals are created for all samples
-        ch_intervals = params.intervals ? 
-        INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : 
-        INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
+        // ch_intervals = params.intervals ? 
+        // INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, file(params.intervals)) } : 
+        // INPUT_CHECK.out.reads.map{ meta, fastqs -> tuple(meta, []) }
 
         // 
         // MODULE: Run FastQC
@@ -209,9 +219,9 @@ workflow SNVS {
         } else {
             bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
 
-            ch_intervals = params.intervals ? 
-            INPUT_CHECK.out.bams.map{ meta, bam, bai -> tuple(meta, file(params.intervals)) } : 
-            INPUT_CHECK.out.bams.map{ meta, bam, bai -> tuple(meta, []) }
+            // ch_intervals = params.intervals ? 
+            // INPUT_CHECK.out.bams.map{ meta, bam, bai -> tuple(meta, file(params.intervals)) } : 
+            // INPUT_CHECK.out.bams.map{ meta, bam, bai -> tuple(meta, []) }
 
         }
 
@@ -316,9 +326,9 @@ workflow SNVS {
         } else {
             vcf_file = INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> check_vcf(meta, vcf, tbi) }
             
-            ch_intervals = params.intervals ? 
-            INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> tuple(meta, file(params.intervals)) } : 
-            INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> tuple(meta, []) }
+            // ch_intervals = params.intervals ? 
+            // INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> tuple(meta, file(params.intervals)) } : 
+            // INPUT_CHECK.out.vcfs.map{ meta, vcf, tbi -> tuple(meta, []) }
         }
 
         ch_custom_extra_files = params.custom_extra_files ? vcf_file.map{ meta, vcf, tbi -> tuple(meta, file(params.custom_extra_files)) } : vcf_file.map{ meta, vcf, tbi -> tuple(meta, []) }
@@ -411,9 +421,9 @@ workflow SNVS {
         ch_false_positive_snv = params.false_positive_snv ? Channel.fromPath(params.false_positive_snv).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
 
         //
-        // WES: CNV calling with CNVS_CALLING subworkflow
+        // wes: CNV calling with CNVS_CALLING subworkflow
         //
-        if (params.NGS_type == 'WES') {
+        if (params.ngs_type == 'wes') {
 
             ch_intervals_cnvs = params.intervals
 
@@ -449,7 +459,7 @@ workflow SNVS {
         //
         // WGS: Manta germline SV calling + AnnotSV annotation
         //
-        } else if (params.NGS_type == 'WGS') {
+        } else if (params.ngs_type == 'wgs') {
 
             ch_manta_config = params.manta_config
                 ? Channel.fromPath(params.manta_config, checkIfExists: true)
