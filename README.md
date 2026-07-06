@@ -46,8 +46,6 @@ The pipeline can perform the following steps:
     - **Filter proband ref**: filter variants that are REF in the proband
     - **Split Multialletic**.
 
-  
-- **Additional analysis:** Expansion Hunter (`--run_expansionhunter true`) for targeted genotyping of short tandem repeats (STRs) and flanking variants.
 
 - **Merge and integration** of the vcfs obtained with the different tools.
 - **Annotation of SNVs** (`annotation = true`) of the variants:
@@ -58,7 +56,10 @@ The pipeline can perform the following steps:
 
   - Additionally, you can include the Gene-Disease Specificity Score (SGDS) using: `--sgds`. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity). 
 
-- **Copy number variants (CNVs) calling** (`cnvs = true`), with the following steps:
+- **Structural variants (SVs) analysis (`--svs = true and --NGS_type = WGS`):** For WGS, Manta germline is used for calling structural variants (SVs) from mapped paired-end sequencing reads. It also includes the following step:
+  - **SVs Annotation**: [AnnotSV](https://lbgi.fr/AnnotSV/) is used to annotate the merged results. AnnotSV needs the annotations files. They can be downloaded using `annotsv_install_annotations = true`. The path to the notes folder can be specified using `--annotsv_annotations folder_path`. If `--annotsv_annotations` is not specified, the annotations files will be downloadad directly.
+
+- **Copy number variants (CNVs) calling** (`--svs = true and --NGS_type = WES`), with the following steps for WES:
   - **Bed file filtering**: Module to filter the bed file used for targered sequencing, to keep only the regions with a length > `--min_target` (default 20) and to exclude the regions in `--chromosomes` (default 'chrX,X,chrY,Y,chrM,MT'). 
   - **Software for detecting CNVs**: These tools require a set of samples sequenced in the same batch in order to detect changes in coverage that indicate the presence of a CNV.
     - [ExomeDepth](https://github.com/vplagnol/ExomeDepth) (`exomedepth = true`). 
@@ -66,6 +67,13 @@ The pipeline can perform the following steps:
     - [CoNVaDING](https://github.com/molgenis/CoNVaDING) (`convading = true`).
   - **Combining the results from the various CNVs caller**
   - **CNVs Annotation**: [AnnotSV](https://lbgi.fr/AnnotSV/) is used to annotate the merged results. AnnotSV needs the annotations files. They can be downloaded using `annotsv_install_annotations = true`. The path to the notes folder can be specified using `--annotsv_annotations folder_path`. If `--annotsv_annotations` is not specified, the annotations files will be downloadad directly. 
+
+- **Short tandem repeats:** Expansion Hunter (`--run_expansionhunter true`) for targeted genotyping of short tandem repeats (STRs) and flanking variants. 
+
+- **Additional analysis:** Mosdepth (`--run_mosdepth true`) for calculating genome-wide sequencing coverage. Mosdepth has different argument configurations that have been defined in 3 modes: 
+    - **Fast**: When only the file .quantized.bed.gz is needed. It also decompress the file automatically. Arguments used: --quantize 10: -n -x (`--run_mosdepth true --mosdepth_mode fast`).
+    - **Full**: When you want a complete analysis without including a bed file. Arguments used: --quantize 10: (`--run_mosdepth true --mosdepth_mode full`).
+    - **Full_with_bed**: When you want a complete analysis and you include a bed file (for CNVs analysis). Arguments used: --quantize 10: --thresholds 1,5,10,30,50,100 (`--run_mosdepth true --mosdepth_bed /path/to/intervals.bed --mosdepth_mode full_with_bed`).
 
 
 # Usage
@@ -107,9 +115,10 @@ CBRA was developed within the framework of a call for intramural cooperative and
 
 **Other contributors**
 - [Graciela Uría Regojo](https://github.com/guriaregojo)
+- [Cristina Arias Sardá](https://github.com/CrisAriasSarda)
 - [Pedro Garrido Rodríguez](https://github.com/pedro-garridor)
 - [Rafa Farias Varona](https://github.com/RafaFariasVarona)
 - [Pablo Minguez](https://github.com/pminguez)
 - [Daniel Lopez](https://github.com/dlopez-bioinfo)
-- [Cristina Arias Sardá](https://github.com/CrisAriasSarda)
+
 

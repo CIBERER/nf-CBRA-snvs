@@ -29,6 +29,7 @@ ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.b
 ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
 ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
 ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
+ch_variant_catalog = params.variant_catalog ? Channel.fromPath(params.variant_catalog, checkIfExists: true).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([])
 
 
 //ch_assembly = params.assembly ? Channel.value(params.assembly) : ch_fasta.map { meta, fasta -> meta.id }.first() 
@@ -67,6 +68,7 @@ include { DRAGEN_VCF } from '../subworkflows/local/dragen_vcf'
 include { VCF_MERGE_VARIANTCALLERS } from '../subworkflows/local/vcf_merge_variantcallers'
 include { DEEP_VARIANT_VCF           } from '../subworkflows/local/deep_variant_vcf'
 include { SNV_ANNOTATION } from '../subworkflows/local/snv_annotation'
+include { SV_CALLING } from '../subworkflows/local/sv_calling'
 include { GATK_TRIO_VCF } from '../subworkflows/local/gatk_trio_vcf'
 include { CNVS_CALLING } from '../subworkflows/local/cnvs_calling'
 
@@ -92,6 +94,13 @@ include { ENSEMBLVEP_DOWNLOAD } from '../modules/nf-core/ensemblvep/download/mai
 include { ANNOTSV_INSTALLANNOTATIONS } from '../modules/nf-core/annotsv/installannotations/main'
 
 include { GLOWGENES } from '../modules/local/glowgenes/main'
+
+include { EXPANSIONHUNTER } from '../modules/nf-core/expansionhunter/main'
+
+include { MOSDEPTH } from '../modules/nf-core/mosdepth/main'
+
+include { DECOMPRESS_MOSDEPTH_QUANTIZED } from '../modules/local/decompress_mostdepth_quantized/main'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -369,78 +378,158 @@ workflow SNVS {
 
     }
 
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //  STRUCTURAL VARIANTS / CNVs
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    // to install annotsv annotations intependently of whether the user wants to run annotsv or not, since the installation of the annotations takes a long time and we don't want to do it if the user already has them, but if they want to run annotsv, we need to have the annotations ready
-    if (params.annotsv_install_annotations) {
-        ANNOTSV_INSTALLANNOTATIONS()
-        
-        annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations
-    } 
+    if (params.svs) {
 
-    if (params.cnvs) {
-        if (params.runname) { runname = params.runname }
-        else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
-        println "Run name: $runname" 
-
-        ch_intervals_cnvs = params.intervals 
-
-        // Define the run name
-        if (params.runname) { runname = params.runname }
-        else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
-        println "Run name: $runname" 
-
-        // define bam file 
-
+        //
+        // Common: Get BAM files
+        //
         if (params.mapping) {
-            bam_file = MAPPING.out.bam
+            ch_bam_svs = MAPPING.out.bam
         } else {
-            bam_file = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+            ch_bam_svs = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
         }
 
-        bam_file_list = bam_file.map{ meta, bam, bai -> bam }.collect().map { files -> files.sort { it.name } }
-        bai_file_list = bam_file.map{ meta, bam, bai -> bai }.collect().map { files -> files.sort { it.name } }
-
-        // define the input channels
-
-        samples2analyce = params.samples_cnvs ? Channel.fromPath(params.samples_cnvs, checkIfExists: true).collect() : Channel.value([])
-
-        //if the user defines the annotsv annotations, we will use them, but if not, we will install the annotations and use them.
-
-        if (params.annotsv_annotations){
+        //
+        // Common: Install/load AnnotSV annotations
+        //
+        if (params.annotsv_annotations) {
             annotations = Channel.fromPath(params.annotsv_annotations).map{ it -> [ [id:it.baseName], it ] }.collect()
-        }
-        else {
-            
+        } else {
             ANNOTSV_INSTALLANNOTATIONS()
             annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations.map{ it -> [ [id:it.baseName], it ] }.collect()
         }
 
-        ch_gene_transcripts = params.gene_transcripts ? Channel.fromPath(params.gene_transcripts).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
-        ch_candidate_genes = params.candidate_genes ? Channel.fromPath(params.candidate_genes).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
+        //
+        // Common: Prepare shared annotation channels
+        //
+        ch_gene_transcripts   = params.gene_transcripts   ? Channel.fromPath(params.gene_transcripts).map{ it -> [ [id:it.baseName], it ] }.collect()   : Channel.value([[:], []])
+        ch_candidate_genes    = params.candidate_genes    ? Channel.fromPath(params.candidate_genes).map{ it -> [ [id:it.baseName], it ] }.collect()    : Channel.value([[:], []])
         ch_false_positive_snv = params.false_positive_snv ? Channel.fromPath(params.false_positive_snv).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([[:], []])
-        //ch_glowgenes_ranking = params.glowgenes_ranking ? Channel.fromPath(params.glowgenes_ranking, checkIfExists: true).collect() : Channel.value([])
-        ch_small_variants = params.candidate_small_variants
-            ? Channel.value(file(params.candidate_small_variants))
-            : Channel.value(file('NO_FILE'))
 
+        //
+        // WES: CNV calling with CNVS_CALLING subworkflow
+        //
+        if (params.NGS_type == 'WES') {
 
+            ch_intervals_cnvs = params.intervals
 
-        CNVS_CALLING (
-            bam_file_list,
-            bai_file_list,
-            ch_intervals_cnvs,
-            ch_fai,
-            runname,
-            samples2analyce,
-            annotations,
-            ch_small_variants,
-            ch_gene_transcripts,
-            ch_candidate_genes,
-            ch_false_positive_snv,
-            ch_glowgenes_ranking
-        )
-    
+            // Define the run name
+            if (params.runname) { runname = params.runname }
+            else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
+            println "Run name: $runname"
+
+            bam_file_list = ch_bam_svs.map{ meta, bam, bai -> bam }.collect().map { files -> files.sort { it.name } }
+            bai_file_list = ch_bam_svs.map{ meta, bam, bai -> bai }.collect().map { files -> files.sort { it.name } }
+
+            // define the input channels
+            samples2analyce = params.samples_cnvs ? Channel.fromPath(params.samples_cnvs, checkIfExists: true).collect() : Channel.value([])
+
+            ch_small_variants = params.candidate_small_variants
+                ? Channel.value(file(params.candidate_small_variants))
+                : Channel.value(file('NO_FILE'))
+
+            CNVS_CALLING(
+                bam_file_list,
+                bai_file_list,
+                ch_intervals_cnvs,
+                ch_fai,
+                runname,
+                samples2analyce,
+                annotations,
+                ch_small_variants,
+                ch_gene_transcripts,
+                ch_candidate_genes,
+                ch_false_positive_snv,
+                ch_glowgenes_ranking
+            )
+        //
+        // WGS: Manta germline SV calling + AnnotSV annotation
+        //
+        } else if (params.NGS_type == 'WGS') {
+
+            ch_manta_config = params.manta_config
+                ? Channel.fromPath(params.manta_config, checkIfExists: true)
+                : Channel.empty()
+
+            SV_CALLING (
+                ch_bam_svs,
+                ch_fasta,
+                ch_fai,
+                ch_manta_config,
+                annotations,
+                ch_candidate_genes,
+                ch_false_positive_snv,
+                ch_gene_transcripts
+            )
+        }
     }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //  EXPANSION HUNTER
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // Run EXPANSIONHUNTER as an additional step
+    if (params.run_expansionhunter) {
+        // Get BAMs from mapping or from input samplesheet
+        if (params.mapping) {
+            ch_bam_expansionhunter = MAPPING.out.bam
+        } else {
+            ch_bam_expansionhunter = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+        }
+        EXPANSIONHUNTER(
+            ch_bam_expansionhunter,
+            ch_fasta,
+            ch_fai,
+            ch_variant_catalog
+        )
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //  MOSDEPTH
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // Run MOSDEPTH as an additional step
+    if (params.run_mosdepth) {
+        // Get BAMs from mapping or from input samplesheet
+        if (params.mapping) {
+            ch_bam_mosdepth = MAPPING.out.bam
+        } else {
+            ch_bam_mosdepth = INPUT_CHECK.out.bams.map{ meta, bam, bai -> check_bam(meta, bam, bai) }
+        }
+
+        if (params.mosdepth_bed) {
+            ch_bed_mosdepth = Channel.fromPath(params.mosdepth_bed)
+            .map { bed -> [[id: bed.baseName], bed] }
+            
+            ch_mosdepth_input = ch_bam_mosdepth
+            .combine(ch_bed_mosdepth)
+            .map { meta, bam, bai, bed_meta, bed ->
+                [meta, bam, bai, bed]
+            }
+        
+        } else {
+            ch_mosdepth_input = ch_bam_mosdepth.map { meta, bam, bai -> 
+                [meta, bam, bai, []]
+            }
+        }
+
+        MOSDEPTH(
+            ch_mosdepth_input,
+            ch_fasta
+        )
+
+        if (params.mosdepth_mode == 'fast') {
+        DECOMPRESS_MOSDEPTH_QUANTIZED(MOSDEPTH.out.quantized_bed)
+        }
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //  SOFTWARE VERSIONS & MULTIQC
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

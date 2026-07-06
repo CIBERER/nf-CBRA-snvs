@@ -1,0 +1,79 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "base_space_check"
+
+description: Downloads the fastq files from BaseSpace. 
+            If CNV calling or no samples are specified, all samples from a project will be downloaded. 
+            This specific proccess gets samples IDs from specific projects.
+keywords:
+  - BaseSpace
+  - project
+  - ids
+tools:
+  - "base_space_check":
+      description: "base_space_check module lists all projects in the BaseSpace account, checks if the given project exist 
+        and if so, get all the sample names, checks that the specified samples exist inside the project, and
+        gets the datasets ids."
+
+input:
+  -- meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [id: 'sample1', type: 'control']
+  -- project:
+      type: val
+      description: Project identifier
+  -- baseuser:
+      type: val
+      description: BaseSpace username
+  -- samples:
+      type: file
+      description: Input file containing sample ids
+      pattern: "*.{txt,csv,tsv}"
+  -- analysis:
+      type: val
+      description: Type of analysis to perform (e.g., 'CNV')
+
+output:
+  - bsproyects:
+      - - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "projects.txt":
+            type: file
+            description: List of projects to be processed
+            pattern: "projects.txt"
+  - controlsamples:
+      - - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "controlsamples.txt":
+            type: file
+            description: List of control samples for the analysis
+            pattern: "controlsamples.txt"
+  - samples2analyce:
+      - - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "samples2analyce.txt":
+            type: file
+            description: Filtered list of samples selected for analysis
+            pattern: "samples2analyce.txt"
+  - datasets:
+      - - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "datasets.txt":
+            type: file
+            description: Dataset definitions and configurations
+            pattern: "datasets.txt"
+
+authors:
+  - "@yolandabq"
+  - "@guriaregojo"
+  - "@CrisAriasSarda"
+maintainers:
+  - "@yolandabq"
+  - "@guriaregojo"
+  - "@CrisAriasSarda"

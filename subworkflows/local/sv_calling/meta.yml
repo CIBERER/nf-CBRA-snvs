@@ -1,0 +1,159 @@
+name: "sv_calling"
+description: Call structural variants with Manta germline and annotate them with AnnotSV
+keywords:
+  - structural variants
+  - manta
+  - annotsv
+  - annotation
+  - wgs
+components:
+  - manta/germline
+  - annotsv/annotsv
+
+input:
+  - ch_bam:
+      description: BAM/CRAM files with index
+      structure:
+        - meta:
+            type: map
+            description: |
+              Groovy Map containing sample information
+              e.g. `[ id:'sample1' ]`
+        - bam:
+            type: file
+            description: Aligned BAM/CRAM file
+            pattern: "*.{bam,cram}"
+        - bai:
+            type: file
+            description: BAM/CRAM index file
+            pattern: "*.{bai,crai}"
+  - ch_fasta:
+      description: Reference genome FASTA
+      structure:
+        - meta2:
+            type: map
+            description: Groovy Map containing reference information
+        - fasta:
+            type: file
+            description: Genome reference FASTA file
+            pattern: "*.{fa,fasta}"
+  - ch_fai:
+      description: Reference genome FASTA index
+      structure:
+        - meta3:
+            type: map
+            description: Groovy Map containing reference information
+        - fai:
+            type: file
+            description: Genome reference FASTA index
+            pattern: "*.{fa.fai,fasta.fai}"
+  - ch_manta_config:
+      description: Optional Manta configuration file
+      structure:
+        - config:
+            type: file
+            description: Manta configuration INI file
+            pattern: "*.{ini,conf,config}"
+  - ch_annotsv_annotations:
+      description: AnnotSV annotations directory
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing annotations information
+        - annotations:
+            type: directory
+            description: Directory containing AnnotSV annotations
+  - ch_candidate_genes:
+      description: Optional candidate genes file
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing candidate genes information
+        - candidate_genes:
+            type: file
+            description: File containing candidate genes
+            pattern: "*.txt"
+  - ch_false_positive_snv:
+      description: Optional false positive SNV file
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing false positive SNV information
+        - false_positive_snv:
+            type: file
+            description: VCF file containing false positive small variants
+            pattern: "*.{vcf,vcf.gz}"
+  - ch_gene_transcripts:
+      description: Optional preferred gene transcripts file
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing gene transcripts information
+        - gene_transcripts:
+            type: file
+            description: File containing preferred gene transcripts
+            pattern: "*.txt"
+
+output:
+  - annotated_tsv:
+      description: AnnotSV annotated structural variants
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "*.tsv":
+            type: file
+            description: TSV file with annotated structural variants
+            pattern: "*.tsv"
+  - annotated_vcf:
+      description: Optional annotated VCF (requires -vcf 1 in args)
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "*.vcf":
+            type: file
+            description: VCF file with annotated structural variants
+            pattern: "*.vcf"
+  - unannotated_tsv:
+      description: Unannotated structural variants
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "*.unannotated.tsv":
+            type: file
+            description: TSV file with unannotated structural variants
+            pattern: "*.unannotated.tsv"
+  - diploid_sv_vcf:
+      description: Raw Manta diploid SV calls
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "*.vcf.gz":
+            type: file
+            description: Gzipped VCF with diploid SV calls from Manta
+            pattern: "*.vcf.gz"
+  - candidate_sv_vcf:
+      description: Raw Manta candidate SV calls
+      structure:
+        - meta:
+            type: map
+            description: Groovy Map containing sample information
+        - "*.vcf.gz":
+            type: file
+            description: Gzipped VCF with candidate SV calls from Manta
+            pattern: "*.vcf.gz"
+  - versions:
+      description: Software versions
+      structure:
+        - "versions.yml":
+            type: file
+            description: File containing software versions
+            pattern: "versions.yml"
+
+authors:
+  - "@CrisAriasSarda"
+maintainers:
+  - "@CrisAriasSarda"

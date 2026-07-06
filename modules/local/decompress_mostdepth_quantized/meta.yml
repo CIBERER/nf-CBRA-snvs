@@ -1,0 +1,45 @@
+name: "decompress_mosdepth_quantized"
+description: Decompress mosdepth .quantized.bed.gz files produced in fast mode
+keywords:
+  - mosdepth
+  - decompress
+  - bed
+  - coverage
+tools:
+  - "gzip":
+      description: GNU gzip compression utility (zcat)
+      homepage: https://www.gnu.org/software/gzip/
+      licence: ["GPL-3.0-or-later"]
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - quantized_gz:
+        type: file
+        description: Gzip-compressed quantized BED file from mosdepth
+        pattern: "*.quantized.bed.gz"
+
+output:
+  - quantized_bed:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.quantized.bed":
+          type: file
+          description: Decompressed quantized BED file
+          pattern: "*.quantized.bed"
+  - versions:
+      - "versions.yml":
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@CrisAriasSarda"
+maintainers:
+  - "@CrisAriasSarda"
