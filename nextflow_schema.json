@@ -28,6 +28,14 @@
           "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
           "fa_icon": "fas fa-folder-open"
         },
+        "intervals": {
+          "type": "string",
+          "description": "Capture intervals.",
+          "help_text": "Bed file with the genomic regions included in the library",
+          "pattern": "^\\S+\\.bed$",
+          "format": "file-path",
+          "mimetype": "pext/plain"
+        },
         "email": {
           "type": "string",
           "description": "Email address for completion summary.",
@@ -41,6 +49,81 @@
           "fa_icon": "fas fa-file-signature"
         }
       }
+    },
+    "workflow_options": {
+      "title": "Workflow options",
+      "type": "object",
+      "description": "Options for running the workflow",
+      "default": "",
+      "properties": {
+        "ngs_type": {
+          "type": "string",
+          "description": "Sequencing type (wes or wgs)",
+          "help_text": "WES (will launch cnvs detection) or WGS (will launch svs detection). In addition, model type for DeepVariant.",
+          "enum": ["wgs", "wes"]
+        },
+        "targeted_snvs_detection": {
+          "type": "boolean",
+          "description": "Boolean value to specify if the BED file should be used for SNVs variant calling."
+        },
+        "mapping": {
+          "type": "boolean",
+          "description": "Launch mapping step."
+        },
+        "variant_calling": {
+          "type": "boolean",
+          "description": "Launch detection of snvs."
+        },
+        "run_deepvariant": {
+          "type": "boolean",
+          "description": "Launch DeepVariant on this run.",
+          "help_text": "Boolean value: {'true','false'}. Default is false."
+        },
+        "run_gatk": {
+          "type": "boolean",
+          "description": "Launch GATK on thin run.",
+          "help_text": "Boolean value: {'true','false'}. Default is false."
+        },
+        "run_dragen": {
+          "type": "boolean",
+          "description": "Launch DRAGEN on this run.",
+          "help_text": "Boolean value: {'true','false'}. Default is false."
+        },
+        "trio_analysis": {
+          "type": "boolean",
+          "description": "Launch the workflow for trio analysis with GATK haplotypecaller."
+        },
+        "annotation": {
+          "type": "boolean",
+          "description": "Run the annotation of snvs."
+        },
+        "svs": {
+          "type": "boolean",
+          "description": "Launch the detection of estructural variants."
+        },
+        "exomedepth": {
+          "type": "boolean",
+          "description": "Launch exomedepth for cnv detection."
+        },
+        "panelcmops": {
+          "type": "boolean",
+          "description": "Launch panelcmops for cnv detection."
+        },
+        "convading": {
+          "type": "boolean",
+          "description": "Launch convading for cnv detection."
+        },
+        "run_expansionhunter": {
+          "type": "boolean",
+          "description": "Launch detection of Short Tandem Repeats (STRs) with ExpansionHunter."
+        },
+        "run_mosdepth": {
+          "type": "boolean",
+          "description": "Launch coverage analysis with Mosdepth."
+        }
+      },
+      "fa_icon": "fas fa-terminal",
+      "required": ["ngs_type"]
     },
     "reference_genome_options": {
       "title": "Reference genome options",
@@ -92,15 +175,186 @@
           "format": "file-path",
           "mimetype": "text/plain"
         },
+        "known_snps": {
+          "type": "string",
+          "pattern": "^\\S+\\.vcf\\.gz$",
+          "format": "file-path",
+          "mimetype": "text/plain",
+          "description": "Path to VCF with DB of known variants.",
+          "help_text": "VCF containing DB of known variants."
+        },
+        "known_snps_tbi": {
+          "type": "string",
+          "pattern": "^\\S+\\.vcf\\.gz\\.tbi$",
+          "format": "file-path",
+          "mimetype": "text/plain",
+          "description": "Path to TBI with DB of known variants.",
+          "help_text": "TBI for VCF containing DB of known variants."
+        },
         "igenomes_ignore": {
           "type": "boolean",
           "description": "Do not load the iGenomes reference config.",
           "fa_icon": "fas fa-ban",
           "hidden": true,
           "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
+        },
+        "variant_catalog": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/CIBERER/CBRA/refs/heads/master/assets/variant_catalog.json",
+          "description": "JSON file with repeat expansion sites to genotype"
         }
       },
       "required": ["fasta", "fai"]
+    },
+    "snvs_annotation_options": {
+      "title": "SNVs annotation options",
+      "type": "object",
+      "description": "Files and options required for annotation of snvs.",
+      "default": "",
+      "properties": {
+        "gene_list": {
+          "type": "string",
+          "description": "List of genes for filtering variants or annotating with GLOWgenes (if params.glowgenes = true)"
+        },
+        "glowgenes": {
+          "type": "boolean",
+          "description": "Set glowgenes to true to include the annotation with GLOWgenes"
+        },
+        "glowgenes_ranking": {
+          "type": "string",
+          "description": "GLOWgenes gene ranking file. If not included and params.glowgenes = true, GLOWgenes will be run with gene_list file."
+        },
+        "sgds": {
+          "type": "boolean",
+          "description": "Set sgds to true to include the GLOWgenes Score of Gene-Disease Associations (SGDs) annotation"
+        },
+        "glowgenes_sgds": {
+          "type": "string",
+          "description": "GLOWgenes Score of Gene-Disease Associations (SGDs) file.",
+          "help_text": "Available at https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity).",
+          "format": "file-path",
+          "default": "https://raw.githubusercontent.com/TBLabFJD/GLOWgenes/refs/heads/master/SGDS.csv"
+        },
+        "refseq_cache": {
+          "type": "boolean",
+          "description": "Boolean value to indicate whether you want to use the RefSeq cache.",
+          "default": true
+        },
+        "species": {
+          "type": "string",
+          "description": "Species to annotate with.",
+          "default": "homo_sapiens"
+        },
+        "vep_cache_version": {
+          "type": "integer",
+          "description": "Version of the cache to annotate with.",
+          "default": 113
+        },
+        "assembly": {
+          "type": "string",
+          "description": "Human genome version.",
+          "help_text": "Human genome assembly, must be one of {'hg19','hg38'}.",
+          "enum": ["GRCh37", "GRCh38"],
+          "default": "GRCh38"
+        },
+        "maf": {
+          "type": "number",
+          "description": "Minor Allele Frequency (MAF) threshold to filter variants.",
+          "default": 0.1
+        },
+        "custom_extra_files": {
+          "type": "string",
+          "format": "path",
+          "description": "Path to additional files related to a specific sample, to be used for annotating variants with VEP"
+        },
+        "extra_files": {
+          "type": "string",
+          "format": "path",
+          "description": "Path to any other additional files you wish to add to the annotation using vep"
+        },
+        "plugins_dir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "VEP plugins directory"
+        },
+        "vep_cache_path": {
+          "type": "string",
+          "format": "path",
+          "description": "VEP cache path",
+          "help_text": "If not indicated, will download it automatically."
+        },
+        "outdir_cache": {
+          "type": "string",
+          "description": "Directory where to save the VEP cache downloaded with ENSEMBLVEP_DOWNLOAD.",
+          "format": "directory-path"
+        },
+        "pvm_script": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/CIBERER/CBRA/refs/heads/master/modules/local/postvep/resources/usr/bin/postVEP_modification.R",
+          "description": "It must be located in modules/local/postvep/resources/usr/bin/"
+        }
+      },
+      "required": ["species", "vep_cache_version", "assembly", "maf"],
+      "fa_icon": "fas fa-file-alt",
+      "help_text": ""
+    },
+    "svs_options": {
+      "title": "SVs options",
+      "type": "object",
+      "description": "Files and options required for svs detection and annotation.",
+      "default": "",
+      "properties": {
+        "manta_config": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/CIBERER/CBRA/refs/heads/devel/assets/configManta.ini",
+          "description": "Manta configuration file."
+        },
+        "min_target": {
+          "type": "integer",
+          "default": 20,
+          "description": "Minimum length of the regions to be kept in the bed file for CNVs detection."
+        },
+        "annotsv_annotations": {
+          "type": "string",
+          "description": "Path to annotsv annotations file. If not specified, it will be downloaded."
+        },
+        "annotsv_installannotations": {
+          "type": "boolean",
+          "description": "Download annotsv annotation files."
+        },
+        "gene_transcripts": {
+          "type": "string",
+          "description": "Preferred gene transcripts to be used in priority during annotation"
+        },
+        "candidate_genes": {
+          "type": "string",
+          "description": "A file containing candidate genes."
+        },
+        "false_positive_snv": {
+          "type": "string",
+          "description": "A VCF file containing small variant candidates."
+        }
+      },
+      "fa_icon": "fas fa-sliders-h"
+    },
+    "mosdepth_options": {
+      "title": "Mosdepth options",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "mosdepth_bed": {
+          "type": "string",
+          "description": "BED file with intersected intervals."
+        },
+        "mosdepth_mode": {
+          "type": "string",
+          "default": "fast",
+          "description": "Mosdepth configurations: fast, full or full_with_bed.",
+          "enum": ["fast", "full", "full_with_bed"]
+        }
+      },
+      "fa_icon": "fas fa-align-justify"
     },
     "institutional_config_options": {
       "title": "Institutional config options",
@@ -300,6 +554,10 @@
           "description": "Validation of parameters in lenient more.",
           "hidden": true,
           "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
+        },
+        "chromosomes": {
+          "type": "string",
+          "default": "chrX,X,chrY,Y,chrM,MT"
         }
       }
     }
@@ -309,7 +567,19 @@
       "$ref": "#/$defs/input_output_options"
     },
     {
+      "$ref": "#/$defs/workflow_options"
+    },
+    {
       "$ref": "#/$defs/reference_genome_options"
+    },
+    {
+      "$ref": "#/$defs/snvs_annotation_options"
+    },
+    {
+      "$ref": "#/$defs/svs_options"
+    },
+    {
+      "$ref": "#/$defs/mosdepth_options"
     },
     {
       "$ref": "#/$defs/institutional_config_options"
@@ -320,125 +590,5 @@
     {
       "$ref": "#/$defs/generic_options"
     }
-  ],
-  "properties": {
-    "known_snps": {
-      "type": "string",
-      "pattern": "^\\S+\\.vcf\\.gz$",
-      "format": "file-path",
-      "mimetype": "text/plain",
-      "description": "Path to VCF with DB of known variants.",
-      "help_text": "VCF containing DB of known variants."
-    },
-    "intervals": {
-      "type": "string",
-      "description": "Capture intervals.",
-      "help_text": "Bed file with the genomic regions included in the library",
-      "pattern": "^\\S+\\.bed$",
-      "format": "file-path",
-      "mimetype": "pext/plain"
-    },
-    "capture_type": {
-      "type": "string",
-      "enum": ["wgs", "wes"],
-      "help_text": "This parameter takes values in {'wgs','wes','pacbio','ont_r104','hybrid_pacbio_illumina'}",
-      "description": "Model type for DeepVariant.",
-      "default": "wes"
-    },
-    "known_snps_tbi": {
-      "type": "string",
-      "pattern": "^\\S+\\.vcf\\.gz\\.tbi$",
-      "format": "file-path",
-      "mimetype": "text/plain",
-      "description": "Path to TBI with DB of known variants.",
-      "help_text": "TBI for VCF containing DB of known variants."
-    },
-    "glowgenes_panel": {
-      "type": "string",
-      "description": "GLOWgenes gene ranking file.",
-      "help_text": "It can be a local file or a precomputed file from the GLOWgenes github. Diseases available at in https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv",
-      "format": "file-path"
-    },
-    "glowgenes_sgds": {
-      "type": "string",
-      "description": "GLOWgenes Score of Gene-Disease Associations (SGDs) file.",
-      "help_text": "Available at https://github.com/TBLabFJD/GLOWgenes/blob/master/precomputed_panelAPP/GLOWgenes_precomputed_panelAPP.tsv. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity).",
-      "format": "file-path"
-    },
-    "vep_cache_version": {
-      "type": "integer",
-      "description": "Version of the cache to annotate with.",
-      "default": 113
-    },
-    "refseq_cache": {
-      "type": "boolean",
-      "description": "Boolean value to indicate whether you want to use the RefSeq cache.",
-      "default": true
-    },
-    "species": {
-      "type": "string",
-      "description": "Species to annotate with.",
-      "default": "homo_sapiens"
-    },
-    "maf": {
-      "type": "number",
-      "description": "Minor Allele Frequency (MAF) threshold to filter variants.",
-      "default": 0.01
-    },
-    "run_deepvariant": {
-      "type": "boolean",
-      "description": "Launch DeepVariant on this run.",
-      "help_text": "Boolean value: {'true','false'}. Default is false.",
-      "default": true
-    },
-    "run_gatk": {
-      "type": "boolean",
-      "description": "Launch GATK on thin run.",
-      "help_text": "Boolean value: {'true','false'}. Default is false.",
-      "default": true
-    },
-    "assembly": {
-      "type": "string",
-      "description": "Human genome version.",
-      "help_text": "Human genome assembly, must be one of {'hg19','hg38'}.",
-      "enum": ["GRCh37", "GRCh38"],
-      "default": "GRCh38"
-    },
-    "run_dragen": {
-      "type": "boolean",
-      "description": "Launch DRAGEN on this run.",
-      "help_text": "Boolean value: {'true','false'}. Default is false.",
-      "default": true
-    },
-    "custom_extra_files": {
-      "type": "string",
-      "format": "path"
-    },
-    "extra_files": {
-      "type": "string",
-      "format": "path"
-    },
-    "plugins_dir": {
-      "type": "string",
-      "format": "directory-path",
-      "description": "VEP plugins directory"
-    },
-    "vep_cache_path": {
-      "type": "string",
-      "format": "path",
-      "description": "VEP cache path",
-      "help_text": "If not indicated, will download it automatically."
-    },
-    "outdir_cache": {
-      "type": "string",
-      "description": "Directory where to save the VEP cache downloaded with ENSEMBLVEP_DOWNLOAD.",
-      "format": "directory-path"
-    }
-  },
-  "required": [
-    "vep_cache_version",
-    "species",
-    "maf",
-    "assembly"
   ]
 }
