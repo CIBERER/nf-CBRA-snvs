@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "filter_maf"
+description: Filter VEP-annotated variants by Minor Allele Frequency (MAF) using gnomAD or MAX_AF fields
+keywords:
+  - variants
+  - filtering
+  - MAF
+  - VEP
+  - gnomAD
+  - allele frequency
+tools:
+  - htslib:
+      description: C library for high-throughput sequencing data formats (provides bgzip)
+      homepage: https://www.htslib.org/
+      documentation: https://www.htslib.org/doc/
+      licence: ["MIT"]
+  - awk:
+      description: Pattern scanning and processing language
+      homepage: https://www.gnu.org/software/gawk/
+      licence: ["GPL-3.0-or-later"]
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - input_tsv:
+        type: file
+        description: Gzipped TSV file with VEP annotations (e.g. from Ensembl VEP with --tab output)
+        pattern: "*.tab.gz"
+  - - maf_threshold:
+        type: float
+        description: |
+          Minor Allele Frequency threshold. Variants with population frequency
+          below this value (or missing/NA) are retained.
+        example: 0.1
+
+output:
+  - filtered:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.filtered.tab.gz":
+          type: file
+          description: Bgzipped TSV with variants passing the MAF filter
+          pattern: "*.filtered.tab.gz"
+  - versions:
+      - "versions.yml":
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@yolandabq"
+maintainers:
+  - "@yolandabq"
