@@ -78,40 +78,30 @@ panels_path = opt$panel_annotation_file
 
 print("Read VEP file")
 
-#### Find the line number of the line starting with "#Uploaded_variation"
-lines <- readLines(input)
-start_line <- grep("^#Uploaded_variation", lines)
+#### Find the line number where the header starts, using shell grep
+start_line <- as.integer(
+  system(paste0("zgrep -n -m1 '^#Uploaded_variation' ", shQuote(input), " | cut -d: -f1"),
+         intern = TRUE)
+)
 
-#### Read the file starting from the detected line
-if (length(start_line) > 0) {
-  vep <- read.delim(input, skip = start_line - 1, header = TRUE, stringsAsFactors = F, quote = "", check.names=F, colClasses = "character")
-} else {
+if (length(start_line) == 0 || is.na(start_line)) {
   stop("The line starting with '#Uploaded_variation' was not found.")
 }
 
+# Fichero temporal en el mismo directorio de trabajo (con espacio garantizado),
+# en vez de depender de /tmp
+tmp_file <- file.path(dirname(input), "vep_body_tmp.tsv")
+system(paste0("zcat ", shQuote(input), " | tail -n +", start_line, " > ", shQuote(tmp_file)))
 
-###############
-## Filtering ##
-###############
+vep <- fread(tmp_file, header = TRUE, sep = "\t",
+             colClasses = "character", quote = "",
+             data.table = TRUE, na.strings = c("", "NA", "-"))
 
+file.remove(tmp_file)
 
-#### Filtering variants by MAF
-
-print("Number of variants before filtering by MAF")
-print(nrow(vep))
-
-#vep <- vep[is.na(vep$MAX_AF) | (!is.na(vep$MAX_AF) & vep$MAX_AF < as.numeric(maf)), ]
-
-vep$gnomADe_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADe_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
-vep$gnomADg_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADg_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
-
-vep = vep[is.na(vep$gnomADe_AF_grpmax) | as.numeric(vep$gnomADe_AF_grpmax) < as.numeric(maf) | vep$gnomADe_filt != "PASS",]
-print(nrow(vep))
-vep = vep[is.na(vep$gnomADg_AF_grpmax) | as.numeric(vep$gnomADg_AF_grpmax) < as.numeric(maf) | vep$gnomADg_filt != "PASS",]
-print(nrow(vep))
-
-print("Number of variants after filtering by MAF")
-print(nrow(vep))
+if ("Uploaded_variation" %in% colnames(vep) && !("#Uploaded_variation" %in% colnames(vep))) {
+  setnames(vep, "Uploaded_variation", "#Uploaded_variation")
+}
 
 ## Filtering variants by gene panel if included without GLOWgenes ranking
 
@@ -202,7 +192,7 @@ columns_to_remove <- grep("^SAMPLE", colnames(vep))
 columns_to_remove <- c(columns_to_remove, which(colnames(vep) %in% c("#Uploaded_variation","USED_REF", "Allele")))
 
 # Subset the dataframe
-vep_cleaned_columns <- colnames(vep[, -columns_to_remove])
+vep_cleaned_columns <- vep[, !columns_to_remove, with = FALSE]
 
 # View the cleaned dataframe
 print((vep_cleaned_columns))
@@ -234,7 +224,7 @@ df_out$Panels_name = vep$panels
 # Add all the columns #
 #=====================#
 
-#df_out <- cbind(df_out,vep[vep_cleaned_columns])
+#df_out <- cbind(df_out, vep_cleaned_columns)
 
 #=====================#
 # Feature information #
