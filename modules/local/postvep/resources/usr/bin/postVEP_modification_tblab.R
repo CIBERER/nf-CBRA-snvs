@@ -479,6 +479,11 @@ for (j in c("SpliceAI_SNV_SpliceAI", "SpliceAI_INDEL_SpliceAI")) {
   }
 }
 
+## YBQ: añadido nuevo porque ahora me falla el paso siguiente si hay NA en vez de "-" en SpliceAI_INDEL_SpliceAI o SpliceAI_SNV_SpliceAI
+print("Replace NA with '-' in SpliceAI columns")
+vep$SpliceAI_INDEL_SpliceAI[is.na(vep$SpliceAI_INDEL_SpliceAI)] <- "-"
+vep$SpliceAI_SNV_SpliceAI[is.na(vep$SpliceAI_SNV_SpliceAI)] <- "-"
+
 # Merge SNV predictions into INDEL predictions when INDEL annotation is absent
 vep$SpliceAI_INDEL_SpliceAI[
   vep$SpliceAI_INDEL_SpliceAI == "-"
@@ -486,6 +491,7 @@ vep$SpliceAI_INDEL_SpliceAI[
   vep$SpliceAI_SNV_SpliceAI[
     vep$SpliceAI_INDEL_SpliceAI == "-"
   ]
+
 
 split_spliceai <- function(x) {
 
