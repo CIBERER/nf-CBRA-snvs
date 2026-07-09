@@ -48,6 +48,7 @@ workflow DRAGEN_VCF {
         ch_fai,
         ch_refdict
     )
+    ch_versions = ch_versions.mix(GATK4_VARIANTFILTRATION.out.versions.first())
 
     BCFTOOLS_FILTER(
         GATK4_VARIANTFILTRATION.out.vcf.join(GATK4_VARIANTFILTRATION.out.tbi)
