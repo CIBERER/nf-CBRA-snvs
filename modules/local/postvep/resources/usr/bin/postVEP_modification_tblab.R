@@ -78,40 +78,30 @@ panels_path = opt$panel_annotation_file
 
 print("Read VEP file")
 
-#### Find the line number of the line starting with "#Uploaded_variation"
-lines <- readLines(input)
-start_line <- grep("^#Uploaded_variation", lines)
+#### Find the line number where the header starts, using shell grep
+start_line <- as.integer(
+  system(paste0("zgrep -n -m1 '^#Uploaded_variation' ", shQuote(input), " | cut -d: -f1"),
+         intern = TRUE)
+)
 
-#### Read the file starting from the detected line
-if (length(start_line) > 0) {
-  vep <- read.delim(input, skip = start_line - 1, header = TRUE, stringsAsFactors = F, quote = "", check.names=F, colClasses = "character")
-} else {
+if (length(start_line) == 0 || is.na(start_line)) {
   stop("The line starting with '#Uploaded_variation' was not found.")
 }
 
+# Fichero temporal en el mismo directorio de trabajo (con espacio garantizado),
+# en vez de depender de /tmp
+tmp_file <- file.path(dirname(input), "vep_body_tmp.tsv")
+system(paste0("zcat ", shQuote(input), " | tail -n +", start_line, " > ", shQuote(tmp_file)))
 
-###############
-## Filtering ##
-###############
+vep <- fread(tmp_file, header = TRUE, sep = "\t",
+             colClasses = "character", quote = "",
+             data.table = TRUE, na.strings = c("", "NA", "-"))
 
+file.remove(tmp_file)
 
-#### Filtering variants by MAF
-
-print("Number of variants before filtering by MAF")
-print(nrow(vep))
-
-#vep <- vep[is.na(vep$MAX_AF) | (!is.na(vep$MAX_AF) & vep$MAX_AF < as.numeric(maf)), ]
-
-vep$gnomADe_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADe_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
-vep$gnomADg_AF_grpmax = as.numeric(unlist(lapply(vep$gnomADg_AF_grpmax, function(x) strsplit(x, ",")[[1]][1])))
-
-vep = vep[is.na(vep$gnomADe_AF_grpmax) | as.numeric(vep$gnomADe_AF_grpmax) < as.numeric(maf) | vep$gnomADe_filt != "PASS",]
-print(nrow(vep))
-vep = vep[is.na(vep$gnomADg_AF_grpmax) | as.numeric(vep$gnomADg_AF_grpmax) < as.numeric(maf) | vep$gnomADg_filt != "PASS",]
-print(nrow(vep))
-
-print("Number of variants after filtering by MAF")
-print(nrow(vep))
+if ("Uploaded_variation" %in% colnames(vep) && !("#Uploaded_variation" %in% colnames(vep))) {
+  setnames(vep, "Uploaded_variation", "#Uploaded_variation")
+}
 
 ## Filtering variants by gene panel if included without GLOWgenes ranking
 
@@ -202,7 +192,7 @@ columns_to_remove <- grep("^SAMPLE", colnames(vep))
 columns_to_remove <- c(columns_to_remove, which(colnames(vep) %in% c("#Uploaded_variation","USED_REF", "Allele")))
 
 # Subset the dataframe
-vep_cleaned_columns <- colnames(vep[, -columns_to_remove])
+vep_cleaned_columns <- vep[, !columns_to_remove, with = FALSE]
 
 # View the cleaned dataframe
 print((vep_cleaned_columns))
@@ -234,7 +224,7 @@ df_out$Panels_name = vep$panels
 # Add all the columns #
 #=====================#
 
-#df_out <- cbind(df_out,vep[vep_cleaned_columns])
+#df_out <- cbind(df_out, vep_cleaned_columns)
 
 #=====================#
 # Feature information #
@@ -431,81 +421,140 @@ df_out$Benign_pred = apply(df_pathogenic_predictors, 1, function(x) paste(names(
 
 print("Splicing predictors")
 
-# Select one splice prediction per row
-for (j in c("SpliceAI_SNV_SpliceAI", "SpliceAI_INDEL_SpliceAI")){
-  multi_gene_sites = grep(",", vep[,j])
-  
-  for (i in multi_gene_sites){
-    splice_predictions = do.call("rbind",
-                                 strsplit(strsplit(vep[i,j], ",")[[1]], "|", fixed = TRUE))
-    
-    if (vep$SYMBOL[i] %in% splice_predictions[,2]) {
-      vep[i,j] = paste(
-        splice_predictions[splice_predictions[,2] == vep$SYMBOL[i], , drop = FALSE][1,],
+# Select one SpliceAI prediction per row
+for (j in c("SpliceAI_SNV_SpliceAI", "SpliceAI_INDEL_SpliceAI")) {
+
+  multi_gene_sites <- which(
+    !is.na(vep[[j]]) &
+      vep[[j]] != "-" &
+      grepl(",", vep[[j]], fixed = TRUE)
+  )
+
+  for (i in multi_gene_sites) {
+
+    splice_predictions <- do.call(
+      rbind,
+      strsplit(
+        strsplit(vep[[j]][i], ",", fixed = TRUE)[[1]],
+        "|",
+        fixed = TRUE
+      )
+    )
+
+    # Skip malformed annotations
+    if (ncol(splice_predictions) < 10)
+      next
+
+    # If one prediction matches the annotated SYMBOL, keep it
+    if (!is.na(vep$SYMBOL[i]) &&
+        vep$SYMBOL[i] %in% splice_predictions[, 2]) {
+
+      vep[[j]][i] <- paste(
+        splice_predictions[
+          splice_predictions[, 2] == vep$SYMBOL[i],
+          ,
+          drop = FALSE
+        ][1, ],
         collapse = "|"
       )
+
     } else {
-      max_value_row = which(
-        splice_predictions[,3:6] == max(splice_predictions[,3:6]),
-        arr.ind = TRUE
-      )[1,1]
-      
-      vep[i,j] = paste(splice_predictions[max_value_row,], collapse = "|")
+
+      # Otherwise keep the transcript with the highest DS score
+      scores <- apply(
+        splice_predictions[, 3:6, drop = FALSE],
+        2,
+        as.numeric
+      )
+
+      max_value_row <- which.max(
+        apply(scores, 1, max, na.rm = TRUE)
+      )
+
+      vep[[j]][i] <- paste(
+        splice_predictions[max_value_row, ],
+        collapse = "|"
+      )
     }
   }
 }
 
-# Merge SpliceAI predictions for INDELs and SNVs 
-vep$SpliceAI_INDEL_SpliceAI[vep$SpliceAI_INDEL_SpliceAI == "-"] =
-  vep$SpliceAI_SNV_SpliceAI[vep$SpliceAI_INDEL_SpliceAI == "-"]
+## YBQ: añadido nuevo porque ahora me falla el paso siguiente si hay NA en vez de "-" en SpliceAI_INDEL_SpliceAI o SpliceAI_SNV_SpliceAI
+print("Replace NA with '-' in SpliceAI columns")
+vep$SpliceAI_INDEL_SpliceAI[is.na(vep$SpliceAI_INDEL_SpliceAI)] <- "-"
+vep$SpliceAI_SNV_SpliceAI[is.na(vep$SpliceAI_SNV_SpliceAI)] <- "-"
 
-# ----------- FIX CLAVE AQUÍ -----------
+# Merge SNV predictions into INDEL predictions when INDEL annotation is absent
+vep$SpliceAI_INDEL_SpliceAI[
+  vep$SpliceAI_INDEL_SpliceAI == "-"
+] <-
+  vep$SpliceAI_SNV_SpliceAI[
+    vep$SpliceAI_INDEL_SpliceAI == "-"
+  ]
+
 
 split_spliceai <- function(x) {
-  if (is.na(x) || x == "-") {
-    return(rep(NA, 10))
-  }
+
+  if (is.na(x) || x == "-")
+    return(rep(NA_character_, 10))
+
   parts <- strsplit(x, "|", fixed = TRUE)[[1]]
   length(parts) <- 10
-  return(parts)
+
+  parts
 }
 
-SpliceAI = data.frame(
-  do.call("rbind", lapply(vep$SpliceAI_INDEL_SpliceAI, split_spliceai)),
+SpliceAI <- data.frame(
+  do.call(
+    rbind,
+    lapply(vep$SpliceAI_INDEL_SpliceAI, split_spliceai)
+  ),
   stringsAsFactors = FALSE
 )
 
-colnames(SpliceAI) = c(
-  "ALLELE", "SYMBOL", "DS_AG", "DS_AL", "DS_DG", "DS_DL",
-  "DP_AG", "DP_AL", "DP_DG", "DP_DL"
+colnames(SpliceAI) <- c(
+  "ALLELE",
+  "SYMBOL",
+  "DS_AG",
+  "DS_AL",
+  "DS_DG",
+  "DS_DL",
+  "DP_AG",
+  "DP_AL",
+  "DP_DG",
+  "DP_DL"
 )
 
-# -------------------------------------
+df_out$SpliceAI_SYMBOL <- SpliceAI$SYMBOL
 
-df_out$SpliceAI_SYMBOL = SpliceAI$SYMBOL
-df_out$SpliceAI_DS_AG = as.numeric(SpliceAI$DS_AG)
-df_out$SpliceAI_DS_AL = as.numeric(SpliceAI$DS_AL)
-df_out$SpliceAI_DS_DG = as.numeric(SpliceAI$DS_DG)
-df_out$SpliceAI_DS_DL = as.numeric(SpliceAI$DS_DL)
+df_out$SpliceAI_DS_AG <- as.numeric(SpliceAI$DS_AG)
+df_out$SpliceAI_DS_AL <- as.numeric(SpliceAI$DS_AL)
+df_out$SpliceAI_DS_DG <- as.numeric(SpliceAI$DS_DG)
+df_out$SpliceAI_DS_DL <- as.numeric(SpliceAI$DS_DL)
 
-df_out$SpliceAI_DS_Max = apply(
-  df_out[c("SpliceAI_DS_AG", "SpliceAI_DS_AL", "SpliceAI_DS_DG", "SpliceAI_DS_DL")],
+df_out$SpliceAI_DS_Max <- apply(
+  df_out[, c(
+    "SpliceAI_DS_AG",
+    "SpliceAI_DS_AL",
+    "SpliceAI_DS_DG",
+    "SpliceAI_DS_DL"
+  )],
   1,
   max,
   na.rm = TRUE
 )
 
-df_out$SpliceAI_DP_AG = as.numeric(SpliceAI$DP_AG)
-df_out$SpliceAI_DP_AL = as.numeric(SpliceAI$DP_AL)
-df_out$SpliceAI_DP_DG = as.numeric(SpliceAI$DP_DG)
-df_out$SpliceAI_DP_DL = as.numeric(SpliceAI$DP_DL)
+df_out$SpliceAI_DP_AG <- as.numeric(SpliceAI$DP_AG)
+df_out$SpliceAI_DP_AL <- as.numeric(SpliceAI$DP_AL)
+df_out$SpliceAI_DP_DG <- as.numeric(SpliceAI$DP_DG)
+df_out$SpliceAI_DP_DL <- as.numeric(SpliceAI$DP_DL)
 
-df_out$ada_score = as.numeric(vep$ada_score)
-df_out$rf_score = as.numeric(vep$rf_score)
-df_out$MaxEntScan_alt = as.numeric(vep$MaxEntScan_alt)
-df_out$MaxEntScan_diff = as.numeric(vep$MaxEntScan_diff)
-df_out$MaxEntScan_ref = as.numeric(vep$MaxEntScan_ref)
+df_out$ada_score <- as.numeric(vep$ada_score)
+df_out$rf_score <- as.numeric(vep$rf_score)
 
+df_out$MaxEntScan_alt <- as.numeric(vep$MaxEntScan_alt)
+df_out$MaxEntScan_diff <- as.numeric(vep$MaxEntScan_diff)
+df_out$MaxEntScan_ref <- as.numeric(vep$MaxEntScan_ref)
 
 
 #============================#
@@ -520,8 +569,6 @@ df_out$gnomAD_exomes_CCR = vep$gnomAD_exomes_CCR
 df_out$phastCons30way_mammalian = as.numeric(vep$phastCons470way_mammalian)
 df_out$phyloP30way_mammalian = as.numeric(vep$phyloP470way_mammalian)
 df_out$MGI_mouse_phenotype = vep$MGI_mouse_phenotype_filt
-
-
 
 
 

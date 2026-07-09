@@ -44,10 +44,5 @@ process POSTVEP {
     ${gene_filter} \\
     ${args}
 
-    
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        bcftools: \$(bcftools --version 2>&1 | head -n1 | sed 's/^.*bcftools //; s/ .*\$//')
-    END_VERSIONS
     """
 }
