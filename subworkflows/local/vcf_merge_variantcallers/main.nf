@@ -46,12 +46,12 @@ workflow VCF_MERGE_VARIANTCALLERS {
     BCFTOOLS_QUERY_STATS (
         BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
     )
-    ch_versions = ch_versions.mix(BCFTOOLS_QUERY_STATS.out.versions)
+    //ch_versions = ch_versions.mix(BCFTOOLS_QUERY_STATS.out.versions)
 
     CONSENSUS_GENOTYPE (
         BCFTOOLS_QUERY_STATS.out.gt
     )
-    ch_versions = ch_versions.mix(CONSENSUS_GENOTYPE.out.versions)
+    //ch_versions = ch_versions.mix(CONSENSUS_GENOTYPE.out.versions)
 
     GET_VCF_CALLERS_INFO (
         BCFTOOLS_QUERY_STATS.out.gt

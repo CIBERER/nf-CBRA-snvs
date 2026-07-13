@@ -41,7 +41,7 @@ workflow SNV_ANNOTATION {
     FORMAT2INFO (
          ch_vcf
     )
-    ch_versions = ch_versions.mix(FORMAT2INFO.out.versions.first())
+    //ch_versions = ch_versions.mix(FORMAT2INFO.out.versions.first())
 
     AUTOMAP (
         ch_vcf.map { meta, vcf, tbi -> [meta, vcf] },
