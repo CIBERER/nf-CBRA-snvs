@@ -27,8 +27,18 @@ WorkflowSnvs.initialise(params, log)
 
 ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty() 
 ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
-ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
-ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
+//ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
+ch_snps = params.known_snps ? 
+            Channel.fromPath(params.known_snps.split(',').collect { it.trim() }, checkIfExists: true)
+                .collect() : 
+            Channel.value([])
+ch_snps.view()
+//ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
+ch_snps_tbi = params.known_snps_tbi ? 
+            Channel.fromPath(params.known_snps_tbi.split(',').collect { it.trim() }, checkIfExists: true)
+                .collect() : 
+            Channel.value([])
+
 ch_variant_catalog = params.variant_catalog ? Channel.fromPath(params.variant_catalog, checkIfExists: true).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([])
 
 
@@ -557,6 +567,7 @@ workflow SNVS {
     //  SOFTWARE VERSIONS & MULTIQC
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    //ch_versions.view()
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
