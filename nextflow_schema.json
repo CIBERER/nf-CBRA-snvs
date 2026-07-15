@@ -177,7 +177,6 @@
         },
         "known_snps": {
           "type": "string",
-          "pattern": "^\\S+\\.vcf\\.gz$",
           "format": "file-path",
           "mimetype": "text/plain",
           "description": "Path to VCF with DB of known variants.",
@@ -185,7 +184,6 @@
         },
         "known_snps_tbi": {
           "type": "string",
-          "pattern": "^\\S+\\.vcf\\.gz\\.tbi$",
           "format": "file-path",
           "mimetype": "text/plain",
           "description": "Path to TBI with DB of known variants.",

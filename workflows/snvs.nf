@@ -27,8 +27,18 @@ WorkflowSnvs.initialise(params, log)
 
 ch_fasta   = params.fasta ? Channel.fromPath(params.fasta).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty() 
 ch_fai     = params.fai ? Channel.fromPath(params.fai).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.empty()
-ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
-ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
+//ch_snps    = params.known_snps ? Channel.fromPath(params.known_snps).collect() : Channel.value([])
+ch_snps = params.known_snps ? 
+            Channel.fromPath(params.known_snps.split(',').collect { it.trim() }, checkIfExists: true)
+                .collect() : 
+            Channel.value([])
+ch_snps.view()
+//ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
+ch_snps_tbi = params.known_snps_tbi ? 
+            Channel.fromPath(params.known_snps_tbi.split(',').collect { it.trim() }, checkIfExists: true)
+                .collect() : 
+            Channel.value([])
+
 ch_variant_catalog = params.variant_catalog ? Channel.fromPath(params.variant_catalog, checkIfExists: true).map{ it -> [ [id:it.baseName], it ] }.collect() : Channel.value([])
 
 
@@ -132,6 +142,7 @@ workflow SNVS {
         } else { 
             BWA_INDEX (ch_fasta)
             ch_index = BWA_INDEX.out.index
+            ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         }
     }
 
@@ -141,6 +152,7 @@ workflow SNVS {
         } else { 
             PICARD_CREATESEQUENCEDICTIONARY (ch_fasta)
             ch_refdict = PICARD_CREATESEQUENCEDICTIONARY.out.reference_dict
+            ch_versions = ch_versions.mix(PICARD_CREATESEQUENCEDICTIONARY.out.versions)
         }
     }
 
@@ -154,6 +166,7 @@ workflow SNVS {
                 ch_refdict.map {meta, dict -> [dict] }
             )
             ch_ref_str = GATK4_COMPOSESTRTABLEFILE.out.str_table
+            ch_versions = ch_versions.mix(GATK4_COMPOSESTRTABLEFILE.out.versions)
         }
     }
 
@@ -210,6 +223,8 @@ workflow SNVS {
             ch_snps_tbi
         )
 
+        ch_versions = ch_versions.mix(MAPPING.out.versions)
+
         } 
     
 
@@ -242,6 +257,7 @@ workflow SNVS {
                 ch_intervals_genomicsdbimport, 
                 ch_ped // ch_ped            
             )
+            ch_versions = ch_versions.mix(GATK_TRIO_VCF.out.versions)
 
             final_vcf_file = GATK_TRIO_VCF.out.vcf
 
@@ -257,6 +273,7 @@ workflow SNVS {
                 Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
                 Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
             )   
+            ch_versions = ch_versions.mix(GATK_VCF.out.versions)
             }
             
             if (params.run_deepvariant) {
@@ -268,6 +285,7 @@ workflow SNVS {
                 ch_gzi,
                 ch_par_bed
             )
+            ch_versions = ch_versions.mix(DEEP_VARIANT_VCF.out.versions)
             }
 
             if (params.run_dragen) {
@@ -281,6 +299,7 @@ workflow SNVS {
                 Channel.fromList([tuple([ id: 'dbsnp'],[])]).collect(),
                 Channel.fromList([tuple([ id: 'dbsnp_tbi'],[])]).collect()
             )
+            ch_versions = ch_versions.mix(DRAGEN_VCF.out.versions)
 
             }
 
@@ -312,7 +331,7 @@ workflow SNVS {
                 ch_intervals,
                 ch_assembly
             )
-
+            ch_versions = ch_versions.mix(VCF_MERGE_VARIANTCALLERS.out.versions)
             final_vcf_file = VCF_MERGE_VARIANTCALLERS.out.vcf
 
         } 
@@ -364,6 +383,7 @@ workflow SNVS {
             ENSEMBLVEP_DOWNLOAD (
                 ch_vep_download
                 )
+            ch_versions = ch_versions.mix(ENSEMBLVEP_DOWNLOAD.out.versions)
             ch_vep_cache_path = ENSEMBLVEP_DOWNLOAD.out.cache.map{ meta, cache -> [cache] }.collect()
         }
 
@@ -385,7 +405,7 @@ workflow SNVS {
             ch_gene_list,
             ch_extra_files_pvm
         )
-
+        ch_versions = ch_versions.mix(SNV_ANNOTATION.out.versions)
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -410,6 +430,7 @@ workflow SNVS {
             annotations = Channel.fromPath(params.annotsv_annotations).map{ it -> [ [id:it.baseName], it ] }.collect()
         } else {
             ANNOTSV_INSTALLANNOTATIONS()
+            ch_versions = ch_versions.mix(ANNOTSV_INSTALLANNOTATIONS.out.versions_annotsv)
             annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations.map{ it -> [ [id:it.baseName], it ] }.collect()
         }
 
@@ -475,6 +496,7 @@ workflow SNVS {
                 ch_false_positive_snv,
                 ch_gene_transcripts
             )
+            ch_versions = ch_versions.mix(SV_CALLING.out.versions)
         }
     }
 
@@ -496,6 +518,7 @@ workflow SNVS {
             ch_fai,
             ch_variant_catalog
         )
+        ch_versions = ch_versions.mix(EXPANSIONHUNTER.out.versions)
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -531,16 +554,20 @@ workflow SNVS {
             ch_mosdepth_input,
             ch_fasta
         )
+        ch_versions = ch_versions.mix(MOSDEPTH.out.versions_mosdepth)
 
         if (params.mosdepth_mode == 'fast') {
         DECOMPRESS_MOSDEPTH_QUANTIZED(MOSDEPTH.out.quantized_bed)
+        ch_versions = ch_versions.mix(DECOMPRESS_MOSDEPTH_QUANTIZED.out.versions)
         }
+
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //  SOFTWARE VERSIONS & MULTIQC
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    //ch_versions.view()
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )

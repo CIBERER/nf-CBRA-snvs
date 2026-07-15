@@ -111,6 +111,7 @@ workflow CNVS_CALLING {
         ch_false_positive_snv, 
         ch_gene_transcripts
     )
+    ch_versions = ch_versions.mix(ANNOTSV_ANNOTSV.out.versions_annotsv)
 
     POSTANNOTSV (
         ANNOTSV_ANNOTSV.out.tsv.join(CNVS_RESULT_MIXER.out.colnames.map {meta, colnames -> [[id:meta], colnames] }),

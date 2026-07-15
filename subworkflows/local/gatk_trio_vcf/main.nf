@@ -77,6 +77,7 @@ workflow GATK_TRIO_VCF {
     }
 
     GATK4_GENOMICSDBIMPORT(joint_gvcf_ch, false, false, false)
+    ch_versions = ch_versions.mix(GATK4_GENOMICSDBIMPORT.out.versions)
 
     if (no_intervals) {
         // If no intervals are provided, we can use the whole genome
@@ -95,8 +96,9 @@ workflow GATK_TRIO_VCF {
         ch_dbsnp,
         ch_dbsnp_tbi
     )
+    ch_versions = ch_versions.mix(GATK4_GENOTYPEGVCFS.out.versions)
     
-    GATK4_GENOTYPEGVCFS.out.vcf.join(GATK4_GENOTYPEGVCFS.out.tbi)
+    //GATK4_GENOTYPEGVCFS.out.vcf.join(GATK4_GENOTYPEGVCFS.out.tbi)
 
     if (no_intervals) {
         // If no intervals are provided, we can use the whole genome
@@ -184,6 +186,7 @@ workflow GATK_TRIO_VCF {
     GATK4_CALCULATEGENOTYPEPOSTERIORS(
         ch_input_genotypeposteriors
     )
+    ch_versions = ch_versions.mix(GATK4_CALCULATEGENOTYPEPOSTERIORS.out.versions.first())
 
 
     GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR (
@@ -192,7 +195,7 @@ workflow GATK_TRIO_VCF {
         ch_fai,
         ch_refdict,
     )
-
+    ch_versions = ch_versions.mix(GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR.out.versions.first())
     ch_family_vcf_post_ped  = GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR.out.vcf.join(GATK4_VARIANTFILTRATION_GENOTYPEPOSTERIOR.out.tbi)
             .map{metaIR, vcf, tbi -> [metaIR.subMap(["id"]), metaIR, vcf, tbi]}
             .join(ch_ped,failOnDuplicate: true)
@@ -211,7 +214,7 @@ workflow GATK_TRIO_VCF {
     GATK4_VARIANTANNOTATOR(
         ch_input_variantannotator
     )
-
+    ch_versions = ch_versions.mix(GATK4_VARIANTANNOTATOR.out.versions.first())
     ch_filter_proband_ped  = GATK4_VARIANTANNOTATOR.out.vcf.join(GATK4_VARIANTANNOTATOR.out.tbi)
         .map{metaIR, vcf, tbi -> [metaIR.subMap(["id"]), metaIR, vcf, tbi]}
         .join(ch_ped,failOnDuplicate: true)
@@ -220,7 +223,8 @@ workflow GATK_TRIO_VCF {
     FILTER_PROBAND_REF (
         ch_filter_proband_ped
     )
-    
+    ch_versions = ch_versions.mix(FILTER_PROBAND_REF.out.versions.first())
+
     SPLITMULTIALLELIC (
         FILTER_PROBAND_REF.out.vcf,
         ch_fasta,

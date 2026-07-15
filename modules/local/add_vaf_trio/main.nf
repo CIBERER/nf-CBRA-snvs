@@ -13,7 +13,6 @@ process ADD_VAF_TRIO {
     output:
 
     tuple val(meta), path("*.final.vcf.gz"), path("*.final.vcf.gz.tbi"), emit: vcf
-    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -58,10 +57,5 @@ process ADD_VAF_TRIO {
     bgzip -c ${prefix}.final.vcf > ${prefix}.final.vcf.gz
     bcftools index -t ${prefix}.final.vcf.gz
 
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        bcftools: \$(bcftools --version 2>&1 | head -n1 | sed 's/^.*bcftools //; s/ .*\$//')
-    END_VERSIONS
     """
 }

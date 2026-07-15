@@ -36,18 +36,22 @@ workflow VCF_MERGE_VARIANTCALLERS {
         ch_fai,
         ch_intervals
     )
+    ch_versions = ch_versions.mix(BCFTOOLS_MERGE.out.versions)
 
     TABIX_TABIX(
         BCFTOOLS_MERGE.out.vcf
     )
+    ch_versions = ch_versions.mix(TABIX_TABIX.out.versions)
 
     BCFTOOLS_QUERY_STATS (
         BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi)
     )
+    //ch_versions = ch_versions.mix(BCFTOOLS_QUERY_STATS.out.versions)
 
     CONSENSUS_GENOTYPE (
         BCFTOOLS_QUERY_STATS.out.gt
     )
+    //ch_versions = ch_versions.mix(CONSENSUS_GENOTYPE.out.versions)
 
     GET_VCF_CALLERS_INFO (
         BCFTOOLS_QUERY_STATS.out.gt
@@ -59,10 +63,12 @@ workflow VCF_MERGE_VARIANTCALLERS {
         BCFTOOLS_MERGE.out.vcf.join(TABIX_TABIX.out.tbi).join(ch_stats),
         ch_assembly
     )
+    ch_versions = ch_versions.mix(CREATE_SAMPLE_INFO.out.versions)
 
     TABIX_TABIX_FINAL_VCF (
         CREATE_SAMPLE_INFO.out.final_vcf
     )
+    ch_versions = ch_versions.mix(TABIX_TABIX_FINAL_VCF.out.versions)
 
     vcf = CREATE_SAMPLE_INFO.out.final_vcf.join(TABIX_TABIX_FINAL_VCF.out.tbi)
 

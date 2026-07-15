@@ -59,5 +59,6 @@ process FORMAT2INFO {
     "${task.process}":
         bcftools: \$(bcftools --version 2>&1 | head -n1 | sed 's/^.*bcftools //; s/ .*\$//')
     END_VERSIONS
+    
     """
 }
