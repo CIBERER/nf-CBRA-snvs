@@ -236,7 +236,6 @@ workflow GATK_TRIO_VCF {
     ADD_VAF_TRIO (
         SPLITMULTIALLELIC.out.biallelic_renamed_vcf
     )
-    ch_versions = ch_versions.mix(ADD_VAF_TRIO.out.versions.first())
 
     vcf = ADD_VAF_TRIO.out.vcf
 
