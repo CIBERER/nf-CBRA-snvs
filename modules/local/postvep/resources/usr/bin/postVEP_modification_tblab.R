@@ -154,6 +154,12 @@ if (!is.null(SGDS_path)) {
   
 }
 
+# Gene-Panel 
+if (!is.null(panels_path)){
+  gene_panel = read.delim(panels_path, header = TRUE, stringsAsFactors = F, quote = "")
+  vep = merge(vep, gene_panel, by.x = "SYMBOL", by.y = "gene", all.x = T)
+}
+
 #### OMIM
 if (!is.null(omim_path)){
   print("Include OMIM")
@@ -245,7 +251,6 @@ df_out$HGVSp = vep$HGVSp
 df_out$DISTANCE = as.numeric(vep$DISTANCE)
 df_out$STRAND = vep$STRAND
 df_out$Interpro_domain = vep$Interpro_domain
-df_out$Interpro_domain = vep$Interpro_domain
 df_out$Domino_Score = vep$Domino_Score
 
 
@@ -299,8 +304,8 @@ df_out$gnomADe_AC_popmax = as.numeric(unlist(lapply(vep$gnomADe_AC_grpmax, funct
 df_out$gnomADe_AF_nfe = as.numeric(unlist(lapply(vep$gnomADe_AF_nfe, function(x) strsplit(x, ",")[[1]][1])))
 df_out$gnomADe_AC_nfe = as.numeric(unlist(lapply(vep$gnomADe_AC_nfe, function(x) strsplit(x, ",")[[1]][1])))
 
-df_out$kaviar_AF = vep$kaviar_AF
-df_out$kaviar_AC = vep$kaviar_AC
+df_out$kaviar_AF = vep$Kaviar_AF
+df_out$kaviar_AC = vep$Kaviar_AC
 df_out$CSVS_AF = as.numeric(unlist(lapply(vep$CSVS_AF, function(x) strsplit(x, ",")[[1]][1])))
 df_out$CSVS_AC = as.numeric(unlist(lapply(vep$CSVS_AC, function(x) strsplit(x, ",")[[1]][1])))
 df_out$FJD_MAF_AF = as.numeric(unlist(lapply(vep$FJD_MAF_AF, function(x) strsplit(x, ",")[[1]][1])))
