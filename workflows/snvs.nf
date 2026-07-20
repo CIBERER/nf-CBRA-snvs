@@ -430,7 +430,7 @@ workflow SNVS {
             annotations = Channel.fromPath(params.annotsv_annotations).map{ it -> [ [id:it.baseName], it ] }.collect()
         } else {
             ANNOTSV_INSTALLANNOTATIONS()
-            ch_versions = ch_versions.mix(ANNOTSV_INSTALLANNOTATIONS.out.versions_annotsv)
+            ch_versions = ch_versions.mix(ANNOTSV_INSTALLANNOTATIONS.out.versions)
             annotations = ANNOTSV_INSTALLANNOTATIONS.out.annotations.map{ it -> [ [id:it.baseName], it ] }.collect()
         }
 

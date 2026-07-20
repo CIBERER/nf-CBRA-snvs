@@ -22,7 +22,8 @@ process MANTA_GERMLINE {
     tuple val(meta), path("*candidate_sv.vcf.gz.tbi")                           , emit: candidate_sv_vcf_tbi
     tuple val(meta), path("*diploid_sv.vcf.gz")                                 , emit: diploid_sv_vcf
     tuple val(meta), path("*diploid_sv.vcf.gz.tbi")                             , emit: diploid_sv_vcf_tbi
-    tuple val("${task.process}"), val("manta"), eval("configManta.py --version"), topic: versions, emit: versions_manta
+    path "versions.yml"                                        , emit: versions
+    //tuple val("${task.process}"), val("manta"), eval("configManta.py --version"), topic: versions, emit: versions_manta
 
     when:
     task.ext.when == null || task.ext.when
@@ -56,6 +57,11 @@ process MANTA_GERMLINE {
         ${prefix}.diploid_sv.vcf.gz
     mv manta/results/variants/diploidSV.vcf.gz.tbi \\
         ${prefix}.diploid_sv.vcf.gz.tbi
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        manta: \$( configManta.py --version )
+    END_VERSIONS
     """
 
     stub:

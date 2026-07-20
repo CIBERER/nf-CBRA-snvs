@@ -63,7 +63,7 @@ workflow SV_CALLING {
         ch_fai,
         ch_manta_config
     )
-    ch_versions = ch_versions.mix(MANTA_GERMLINE.out.versions_manta.first())
+    ch_versions = ch_versions.mix(MANTA_GERMLINE.out.versions.first())
 
     //
     // Prepare AnnotSV input from Manta diploid SV output
@@ -85,7 +85,7 @@ workflow SV_CALLING {
         ch_false_positive_snv,
         ch_gene_transcripts
     )
-    ch_versions = ch_versions.mix(ANNOTSV_ANNOTSV.out.versions_annotsv.first())
+    ch_versions = ch_versions.mix(ANNOTSV_ANNOTSV.out.versions.first())
 
     emit:
     annotated_tsv     = ANNOTSV_ANNOTSV.out.tsv             // channel: [ val(meta), path(tsv) ]
