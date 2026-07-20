@@ -116,7 +116,7 @@ Within SNVs variant calling (`--variant_calling true`), there are three variant 
 
 For SVs calling (`--svs true`), there are two subworkflows available, depending on the sequencing type (`--ngs_type`): 
   1. If `--ngs_type wes`, there are three programs available (ExomeDepth, panelcn.MOPS, CoNVaDING). They can be included in the analysis independently with `exomedepth = true`, `panelcmops = true` and `convading = true`. The results from the software used will be merged into a single file, which will be annotated using AnnotSV. It is required to include a BED file containing the sequenced region in the WES (`--intervals`).
-  2. If `--ngs_type wgs`, Manta will be run and the result will be annotated using AnnotSV. 
+  2. If `--ngs_type wgs`, Manta will be run and the result will be annotated using AnnotSV. Manta will analyse each sample separately by default. For joint analysis of small sets of individuals set `manta_joint = true`. More information [here](https://github.com/Illumina/manta/blob/master/docs/userGuide/README.md).
 
 ### Updating the pipeline
 

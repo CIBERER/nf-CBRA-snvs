@@ -22,8 +22,39 @@ workflow SV_CALLING {
     //
     // Manta expects: [ meta, bam, bai, target_bed, target_bed_tbi ]
     // For WGS there is no target BED, so pass empty files
+
+    if (params.manta_joint) {
+        log.info "Running Manta in joint calling mode"
+            // Define the run name
+        if (params.runname) { runname = params.runname }
+        else { runname = new Date().format("yyyy-MM-dd_HH-mm") }
+        println "Run name: $runname"
+
+        bam_file_list = ch_bam
+        .map{ meta, bam, bai -> bam }
+        .collect()
+        .map { files -> 
+        def meta = runname
+        [[id:meta], files.sort { it.name }] }
+                
+        
+        bai_file_list = ch_bam
+        .map{ meta, bam, bai -> bai }
+        .collect().map { files -> 
+        def meta = runname
+        [[id:meta], files.sort { it.name }] }
+
+
+        ch_manta_input = bam_file_list.join(bai_file_list)
+        .map { meta, bam, bai ->
+        [ meta, bam, bai, [], [] ]
+        }.view()
+
+    } else {
+
     ch_manta_input = ch_bam.map { meta, bam, bai ->
         [ meta, bam, bai, [], [] ]
+        }
     }
 
     MANTA_GERMLINE (
@@ -32,7 +63,7 @@ workflow SV_CALLING {
         ch_fai,
         ch_manta_config
     )
-    ch_versions = ch_versions.mix(MANTA_GERMLINE.out.versions_manta.first())
+    ch_versions = ch_versions.mix(MANTA_GERMLINE.out.versions.first())
 
     //
     // Prepare AnnotSV input from Manta diploid SV output
@@ -54,7 +85,7 @@ workflow SV_CALLING {
         ch_false_positive_snv,
         ch_gene_transcripts
     )
-    ch_versions = ch_versions.mix(ANNOTSV_ANNOTSV.out.versions_annotsv.first())
+    ch_versions = ch_versions.mix(ANNOTSV_ANNOTSV.out.versions.first())
 
     emit:
     annotated_tsv     = ANNOTSV_ANNOTSV.out.tsv             // channel: [ val(meta), path(tsv) ]

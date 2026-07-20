@@ -21,8 +21,9 @@ process ANNOTSV_ANNOTSV {
     tuple val(meta), path("${prefix}.tsv")            , emit: tsv
     tuple val(meta), path("${prefix}.unannotated.tsv"), emit: unannotated_tsv, optional: true
     tuple val(meta), path("*.vcf")            , emit: vcf            , optional: true
-    tuple val("${task.process}"), val('annotsv'), eval("AnnotSV --version | sed 's/AnnotSV //'"), emit: versions_annotsv, topic: versions
-
+    //tuple val("${task.process}"), val('annotsv'), eval("AnnotSV --version | sed 's/AnnotSV //'"), emit: versions_annotsv, topic: versions
+    path "versions.yml"                       , emit: versions
+    
     when:
     task.ext.when == null || task.ext.when
 
@@ -47,6 +48,12 @@ process ANNOTSV_ANNOTSV {
         ${args}
 
     mv *_AnnotSV/* .
+
+ 
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        annotsv: \$(echo \$(AnnotSV -help 2>&1 | head -n1 | sed 's/^AnnotSV //'))
+    END_VERSIONS   
     """
 
     stub:
