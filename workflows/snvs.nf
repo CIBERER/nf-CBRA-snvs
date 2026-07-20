@@ -497,6 +497,7 @@ workflow SNVS {
                 ch_gene_transcripts
             )
             ch_versions = ch_versions.mix(SV_CALLING.out.versions)
+            //ch_versions.view()
         }
     }
 
