@@ -1,0 +1,33 @@
+Changes in component 'nf-core/manta/germline'
+'modules/nf-core/manta/germline/environment.yml' is unchanged
+Changes in 'manta/germline/main.nf':
+--- modules/nf-core/manta/germline/main.nf
++++ modules/nf-core/manta/germline/main.nf
+@@ -22,7 +22,8 @@
+     tuple val(meta), path("*candidate_sv.vcf.gz.tbi")                           , emit: candidate_sv_vcf_tbi
+     tuple val(meta), path("*diploid_sv.vcf.gz")                                 , emit: diploid_sv_vcf
+     tuple val(meta), path("*diploid_sv.vcf.gz.tbi")                             , emit: diploid_sv_vcf_tbi
+-    tuple val("${task.process}"), val("manta"), eval("configManta.py --version"), topic: versions, emit: versions_manta
++    path "versions.yml"                                        , emit: versions
++    //tuple val("${task.process}"), val("manta"), eval("configManta.py --version"), topic: versions, emit: versions_manta
+ 
+     when:
+     task.ext.when == null || task.ext.when
+@@ -56,6 +57,11 @@
+         ${prefix}.diploid_sv.vcf.gz
+     mv manta/results/variants/diploidSV.vcf.gz.tbi \\
+         ${prefix}.diploid_sv.vcf.gz.tbi
++
++    cat <<-END_VERSIONS > versions.yml
++    "${task.process}":
++        manta: \$( configManta.py --version )
++    END_VERSIONS
+     """
+ 
+     stub:
+
+'modules/nf-core/manta/germline/meta.yml' is unchanged
+'modules/nf-core/manta/germline/tests/main.nf.test' is unchanged
+'modules/nf-core/manta/germline/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/manta/germline/tests/nextflow.config' is unchanged
+************************************************************
