@@ -58,7 +58,7 @@ The pipeline can perform the following steps:
   *note*: If a list of genes is added using `--gene_list` and GLOWgenes is enabled, the genes in the list will be assigned position 0 (regardless of whether the GLOWgenes ranking was added using `--glowgenes_ranking` or was generated from the gene list). 
   - Additionally, you can include the Gene-Disease Specificity Score (SGDS) using: `--sgds`. This score ranges from 0 to 1, where 1 indicates a gene ranks highly for only a few specific diseases (high specificity), and 0 indicates the gene consistently ranks highly across many diseases (low specificity). 
 
-- **Structural variants (SVs) analysis (`--svs = true and --ngs_type = wgs`):** For WGS, Manta germline is used for calling structural variants (SVs) from mapped paired-end sequencing reads. It also includes the following step:
+- **Structural variants (SVs) analysis (`--svs = true and --ngs_type = wgs`):** For WGS, [Manta germline](https://github.com/Illumina/manta) is used for calling structural variants (SVs) from mapped paired-end sequencing reads. Manta will analyse each sample separately by default. For joint analysis of small sets of individuals set `manta_joint = true`. It also includes the following step:
   - **SVs Annotation**: [AnnotSV](https://lbgi.fr/AnnotSV/) is used to annotate the merged results. AnnotSV needs the annotations files. They can be downloaded using `annotsv_install_annotations = true`. The path to the notes folder can be specified using `--annotsv_annotations folder_path`. If `--annotsv_annotations` is not specified, the annotations files will be downloadad directly.
 
 - **Copy number variants (CNVs) calling** (`--svs = true and --ngs_type = wes`), with the following steps for WES:
