@@ -58,13 +58,13 @@ input:
       description: |
         VCF file containing known sites (optional)
         Structure: [ val(meta4), [ path(vcf) ] ]
-       pattern: "*.vcf.gz"
+      pattern: "*.vcf.gz"
   - ch_known_sites_tbi:
       type: file
       description: |
         VCF index of dbsnp (optional)
         Structure: [ val(meta4), [ path(tbi) ] ]
-       pattern: "*.vcf.gz.tbi"
+      pattern: "*.vcf.gz.tbi"
       
 output:
   - bam:
