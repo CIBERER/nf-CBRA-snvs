@@ -48,7 +48,7 @@ workflow SV_CALLING {
         ch_manta_input = bam_file_list.join(bai_file_list)
         .map { meta, bam, bai ->
         [ meta, bam, bai, [], [] ]
-        }.view()
+        }
 
     } else {
 

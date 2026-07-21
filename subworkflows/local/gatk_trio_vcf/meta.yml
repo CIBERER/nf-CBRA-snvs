@@ -57,26 +57,26 @@ input:
       description: |
         VCF file containing known sites (optional)
         Structure: [ val(meta3),  path(vcf)  ]
-       pattern: "*.vcf.gz"
+      pattern: "*.vcf.gz"
   - ch_dbsnp_tbi:
       type: file
       description: |
         VCF index of dbsnp (optional)
         Structure: [ val(meta3),  path(tbi)  ]
-       pattern: "*.vcf.gz.tbi"
+      pattern: "*.vcf.gz.tbi"
   - ch_intervals_genomicsdbimport:
       type: file
       description: |
         Interval list for GenomicsDBImport
         Structure: [ path(interval_list)  ]
-       pattern: "*.interval_list"
+      pattern: "*.interval_list"
       
   - ch_ped:
       type: file
       description: |
         Ped file
         Structure: [ val(meta3),  path(ped)  ]
-       pattern: "*.ped"
+      pattern: "*.ped"
 
 
 output:

@@ -17,12 +17,12 @@ workflow INPUT_CHECK {
         .map { create_ped_channel(it) }
         .set { ped }
 
-    Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))//.view()
-        .map { create_bam_channel(it) }//.view()
+    Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))
+        .map { create_bam_channel(it) }
         .set { bams }
 
-    Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))//.view()
-        .map { create_vcf_channel(it) }//.view()
+    Channel.fromList(samplesheetToList(samplesheet, "assets/schema_input.json"))
+        .map { create_vcf_channel(it) }
         .set { vcfs }
 
     emit:

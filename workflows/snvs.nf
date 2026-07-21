@@ -32,7 +32,6 @@ ch_snps = params.known_snps ?
             Channel.fromPath(params.known_snps.split(',').collect { it.trim() }, checkIfExists: true)
                 .collect() : 
             Channel.value([])
-ch_snps.view()
 //ch_snps_tbi = params.known_snps_tbi ? Channel.fromPath(params.known_snps_tbi).collect() : Channel.empty()
 ch_snps_tbi = params.known_snps_tbi ? 
             Channel.fromPath(params.known_snps_tbi.split(',').collect { it.trim() }, checkIfExists: true)
@@ -497,7 +496,6 @@ workflow SNVS {
                 ch_gene_transcripts
             )
             ch_versions = ch_versions.mix(SV_CALLING.out.versions)
-            //ch_versions.view()
         }
     }
 
@@ -568,7 +566,6 @@ workflow SNVS {
     //  SOFTWARE VERSIONS & MULTIQC
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    //ch_versions.view()
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )

@@ -6,8 +6,6 @@ include { CONSENSUS_GENOTYPE } from '../../../modules/local/consensus_genotype/m
 include { GET_VCF_CALLERS_INFO } from '../../../modules/local/get_vcf_callers_info/main'
 include { CREATE_SAMPLE_INFO } from '../../../modules/local/create_sample_info/main'
 
-
-
 workflow VCF_MERGE_VARIANTCALLERS {
 
     take:

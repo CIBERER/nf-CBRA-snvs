@@ -1,6 +1,6 @@
 process POSTVEP {
     tag "${meta.id}"
-    label 'process_single'
+    label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'docker://docker.io/yolandabq/post_vep:v1' :
