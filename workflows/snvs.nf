@@ -482,9 +482,9 @@ workflow SNVS {
         } else if (params.ngs_type == 'wgs') {
 
             ch_manta_config = params.manta_config
-                ? Channel.fromPath(params.manta_config, checkIfExists: true)
+                ? Channel.fromPath(params.manta_config, checkIfExists: true).collect()
                 : Channel.empty()
-
+		
             SV_CALLING (
                 ch_bam_svs,
                 ch_fasta,
